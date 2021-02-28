@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+		<title>Document</title>
+		<link rel="stylesheet" href="../src/index.css" />
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			body {
+				-webkit-font-smoothing: antialiased;
+			}
+			img {
+				width: 30%;
+				cursor: -moz-zoom-in;
+				cursor: -webkit-zoom-in;
+			}
+			.image-container {
+				cursor: -moz-zoom-out;
+				cursor: -webkit-zoom-out;
+				cursor: zoom-out;
+			}
+			.image-container img {
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./808-600x600.jpg" alt="" />
+			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+		</div>
+		<script src="./js/img-previewer.min.js"></script>
+		<script>
+			const a = new ImgPreviewer('body', {
+                ratio: 0.8,
+				scrollbar: true
+			})
+			console.log(a)
+			// function add() {
+			// 	let img = document.createElement('img')
+			// 	img.src = 'https://picsum.photos/seed/picsum/1000/500'
+			// 	img.onload = function () {
+			// 		console.log(123)
+			// 		document.getElementById('app').appendChild(img)
+			// 		a.updateImage()
+			// 	}
+			// }
+			// document.getElementById('add').onclick = add
+			// 缩放
+			// try {
+			// 	// 禁用双击缩放
+			// 	document.addEventListener('touchstart', function (event) {
+			// 		if (event.touches.length > 1) {
+			// 			event.preventDefault()
+			// 		}
+			// 	})
+			// 	var lastTouchEnd = 0
+			// 	document.addEventListener(
+			// 		'touchend',
+			// 		function (event) {
+			// 			var now = new Date().getTime()
+			// 			if (now - lastTouchEnd <= 300) {
+			// 				event.preventDefault()
+			// 			}
+			// 			lastTouchEnd = now
+			// 		},
+			// 		false
+			// 	)
+			// 	// 禁用双指手势操作
+			// 	document.addEventListener('gesturestart', function (event) {
+			// 		event.preventDefault()
+			// 	})
+			// } catch (error) {}
+		</script>
+	</body>
+</html>
