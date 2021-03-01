@@ -35,3 +35,15 @@ const a = new ImgPreviewer('body')
 | min  | 最小缩放比例           | 0.1(10%) |
 | max  | 最大缩放比例           | 5(500%)  |
 | step | 滚轮每次滚动变化的比例 | 0.1      |
+
+# 更新图片
+
+一些动态更新图片列表使用
+
+```js
+const a = new ImgPreviewer('body', {
+	scrollbar: true
+})
+//
+a.update()
+```
