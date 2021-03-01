@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-02-28T15:23:36.802Z
+ * Date: 2021-03-01T09:19:13.932Z
  */
 
 (function (global, factory) {
@@ -93,6 +93,16 @@
     running();
   }
 
+  function isElementInViewport(el) {
+    var viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    var offsetTop = el.offsetTop;
+    var offsetHeight = el.offsetHeight;
+    var scrollTop = document.documentElement.scrollTop;
+    var top = offsetTop - scrollTop;
+    return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100;
+  } // 获取元素位置
+
+
   function getElementRect(el) {
     return el.getBoundingClientRect();
   } // 计算放大倍数
@@ -157,49 +167,67 @@
       }
 
       this.init();
-    } // 绑定事件
+    } // update image list
 
 
     _createClass(ImagePreviewer, [{
-      key: "bindEvent",
-      value: function bindEvent() {
+      key: "update",
+      value: function update() {
         var _this = this;
 
-        var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent);
-        var touchstart = mobile ? 'touchstart' : 'mousedown';
-        var touchend = mobile ? 'touchend' : 'mouseup';
-        var touchmove = mobile ? 'touchmove' : 'mousemove'; // TODO: 每张图片绑定点击时间
-
+        this.imageElements = document.querySelectorAll("".concat(this.selector, " img:not(#preview-image)"));
         this.imageElements.forEach(function (item, index) {
-          item.addEventListener('click', function (e) {
-            // taggleModel(true)
+          item.onclick = null;
+
+          item.onclick = function (e) {
             _this.handleOpen(e, index);
 
             taggleModel(true);
 
             _this.updateIndex(index);
-          });
+          };
+        });
+      } // 绑定事件
+
+    }, {
+      key: "bindEvent",
+      value: function bindEvent() {
+        var _this2 = this;
+
+        var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent);
+        var touchstart = mobile ? 'touchstart' : 'mousedown';
+        var touchend = mobile ? 'touchend' : 'mouseup';
+        var touchmove = mobile ? 'touchmove' : 'mousemove'; // TODO: 每张图片绑定点击事件
+
+        this.imageElements.forEach(function (item, index) {
+          item.onclick = function (e) {
+            _this2.handleOpen(e, index);
+
+            taggleModel(true);
+
+            _this2.updateIndex(index);
+          };
         }); // 点击关闭
 
         document.getElementById('close').addEventListener('click', function () {
-          _this.handleClose();
+          _this2.handleClose();
         }); // 重置样式
 
         document.getElementById('reset').addEventListener('click', function () {
-          _this.handleReset();
+          _this2.handleReset();
         }); // 上一张
 
         document.getElementById('prev').addEventListener('click', function () {
-          _this.prev();
+          _this2.prev();
         }); // 下一张
 
         document.getElementById('next').addEventListener('click', function () {
-          _this.next();
+          _this2.next();
         }); // 蒙版点击关闭
 
         previewContainer.addEventListener('click', function (e) {
           if (e.target.classList[0] === 'image-container') {
-            _this.handleClose();
+            _this2.handleClose();
           }
         }); // 拖动图片
 
@@ -227,10 +255,10 @@
         }); // 缩放图片
 
         imageEl.addEventListener('mousewheel', function (e) {
-          var _this$config$zoom = _this.config.zoom,
-              min = _this$config$zoom.min,
-              max = _this$config$zoom.max,
-              step = _this$config$zoom.step;
+          var _this2$config$zoom = _this2.config.zoom,
+              min = _this2$config$zoom.min,
+              max = _this2$config$zoom.max,
+              step = _this2$config$zoom.step;
 
           if (e.wheelDelta > 0 && currentImageScale < max) {
             currentImageScale += step;
@@ -242,10 +270,10 @@
         }, true); // 旋转图片
 
         document.getElementById('rotate-right').addEventListener('click', function () {
-          _this.handelRotateRight();
+          _this2.handelRotateRight();
         });
         document.getElementById('rotate-left').addEventListener('click', function () {
-          _this.handelRotateLeft();
+          _this2.handelRotateLeft();
         }); // 阻止默认事件
 
         previewContainer.addEventListener('mousewheel', preventDefault);
@@ -253,16 +281,12 @@
         document.ondragend = preventDefault; // 窗口大小改变
 
         window.onresize = debounce.bind(null, function () {
-          _this.handleClose();
+          _this2.handleClose();
 
           windowWidth = window.innerWidth;
           windowHeight = window.innerHeight;
         }, 100)();
-      } // 更新图片列表
-
-    }, {
-      key: "update",
-      value: function update() {} // 重置
+      } // 重置
 
     }, {
       key: "handleReset",
@@ -305,27 +329,48 @@
       value: // 关闭预览
       function handleClose() {
         var opacity = this.config.opacity;
-        runAnimation(previewContainer, {
-          start: opacity,
-          end: 0,
-          step: -0.02,
-          style: 'background',
-          template: 'rgba(0, 0, 0, $)'
-        }, function () {
-          imageEl.style = '';
-          imageEl.src = '';
-          previewContainer.style.background = "";
-          previewContainer.classList.remove('hiding');
-          taggleModel(false);
-        });
+        var current = this.imageElements[this.index]; // console.log(isElementInViewport)
 
-        var _getElementRect = getElementRect(this.imageElements[this.index]),
-            top = _getElementRect.top,
-            left = _getElementRect.left,
-            width = _getElementRect.width,
-            height = _getElementRect.height;
+        if (isElementInViewport(current)) {
+          runAnimation(previewContainer, {
+            start: opacity,
+            end: 0,
+            step: -0.02,
+            style: 'background',
+            template: 'rgba(0, 0, 0, $)'
+          }, function () {
+            imageEl.style = '';
+            imageEl.src = '';
+            previewContainer.style.background = "";
+            previewContainer.classList.remove('hiding');
+            taggleModel(false);
+          });
 
-        imageEl.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position: fixed; top: ").concat(top, "px; left: ").concat(left, "px;");
+          var _getElementRect = getElementRect(current),
+              top = _getElementRect.top,
+              left = _getElementRect.left,
+              width = _getElementRect.width,
+              height = _getElementRect.height;
+
+          imageEl.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position: fixed; top: ").concat(top, "px; left: ").concat(left, "px;");
+        } else {
+          imageEl.style.display = 'none'; // image
+
+          runAnimation(previewContainer, {
+            start: opacity,
+            end: 0,
+            step: -0.05,
+            style: 'background',
+            template: 'rgba(0, 0, 0, $)'
+          }, function () {
+            imageEl.src = '';
+            imageEl.style = '';
+            previewContainer.style = "";
+            previewContainer.classList.remove('hiding');
+            taggleModel(false);
+          });
+        }
+
         previewContainer.classList.remove('show');
         previewContainer.classList.add('hiding');
         !this.config.scrollbar && taggleScrollBar(true);
@@ -400,7 +445,7 @@
     }, {
       key: "render",
       value: function render() {
-        var template = "<div class=\"preview-header\">\n                        <div class=\"nums\">\n                            <button id=\"prev\" data-tooltip=\"\u4E0A\u4E00\u5F20\"><i class=\"iconfont icon-shangyige\"></i></button>\n                            <p>\n                                <span id=\"current-index\"></span>\n                                /\n                                <span id=\"total-nums\"></span>\n                            </p>\n                            <button id=\"next\" data-tooltip=\"\u4E0B\u4E00\u5F20\"><i class=\"iconfont icon-xiayige\"></i></button>\n                        </div>\n                        <div class=\"tool-btn\">\n                            <button id=\"rotate-left\" data-tooltip=\"\u5411\u53F3\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan\"></i></button>\n                            <button id=\"rotate-right\" data-tooltip=\"\u5411\u5DE6\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan1\"></i></button>\n                            <button id=\"reset\" data-tooltip=\"\u91CD\u7F6E\"><i class=\"iconfont icon-zhongzhi\"></i></button>\n                            <button id=\"close\" data-tooltip=\"\u5173\u95ED\"><i class=\"iconfont icon-account-practice-lesson-close\"></i></button>\n                        </div>\n                    </div>\n                    <div class=\"image-container\">\n                        <div class=\"img-content\" id=\"image-content\"><img id=\"preview-image\" src=\"\" alt=\"\" /></div>\n                    </div>";
+        var template = "<div class=\"preview-header\">\n                        <div class=\"nums\">\n                            <button id=\"prev\" data-tooltip=\"\u4E0A\u4E00\u5F20\"><i class=\"iconfont icon-shangyige\"></i></button>\n                            <p>\n                                <span id=\"current-index\"></span>\n                                &nbsp;/&nbsp;\n                                <span id=\"total-nums\"></span>\n                            </p>\n                            <button id=\"next\" data-tooltip=\"\u4E0B\u4E00\u5F20\"><i class=\"iconfont icon-xiayige\"></i></button>\n                        </div>\n                        <div class=\"tool-btn\">\n                            <button id=\"rotate-left\" data-tooltip=\"\u5411\u53F3\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan\"></i></button>\n                            <button id=\"rotate-right\" data-tooltip=\"\u5411\u5DE6\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan1\"></i></button>\n                            <button id=\"reset\" data-tooltip=\"\u91CD\u7F6E\"><i class=\"iconfont icon-zhongzhi\"></i></button>\n                            <button id=\"close\" data-tooltip=\"\u5173\u95ED\"><i class=\"iconfont icon-account-practice-lesson-close\"></i></button>\n                        </div>\n                    </div>\n                    <div class=\"image-container\">\n                        <div class=\"img-content\" id=\"image-content\"><img id=\"preview-image\" src=\"\" alt=\"\" /></div>\n                    </div>";
         var el = document.getElementById('image-preview-container');
 
         if (!el) {
@@ -432,6 +477,7 @@
         this.render();
         this.updateIndex(this.index);
         this.bindEvent(this.imageElements);
+        this.options.onInited && this.options.onInited();
       }
     }], [{
       key: "setImageAnimationParams",

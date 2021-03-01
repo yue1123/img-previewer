@@ -35,7 +35,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0 45px 0 20px;
+	padding: 0 2vw 0 1vw;
 	position: relative;
 	z-index: 90;
 	animation: opacityAnimation 0.5s forwards;
@@ -65,7 +65,7 @@
 	position: relative;
 }
 .image-preview-container .preview-header .tool-btn button {
-	margin-left: 40px;
+	margin-left: 2vw;
 }
 .image-preview-container .preview-header button:hover::after,
 .image-preview-container .preview-header button:hover::before {
@@ -178,4 +178,11 @@
 
 .icon-xuanzhuan1:before {
 	content: '\e669';
+}
+
+@media screen and (max-width: 768px) {
+	.preview-header .nums p,
+	.preview-header .iconfont {
+		font-size: 12px !important;
+	}
 }

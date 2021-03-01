@@ -1,7 +1,14 @@
 import { debounce, preventDefault } from './js/utils.js'
 import runAnimation from './js/runAnimation.js'
 // 获取元素是否出现在可视区域
-function isElementInView(el) {}
+function isElementInViewport(el) {
+	const viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+	const offsetTop = el.offsetTop
+	const offsetHeight = el.offsetHeight
+	const scrollTop = document.documentElement.scrollTop
+	const top = offsetTop - scrollTop
+	return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100
+}
 // 获取元素位置
 function getElementRect(el) {
 	return el.getBoundingClientRect()
@@ -22,7 +29,6 @@ function taggleModel(flag) {
 function taggleScrollBar(flag) {
 	_BODY.style.overflow = flag ? 'auto' : 'hidden'
 }
-
 let _BODY, windowHeight, windowWidth
 let previewContainer = null
 let imageEl = null
@@ -55,20 +61,31 @@ class ImagePreviewer {
 		}
 		this.init()
 	}
+	// update image list
+	update() {
+		this.imageElements = document.querySelectorAll(`${this.selector} img:not(#preview-image)`)
+		this.imageElements.forEach((item, index) => {
+			item.onclick = null
+			item.onclick = (e) => {
+				this.handleOpen(e, index)
+				taggleModel(true)
+				this.updateIndex(index)
+			}
+		})
+	}
 	// 绑定事件
 	bindEvent() {
 		let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
 		let touchstart = mobile ? 'touchstart' : 'mousedown'
 		let touchend = mobile ? 'touchend' : 'mouseup'
 		let touchmove = mobile ? 'touchmove' : 'mousemove'
-		// TODO: 每张图片绑定点击时间
+		// TODO: 每张图片绑定点击事件
 		this.imageElements.forEach((item, index) => {
-			item.addEventListener('click', (e) => {
-				// taggleModel(true)
+			item.onclick = (e) => {
 				this.handleOpen(e, index)
 				taggleModel(true)
 				this.updateIndex(index)
-			})
+			}
 		})
 		// 点击关闭
 		document.getElementById('close').addEventListener('click', () => {
@@ -148,8 +165,6 @@ class ImagePreviewer {
 			100
 		)()
 	}
-	// 更新图片列表
-	update() {}
 	// 重置
 	handleReset() {
 		imageEl.style.top = `${historyInfo.startY}px`
@@ -190,25 +205,51 @@ class ImagePreviewer {
 	// 关闭预览
 	handleClose() {
 		let { opacity } = this.config
-		runAnimation(
-			previewContainer,
-			{
-				start: opacity,
-				end: 0,
-				step: -0.02,
-				style: 'background',
-				template: 'rgba(0, 0, 0, $)'
-			},
-			() => {
-				imageEl.style = ''
-				imageEl.src = ''
-				previewContainer.style.background = ``
-				previewContainer.classList.remove('hiding')
-				taggleModel(false)
-			}
-		)
-		const { top, left, width, height } = getElementRect(this.imageElements[this.index])
-		imageEl.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
+		let current = this.imageElements[this.index]
+
+		// console.log(isElementInViewport)
+		if (isElementInViewport(current)) {
+			runAnimation(
+				previewContainer,
+				{
+					start: opacity,
+					end: 0,
+					step: -0.02,
+					style: 'background',
+					template: 'rgba(0, 0, 0, $)'
+				},
+				() => {
+					imageEl.style = ''
+					imageEl.src = ''
+					previewContainer.style.background = ``
+					previewContainer.classList.remove('hiding')
+					taggleModel(false)
+				}
+			)
+			const { top, left, width, height } = getElementRect(current)
+			imageEl.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
+		} else {
+			imageEl.style.display = 'none'
+			// image
+			runAnimation(
+				previewContainer,
+				{
+					start: opacity,
+					end: 0,
+					step: -0.05,
+					style: 'background',
+					template: 'rgba(0, 0, 0, $)'
+				},
+				() => {
+					imageEl.src = ''
+					imageEl.style = ''
+					previewContainer.style = ``
+					previewContainer.classList.remove('hiding')
+					taggleModel(false)
+				}
+			)
+		}
+
 		previewContainer.classList.remove('show')
 		previewContainer.classList.add('hiding')
 		!this.config.scrollbar && taggleScrollBar(true)
@@ -272,7 +313,7 @@ class ImagePreviewer {
                             <button id="prev" data-tooltip="上一张"><i class="iconfont icon-shangyige"></i></button>
                             <p>
                                 <span id="current-index"></span>
-                                /
+                                &nbsp;/&nbsp;
                                 <span id="total-nums"></span>
                             </p>
                             <button id="next" data-tooltip="下一张"><i class="iconfont icon-xiayige"></i></button>
@@ -311,6 +352,7 @@ class ImagePreviewer {
 		this.render()
 		this.updateIndex(this.index)
 		this.bindEvent(this.imageElements)
+		this.options.onInited && this.options.onInited()
 	}
 }
 export default ImagePreviewer

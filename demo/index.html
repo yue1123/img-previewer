@@ -9,86 +9,54 @@
 		<title>Document</title>
 		<link rel="stylesheet" href="../src/index.css" />
 		<style>
-			* {
-				padding: 0;
-				margin: 0;
-			}
 			body {
-				-webkit-font-smoothing: antialiased;
+				margin: 0;
+				padding: 10px;
 			}
-			img {
-				width: 30%;
-				cursor: -moz-zoom-in;
-				cursor: -webkit-zoom-in;
+			#app {
+				-webkit-column-count: 4;
+				-moz-column-count: 4;
+				column-count: 4;
+				-webkit-column-gap: 15px;
+				-moz-column-gap: 15px;
+				column-gap: 15px;
 			}
-			.image-container {
-				cursor: -moz-zoom-out;
-				cursor: -webkit-zoom-out;
-				cursor: zoom-out;
-			}
-			.image-container img {
-				cursor: pointer;
+			#app img {
+				width: 100%;
 			}
 		</style>
 	</head>
 	<body>
+		<h1>simple demo</h1>
+		<h3>update images</h3>
+		<button id="add">添加一张</button>
+		<br />
 		<div id="app">
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./808-600x600.jpg" alt="" />
-			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
-			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
-			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
-			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
-			<img src="./photo-1544198365-f5d60b6d8190.jfif" alt="" />
+			<img src="./img/pexels-photo-1172064.jpeg" alt="" />
+			<img src="./img/pexels-photo-1658967.jpeg" alt="" />
+			<img src="./img/pexels-photo-210307.jpeg" alt="" />
+			<img src="./img/pexels-photo-347145.jpeg" alt="" />
+			<img src="./img/pexels-photo-358238.jpeg" alt="" />
+			<img src="./img/pexels-photo-53893.jpeg" alt="" />
+			<img src="./img/pexels-photo-620337.jpeg" alt="" />
+			<img src="./img/pexels-photo-994605.jpeg" alt="" />
+			<img src="./img/pexels-photo-1006121.jpeg" alt="" />
 		</div>
+
 		<script src="./js/img-previewer.min.js"></script>
 		<script>
 			const a = new ImgPreviewer('body', {
-                ratio: 0.8,
 				scrollbar: true
 			})
-			console.log(a)
-			// function add() {
-			// 	let img = document.createElement('img')
-			// 	img.src = 'https://picsum.photos/seed/picsum/1000/500'
-			// 	img.onload = function () {
-			// 		console.log(123)
-			// 		document.getElementById('app').appendChild(img)
-			// 		a.updateImage()
-			// 	}
-			// }
-			// document.getElementById('add').onclick = add
-			// 缩放
-			// try {
-			// 	// 禁用双击缩放
-			// 	document.addEventListener('touchstart', function (event) {
-			// 		if (event.touches.length > 1) {
-			// 			event.preventDefault()
-			// 		}
-			// 	})
-			// 	var lastTouchEnd = 0
-			// 	document.addEventListener(
-			// 		'touchend',
-			// 		function (event) {
-			// 			var now = new Date().getTime()
-			// 			if (now - lastTouchEnd <= 300) {
-			// 				event.preventDefault()
-			// 			}
-			// 			lastTouchEnd = now
-			// 		},
-			// 		false
-			// 	)
-			// 	// 禁用双指手势操作
-			// 	document.addEventListener('gesturestart', function (event) {
-			// 		event.preventDefault()
-			// 	})
-			// } catch (error) {}
+			function add() {
+				let img = document.createElement('img')
+				img.src = `https://picsum.photos/500/500?random=${Math.random()}`
+				img.onload = function () {
+					document.getElementById('app').appendChild(img)
+					a.update()
+				}
+			}
+			document.getElementById('add').onclick = add
 		</script>
 	</body>
 </html>
