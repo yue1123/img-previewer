@@ -44,6 +44,6 @@ const a = new ImgPreviewer('body')
 const a = new ImgPreviewer('body', {
 	scrollbar: true
 })
-//
+// 图片渲染到页面后调用
 a.update()
 ```
