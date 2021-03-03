@@ -1,8 +1,8 @@
 # img-previewer
 
-小巧易用的 javascript 图片预览插件,开箱即用,无需多余的配置
+小巧且易用的 javascript 图片预览插件,开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面html代码结构
 
-功能:
+提供了常用的功能:
 
 1. 鼠标滚轮缩放图片
 2. 图标拖动图片
@@ -44,6 +44,6 @@ const a = new ImgPreviewer('body')
 const a = new ImgPreviewer('body', {
 	scrollbar: true
 })
-//
+// 图片渲染到页面后调用
 a.update()
 ```
