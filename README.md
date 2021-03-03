@@ -38,10 +38,8 @@ yarn add img-previewer
 </div>
 ```
 
-```html
-<script>
-	const a = new ImgPreviewer('#app')
-</script>
+```js
+const a = new ImgPreviewer('#app')
 ```
 
 # options
