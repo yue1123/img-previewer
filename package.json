@@ -1,6 +1,6 @@
 {
 	"name": "img-previewer",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A light wight javascript image viewing plugin with smooth animation",
 	"main": "dist/img-previewer.js",
 	"browser": "dist/img-previewer.min.js",
@@ -14,7 +14,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/yue1123/img-previewer.git"
+		"url": "git@github.com:yue1123/img-previewer.git"
 	},
 	"keywords": [
 		"image",
@@ -36,9 +36,7 @@
 		"create-banner": "^2.0.0",
 		"rollup": "^2.40.0",
 		"rollup-plugin-babel": "^4.4.0",
-		"rollup-plugin-commonjs": "^10.1.0",
 		"rollup-plugin-node-resolve": "^5.2.0",
-		"rollup-plugin-terser": "^7.0.2",
-		"rollup-plugin-uglify": "^6.0.4"
+		"rollup-plugin-terser": "^7.0.2"
 	}
 }
