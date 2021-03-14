@@ -18,9 +18,7 @@
 **npm**
 
 ```bash
-npm i img-previewer -S
-/
-yarn add img-previewer
+npm i img-previewer
 ```
 
 或者 **CDN**
@@ -64,9 +62,7 @@ const a = new ImgPreviewer('#app')
 一些动态更新图片列表使用
 
 ```js
-const a = new ImgPreviewer('body', {
-	scrollbar: true
-})
+const a = new ImgPreviewer('body')
 // 图片渲染到页面后调用
 a.update()
 ```
