@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v1.0.0
+ * ImgPreviewer v1.0.1
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-03-01T09:19:13.932Z
+ * Date: 2021-03-22T06:37:28.587Z
  */
 
 (function (global, factory) {
@@ -150,11 +150,12 @@
 
       _classCallCheck(this, ImagePreviewer);
 
+      this.index = 0;
       this.selector = selector;
       this.options = options;
-      this.config = Object.assign({}, _DEFAULT, options);
-      this.index = 0;
       this.imageElements = [];
+      options.zoom = Object.assign({}, _DEFAULT.zoom, options.zoom || {});
+      this.config = Object.assign({}, _DEFAULT, options);
 
       if (selector && typeof selector === 'string') {
         var el = document.querySelector(selector);

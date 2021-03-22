@@ -1,6 +1,6 @@
 # img-previewer
 
-小巧且易用的 javascript 图片预览插件,开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面 html 代码结构
+轻巧且强大的 javascript 图片预览插件,开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面 html 代码结构
 
 提供了常用的功能:
 
@@ -18,28 +18,32 @@
 **npm**
 
 ```bash
-npm i img-previewer -S
-/
-yarn add img-previewer
+npm i img-previewer
 ```
 
 或者 **CDN**
 `https://cdn.jsdelivr.net/npm/img-previewer@1.0.1/dist/img-previewer.min.js`
 
-# 使用
+# 在 vue / react 中使用
 
-假如你页面中有这样一段 html 结构,无需做任何改变,图片就可以拥有的展开预览并且附带平滑的动画
+<!-- 假如你页面中有这样一段 html 结构,无需做任何改变,图片就可以拥有的展开预览并且附带平滑的动画 -->
 
-```html
+<!-- ```html
 <div id="app">
 	<img src="./img/pexels-photo-1172064.jpeg" alt="" />
 	<img src="./img/pexels-photo-1658967.jpeg" alt="" />
 	<img src="./img/pexels-photo-210307.jpeg" alt="" />
 </div>
 ```
+ -->
 
 ```js
-const a = new ImgPreviewer('#app')
+//js
+import ImgPreviewer from 'img-previewer'
+//css
+import 'img-previewer/dist/index.css'
+
+const imgpreviewer = new ImgPreviewer(id,{options...})
 ```
 
 # options

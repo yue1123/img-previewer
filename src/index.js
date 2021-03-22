@@ -1,5 +1,6 @@
 import { debounce, preventDefault } from './js/utils.js'
 import runAnimation from './js/runAnimation.js'
+import './index.css'
 // 获取元素是否出现在可视区域
 function isElementInViewport(el) {
 	const viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
@@ -46,11 +47,12 @@ let _DEFAULT = {
 }
 class ImagePreviewer {
 	constructor(selector, options = {}) {
+		this.index = 0
 		this.selector = selector
 		this.options = options
-		this.config = Object.assign({}, _DEFAULT, options)
-		this.index = 0
 		this.imageElements = []
+		options.zoom = Object.assign({}, _DEFAULT.zoom, options.zoom || {})
+		this.config = Object.assign({}, _DEFAULT, options)
 		if (selector && typeof selector === 'string') {
 			let el = document.querySelector(selector)
 			if (!el) {

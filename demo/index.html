@@ -24,12 +24,18 @@
 			#app img {
 				width: 100%;
 			}
+            #add{
+                margin-bottom:10px;
+            }
 		</style>
 	</head>
 	<body>
-		<h1>simple demo</h1>
-		<a href="https://github.com/yue1123/img-previewer">gitHub</a>
-		<h3>update images</h3>
+
+        <h1># img-previewer simple demo</h1>
+        <p>小巧且易用的 javascript 图片预览插件,开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面 html 代码结构</p>
+		<a href="https://github.com/yue1123/img-previewer">gitHub API文档</a>
+        <h3># update images</h3>
+        <p>支持动态的更新图片列表</p>
 		<button id="add">添加一张</button>
 		<br />
 		<div id="app">
@@ -47,8 +53,12 @@
 		<script src="./js/img-previewer.min.js"></script>
 		<script>
 			const a = new ImgPreviewer('body', {
-				scrollbar: true
-			})
+				scrollbar: true,
+				zoom: {
+					step: 0.4
+				}
+            })
+            console.log(a);
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random=${Math.random()}`

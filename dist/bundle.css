@@ -1,0 +1,188 @@
+.image-preview-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.6);
+	transition: all 0.3s;
+	display: none;
+	color: #fff;
+	will-change: transform;
+	user-select: none;
+}
+.image-preview-container.show {
+	animation: show 0.5s forwards;
+	-webkit-animation: show 0.5s forwards;
+}
+.image-preview-container.hiding .preview-header {
+	animation: opacityAnimation 0.5s forwards reverse;
+}
+.image-preview-container img {
+	transition: all 0.5s;
+	transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale), var(--scale))
+		rotate(var(--rotate));
+}
+.image-preview-container .image-container {
+	width: 100% !important;
+	height: 100% !important;
+	overflow: hidden;
+}
+.image-preview-container .preview-header {
+	height: 60px;
+	background: rgba(0, 0, 0, 0.2);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 2vw 0 1vw;
+	position: relative;
+	z-index: 90;
+	animation: opacityAnimation 0.5s forwards;
+}
+.image-preview-container .preview-header .nums {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+.image-preview-container .preview-header .nums p {
+	font-weight: 300;
+	padding: 4px 8px;
+	font-size: 16px;
+}
+.image-preview-container .preview-header button {
+	background: none;
+	border: none;
+	outline: none;
+	font-size: 18px;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-o-border-radius: 4px;
+	position: relative;
+}
+.image-preview-container .preview-header .tool-btn button {
+	margin-left: 2vw;
+}
+.image-preview-container .preview-header button:hover::after,
+.image-preview-container .preview-header button:hover::before {
+	display: block;
+}
+.image-preview-container .preview-header button::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: calc(130% - 5px);
+	transform: translateX(-50%);
+	border-right: 5px solid transparent;
+	border-left: 5px solid transparent;
+	border-bottom: 5px solid #000;
+	display: none;
+}
+.image-preview-container .preview-header button::after {
+	content: attr(data-tooltip);
+	font-size: 12px;
+	position: absolute;
+	left: 50%;
+	top: 130%;
+	transform: translateX(-50%);
+	background: #000;
+	padding: 2px 5px;
+	white-space: nowrap;
+	-webkit-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	-o-transform: translateX(-50%);
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	-ms-border-radius: 2px;
+	-o-border-radius: 2px;
+	display: none;
+}
+.image-preview-container .preview-header button:hover {
+	background: rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+}
+.zoom-in {
+	cursor: zoom-in;
+}
+.moving {
+	transition: none !important;
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-ms-transition: none !important;
+	-o-transition: none !important;
+}
+
+@keyframes show {
+	0% {
+		background: rgba(0, 0, 0, 0);
+	}
+	100% {
+		background: rgba(0, 0, 0, 0.6);
+	}
+}
+@keyframes opacityAnimation {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@font-face {
+	font-family: 'iconfont';
+	src: url('//at.alicdn.com/t/font_2387568_7n96d4x0sva.eot?t=1614436212405'); /* IE9 */
+	src: url('//at.alicdn.com/t/font_2387568_7n96d4x0sva.eot?t=1614436212405#iefix') format('embedded-opentype'),
+		/* IE6-IE8 */
+			url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAT4AAsAAAAACjAAAASqAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDXgqGXIUtATYCJAMcCxAABCAFhG0HgQEbpggRFaRXkP0ocPcUUIQJE35oLZsytsFlXASH/P8RD//tx7pvZr5g2iCR4Ee6SRMNieSNBom6Ftqmsknrnm272avZT+9ZL5kSyYL4OoAruFgmd66mB+uXQDZXayVUeGYizL6S8eBfX0r6fOmkWbj7n2OmS2uw/GubS2VStY2Ge+MBDSj7ovRADvhO7OjUTwN23crPBD1NoNe0MMTq2MmzoVUomwJxWlKUA23IouSQQ6uvU04WiPvA16YB8ixwz/75+CwmRCCpMijP2j4Zkw+L7+B5CdJxOkjPRtC154JwjowOKMRdqucWkJvpIL2f38mzj0GtpH7nOfl84rnP88DnJRxHuFMZDYNqI1lRSfP650UNjKYf2ONszTvQ+WTekXwK72g+Fe981PK0gTAJaEugtaroRjfYQ+4XiC1gO03ah+KQ5TFC3eUXpVJ4eStVbZRJRxfkGzdsYh2LrHqHQgtDtdFmHZVfQKaNTFilT3OzdF0G0kGdnyuv4KJps6gqMFSOWW9us9rXr6UkV1/Pvn498caNJPbaDAmzUbeJllq3OBKWzX6YguvX3+Rr1xLeW6dgjjqR+Ji/csMJV2Q/nm6iFBYHpLdKlayZzmngvuuzh1ntmxlqtgnTCWZ2i91h6I2EisXmdRuWpJmwqXJswnMjYfLQkUnViZa9TjZ6yPXZHewsMNNK1kogvUWiMFFkVoByzJnUHd29/jiBVpzQ1LmB3RWXlpSWWkWjXbHRiI3NBuNGVxuEP3KDAVcmGbfJMNfmuhEG34wYcdbnLOiqEUrsrPdZlRc66nNUFZSkSDNvhEFXse7f92aFE849J7fOIZajy6/QclVoCo1DyYvHD52t8HH3ubj5oY98sztTkT54wvaE4iPo188M5RFWiMesI9+99FgG1zjWCyvfDOGP7Ed7JhXnrGMXiN+UBD6r34Y8Jrr3HrnSH18T0ozGDoijnXFWvsXWn5Vqc9V+mTe1grLglsj1h50bB08xXwW46p6Z0gd7tm3Y3xRSEVzPl1ldfVxwTrLNpT87727g9KijCa2oNqQ36vB5X0a0TrQA8xJ4/yv8QbxAzKlJ2OuskoO7nvjjWfgPm6Ed/H+TnuYAlvolz0Ey6tN8CA3K3fIQ0j97L/M45NqZLOXgbyIpD+BtdnM9LNz/ch4jwAOkVVr6pJkKkYP4p/jKFWtT3n10UeklCDQWZUol9KpDPF+BUffb0070JjF9rQkfksYUZK0ZZMF2UOkzD7XWAvSaM+58nzG1sihiYFYPQRi2A5JBTyAbdg5ZsPegMukd1IaxgUAiMbQ3SgVEiRrFqAU/8P6HYKhazS7KKb2h27PmoNymvJB7iMMaERXNX7Eit7Gnf90mYsEyFbjQ8zBngsYU0cjkRdp5jixM+6TJUBmUURjSBPoAb/9AYJDKmuOFin3/DXJ2mcY5PT+CL4h1YXqwmiwlkFdNLdVzLPO7L2cjhGXXWYwU4AIXymqGgJa+LEKGmPgaqeZsZgbZspqpf105zhPQS/lgEylylKiijiZawuug/4PDY53X1bmzTtoY2quMjUm0XzfhmLF3qqPJ1PHQ6qk6oygcm3ddbREMynWvwwAA')
+			format('woff2'),
+		url('//at.alicdn.com/t/font_2387568_7n96d4x0sva.woff?t=1614436212405') format('woff'),
+		url('//at.alicdn.com/t/font_2387568_7n96d4x0sva.ttf?t=1614436212405') format('truetype'),
+		/* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+			url('//at.alicdn.com/t/font_2387568_7n96d4x0sva.svg?t=1614436212405#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+	font-family: 'iconfont' !important;
+	font-size: 16px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xiayige:before {
+	content: '\e627';
+}
+
+.icon-shangyige:before {
+	content: '\e622';
+}
+
+.icon-account-practice-lesson-close:before {
+	content: '\e600';
+}
+
+.icon-zhongzhi:before {
+	content: '\e602';
+}
+
+.icon-xuanzhuan:before {
+	content: '\e615';
+}
+
+.icon-xuanzhuan1:before {
+	content: '\e669';
+}
+
+@media screen and (max-width: 768px) {
+	.preview-header .nums p,
+	.preview-header .iconfont {
+		font-size: 12px !important;
+	}
+}
