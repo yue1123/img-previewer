@@ -68,9 +68,7 @@ const imgpreviewer = new ImgPreviewer(id,{options...})
 一些动态更新图片列表使用
 
 ```js
-const a = new ImgPreviewer('body', {
-	scrollbar: true
-})
+const a = new ImgPreviewer('body')
 // 图片渲染到页面后调用
 a.update()
 ```
