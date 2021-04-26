@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v1.0.1
+ * ImgPreviewer v1.0.2
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-03-22T06:37:28.587Z
+ * Date: 2021-04-26T09:36:40.555Z
  */
 
 (function (global, factory) {
@@ -141,7 +141,7 @@
       step: 0.1
     },
     opacity: 0.6,
-    scrollbar: false
+    scrollbar: true
   };
 
   var ImagePreviewer = /*#__PURE__*/function () {
@@ -446,7 +446,7 @@
     }, {
       key: "render",
       value: function render() {
-        var template = "<div class=\"preview-header\">\n                        <div class=\"nums\">\n                            <button id=\"prev\" data-tooltip=\"\u4E0A\u4E00\u5F20\"><i class=\"iconfont icon-shangyige\"></i></button>\n                            <p>\n                                <span id=\"current-index\"></span>\n                                &nbsp;/&nbsp;\n                                <span id=\"total-nums\"></span>\n                            </p>\n                            <button id=\"next\" data-tooltip=\"\u4E0B\u4E00\u5F20\"><i class=\"iconfont icon-xiayige\"></i></button>\n                        </div>\n                        <div class=\"tool-btn\">\n                            <button id=\"rotate-left\" data-tooltip=\"\u5411\u53F3\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan\"></i></button>\n                            <button id=\"rotate-right\" data-tooltip=\"\u5411\u5DE6\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan1\"></i></button>\n                            <button id=\"reset\" data-tooltip=\"\u91CD\u7F6E\"><i class=\"iconfont icon-zhongzhi\"></i></button>\n                            <button id=\"close\" data-tooltip=\"\u5173\u95ED\"><i class=\"iconfont icon-account-practice-lesson-close\"></i></button>\n                        </div>\n                    </div>\n                    <div class=\"image-container\">\n                        <div class=\"img-content\" id=\"image-content\"><img id=\"preview-image\" src=\"\" alt=\"\" /></div>\n                    </div>";
+        var template = "<div class=\"preview-header\">\n                        <div class=\"nums\">\n                           \n                            <p>\n                                <span id=\"current-index\"></span>\n                                &nbsp;/&nbsp;\n                                <span id=\"total-nums\"></span>\n                            </p>\n                            \n                        </div>\n                        <div class=\"tool-btn\">\n                            <button id=\"rotate-left\" data-tooltip=\"\u5411\u53F3\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan\"></i></button>\n                            <button id=\"rotate-right\" data-tooltip=\"\u5411\u5DE6\u65CB\u8F6C\"><i class=\"iconfont icon-xuanzhuan1\"></i></button>\n                            <button id=\"reset\" data-tooltip=\"\u91CD\u7F6E\"><i class=\"iconfont icon-zhongzhi\"></i></button>\n                            <button id=\"close\" data-tooltip=\"\u5173\u95ED\"><i class=\"iconfont icon-account-practice-lesson-close\"></i></button>\n                        </div>\n                    </div>\n                    <div class=\"image-container\">\n                        <button id=\"prev\" data-tooltip=\"\u4E0A\u4E00\u5F20\"><i class=\"iconfont icon-shangyige\"></i></button>\n                        <div class=\"img-content\" id=\"image-content\"><img id=\"preview-image\" src=\"\" alt=\"\" /></div>\n                        <button id=\"next\" data-tooltip=\"\u4E0B\u4E00\u5F20\"><i class=\"iconfont icon-xiayige\"></i></button>\n                    </div>";
         var el = document.getElementById('image-preview-container');
 
         if (!el) {

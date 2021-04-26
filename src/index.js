@@ -43,7 +43,7 @@ let _DEFAULT = {
 		step: 0.1
 	},
 	opacity: 0.6,
-	scrollbar: false
+	scrollbar: true
 }
 class ImagePreviewer {
 	constructor(selector, options = {}) {
@@ -312,13 +312,13 @@ class ImagePreviewer {
 	render() {
 		let template = `<div class="preview-header">
                         <div class="nums">
-                            <button id="prev" data-tooltip="上一张"><i class="iconfont icon-shangyige"></i></button>
+                           
                             <p>
                                 <span id="current-index"></span>
                                 &nbsp;/&nbsp;
                                 <span id="total-nums"></span>
                             </p>
-                            <button id="next" data-tooltip="下一张"><i class="iconfont icon-xiayige"></i></button>
+                            
                         </div>
                         <div class="tool-btn">
                             <button id="rotate-left" data-tooltip="向右旋转"><i class="iconfont icon-xuanzhuan"></i></button>
@@ -328,7 +328,9 @@ class ImagePreviewer {
                         </div>
                     </div>
                     <div class="image-container">
+                        <button id="prev" data-tooltip="上一张"><i class="iconfont icon-shangyige"></i></button>
                         <div class="img-content" id="image-content"><img id="preview-image" src="" alt="" /></div>
+                        <button id="next" data-tooltip="下一张"><i class="iconfont icon-xiayige"></i></button>
                     </div>`
 		let el = document.getElementById('image-preview-container')
 		if (!el) {
