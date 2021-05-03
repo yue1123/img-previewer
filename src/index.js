@@ -173,6 +173,7 @@ class ImagePreviewer {
 		imageEl.style.left = `${historyInfo.startX}px`
 		imageEl.style.setProperty('--rotate', `${0}deg`)
 		imageEl.style.setProperty('--scale', `${historyInfo.scale}`)
+		historyInfo.rotate = 0
 	}
 	// 打开预览
 	handleOpen(e, index) {

@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v1.0.2
+ * ImgPreviewer v1.0.3
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-04-26T09:36:40.555Z
+ * Date: 2021-05-03T15:48:50.590Z
  */
 
 (function (global, factory) {
@@ -296,6 +296,7 @@
         imageEl.style.left = "".concat(historyInfo.startX, "px");
         imageEl.style.setProperty('--rotate', "".concat(0, "deg"));
         imageEl.style.setProperty('--scale', "".concat(historyInfo.scale));
+        historyInfo.rotate = 0;
       } // 打开预览
 
     }, {
