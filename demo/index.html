@@ -45,7 +45,7 @@
 				cursor: pointer;
 			}
 			.banner a:hover {
-                border: 1px solid #c3c3c3;
+				border: 1px solid #c3c3c3;
 				color: #c3c3c3;
 			}
 			.container {
@@ -56,7 +56,7 @@
 			.container h2 {
 				font-weight: 500;
 				color: #159957;
-				margin-top: 15px;
+				margin-top: 25px;
 			}
 			.container p {
 				margin: 7.5px 0;
@@ -68,6 +68,13 @@
 			.container ol,
 			.container li {
 				list-style-position: inside;
+			}
+			.container pre {
+				padding: 15px 10px;
+				text-align: left;
+				background: #f1f1f1;
+				border-radius: 4px;
+				margin-top: 15px;
 			}
 			#app {
 				width: 100%;
@@ -84,7 +91,7 @@
 			}
 			#add {
 				margin-bottom: 10px;
-                margin-top: 15px;
+				margin-top: 15px;
 				display: inline-block;
 				border: 1px solid #f1f1f1;
 				padding: 7.5px 15px;
@@ -92,7 +99,6 @@
 				text-decoration: none;
 				cursor: pointer;
 			}
-
 		</style>
 	</head>
 	<body>
@@ -117,6 +123,8 @@
 				<li>上一张 & 下一张</li>
 				<li>移动端简易适配</li>
 			</ol>
+			<h2>安装</h2>
+			<pre><code>npm i img-previewer</code></pre>
 			<h2>simple demo</h2>
 			<p>可动态的更新图片列表</p>
 			<button id="add">添加一张</button>
