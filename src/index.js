@@ -36,7 +36,7 @@ let imageEl = null
 let historyInfo = null
 let currentImageScale = 0
 let _DEFAULT = {
-	ratio: 0.9,
+	ratio: 0.7,
 	zoom: {
 		min: 0.1,
 		max: 5,

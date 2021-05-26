@@ -6,14 +6,71 @@
 			name="viewport"
 			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
 		/>
-		<title>Document</title>
+		<title>img-previewer</title>
 		<link rel="stylesheet" href="../src/index.css" />
 		<style>
-			body {
+			* {
 				margin: 0;
-				padding: 10px;
+				padding: 0;
+				/* outline: 1px solid #74ebd5; */
+			}
+			.banner {
+				height: 300px;
+				width: 100%;
+				background: #74ebd5; /* fallback for old browsers */
+				background: -webkit-linear-gradient(to right, #155b95, #16955c); /* Chrome 10-25, Safari 5.1-6 */
+				background: linear-gradient(
+					to right,
+					#155b95,
+					#16955c
+				); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+				color: #fff;
+				text-align: center;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.banner p {
+				color: #f1f1f1;
+				margin-top: 15px;
+			}
+			.banner a {
+				margin-top: 15px;
+				display: inline-block;
+				color: #fff;
+				border: 1px solid #f1f1f1;
+				padding: 7.5px 15px;
+				border-radius: 4px;
+				text-decoration: none;
+				cursor: pointer;
+			}
+			.banner a:hover {
+                border: 1px solid #c3c3c3;
+				color: #c3c3c3;
+			}
+			.container {
+				width: 1000px;
+				margin: 0 auto;
+				color: #606c71;
+			}
+			.container h2 {
+				font-weight: 500;
+				color: #159957;
+				margin-top: 15px;
+			}
+			.container p {
+				margin: 7.5px 0;
+			}
+
+			.container ol {
+				margin-top: 15px;
+			}
+			.container ol,
+			.container li {
+				list-style-position: inside;
 			}
 			#app {
+				width: 100%;
 				-webkit-column-count: 4;
 				-moz-column-count: 4;
 				column-count: 4;
@@ -23,31 +80,58 @@
 			}
 			#app img {
 				width: 100%;
+				margin: 6px 0;
 			}
-            #add{
-                margin-bottom:10px;
-            }
+			#add {
+				margin-bottom: 10px;
+                margin-top: 15px;
+				display: inline-block;
+				border: 1px solid #f1f1f1;
+				padding: 7.5px 15px;
+				border-radius: 4px;
+				text-decoration: none;
+				cursor: pointer;
+			}
+
 		</style>
 	</head>
 	<body>
+		<div class="banner">
+			<div>
+				<h1>img-previewer</h1>
+				<p>小巧且易用的 javascript 图片预览插件</p>
+				<a href="https://github.com/yue1123/img-previewer">gitHub API文档</a>
+			</div>
+		</div>
+		<div class="container">
+			<h2>img-previewer</h2>
+			<p>
+				小巧且易用的 javascript
+				图片预览插件,丝滑的预览动画,保证了基础的功能又不失优雅。开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面
+				html 代码结构
+			</p>
+			<p>提供了常用的功能:</p>
+			<ol>
+				<li>鼠标滚轮缩放图片</li>
+				<li>鼠标拖动图片</li>
+				<li>上一张 & 下一张</li>
+				<li>移动端简易适配</li>
+			</ol>
+			<h2>simple demo</h2>
+			<p>可动态的更新图片列表</p>
+			<button id="add">添加一张</button>
+			<div id="app">
+				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
 
-        <h1># img-previewer simple demo</h1>
-        <p>小巧且易用的 javascript 图片预览插件,开箱即用,无需多余的配置.适用于任何网页页面,无需改变页面 html 代码结构</p>
-		<a href="https://github.com/yue1123/img-previewer">gitHub API文档</a>
-        <h3># update images</h3>
-        <p>支持动态的更新图片列表</p>
-		<button id="add">添加一张</button>
-		<br />
-		<div id="app">
-			<img src="./img/pexels-photo-1172064.jpeg" alt="" />
-			<img src="./img/pexels-photo-1658967.jpeg" alt="" />
-			<img src="./img/pexels-photo-210307.jpeg" alt="" />
-			<img src="./img/pexels-photo-347145.jpeg" alt="" />
-			<img src="./img/pexels-photo-358238.jpeg" alt="" />
-			<img src="./img/pexels-photo-53893.jpeg" alt="" />
-			<img src="./img/pexels-photo-620337.jpeg" alt="" />
-			<img src="./img/pexels-photo-994605.jpeg" alt="" />
-			<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+				<img src="./img/pexels-photo-210307.jpeg" alt="" />
+				<img src="./img/pexels-photo-347145.jpeg" alt="" />
+				<img src="./img/pexels-photo-358238.jpeg" alt="" />
+				<img src="./img/pexels-photo-53893.jpeg" alt="" />
+				<img src="./img/pexels-photo-1658967.jpeg" alt="" />
+				<img src="./img/pexels-photo-620337.jpeg" alt="" />
+				<img src="./img/pexels-photo-994605.jpeg" alt="" />
+				<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+			</div>
 		</div>
 
 		<script src="./js/img-previewer.min.js"></script>
@@ -55,10 +139,10 @@
 			const a = new ImgPreviewer('body', {
 				scrollbar: true,
 				zoom: {
-					step: 0.4
+					step: 0.2
 				}
-            })
-            console.log(a);
+			})
+			console.log(a)
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random=${Math.random()}`

@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v1.0.3
+ * ImgPreviewer v1.0.4
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-05-03T15:48:50.590Z
+ * Date: 2021-05-26T06:21:22.254Z
  */
 
 (function (global, factory) {
@@ -134,7 +134,7 @@
   var historyInfo = null;
   var currentImageScale = 0;
   var _DEFAULT = {
-    ratio: 0.9,
+    ratio: 0.7,
     zoom: {
       min: 0.1,
       max: 5,

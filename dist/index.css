@@ -116,7 +116,8 @@
 	top: 50%;
 	color: #f6f6f6;
 	padding: 20px 10px;
-    cursor: pointer;
+	cursor: pointer;
+	z-index: 99;
 }
 #prev i,
 #next i {
