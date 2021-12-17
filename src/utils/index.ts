@@ -7,10 +7,10 @@
  */
 
 export function debounce<T>(fn: (arg: T) => void, delay: number) {
-    var timer: number = 0
+    var timer = 0
     return function (arg: T) {
         clearTimeout(timer)
-        timer = setTimeout(function () {
+        timer = window.setTimeout(function () {
             fn(arg)
             clearTimeout(timer)
         }, delay)
