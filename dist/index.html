@@ -106,7 +106,7 @@
 					</button>
 				</div>
 			</div>
-			<div class="img-pre__contet-warpper" id="J_content-warpper">
+			<div class="img-pre__contet-warpper" id="J_content-warpper" style="--index: 0">
 				<div class="img-pre__img-item img-pre__animated current-index" id="J_current-index">
 					<img src="../demo/img/pexels-photo-1006121.jpeg" />
 				</div>
@@ -204,23 +204,45 @@
 				'../demo/img/pexels-photo-1172064.jpeg',
 				'../demo/img/pexels-photo-53893.jpeg'
 			]
-			let index = 0
+			const index = ((value) =>
+				Object.defineProperty({}, 'value', {
+					enumerable: false,
+					set(newVal) {
+						value = newVal
+						if (newVal === 0) {
+							prevButton.disabled = true
+						} else {
+							prevButton.disabled = false
+						}
+						if (newVal === imgSrcList.length - 1) {
+							nextButton.disabled = true
+						} else {
+							nextButton.disabled = false
+						}
+						// console.log('状态变化', newVal)
+						// if (newVal === 'packed') pushAssets()
+					},
+					get() {
+						return value
+					}
+				}))(0)
 			function nextTick(cal) {
 				requestAnimationFrame(cal)
 			}
-
+			const warpper = document.getElementById('J_content-warpper')
 			prevButton.addEventListener('click', () => {
-				if (index > 0) {
-					index -= 1
+				if (index.value > 0) {
+					index.value -= 1
+					warpper.style.setProperty('--index', index.value)
 				} else {
-					index = imgSrcList.length - 1
+					return
 				}
 				const div = document.createElement('div')
 				const img = document.createElement('img')
 				div.classList.add('img-pre__img-item', 'slide-right-in')
-				img.src = imgSrcList[index]
+				img.src = imgSrcList[index.value]
 				div.appendChild(img)
-				const warpper = document.getElementById('J_content-warpper')
+
 				warpper.appendChild(div)
 				const currentIndex = document.getElementById('J_current-index')
 				currentIndex.classList.add('slide-right-out')
@@ -234,17 +256,17 @@
 				})
 			})
 			nextButton.addEventListener('click', () => {
-				if (index < imgSrcList.length - 1) {
-					index += 1
+				if (index.value < imgSrcList.length - 1) {
+					index.value += 1
+					warpper.style.setProperty('--index', index.value * -1)
 				} else {
-					index = 0
+					return
 				}
 				const div = document.createElement('div')
 				const img = document.createElement('img')
 				div.classList.add('img-pre__img-item', 'slide-left-in')
-				img.src = imgSrcList[index]
+				img.src = imgSrcList[index.value]
 				div.appendChild(img)
-				const warpper = document.getElementById('J_content-warpper')
 				warpper.appendChild(div)
 				const currentIndex = document.getElementById('J_current-index')
 				currentIndex.classList.add('slide-left-out')

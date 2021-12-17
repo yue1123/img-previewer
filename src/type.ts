@@ -12,5 +12,14 @@ export interface ImgPreviewerOptions {
     opacity?: number,
     scrollBar?: boolean,
     onInited?: () => void,
-    zoom?: ImgPreviewerOptionsZoom
+    zoom?: ImgPreviewerOptionsZoom,
+    i18n?: object
+}
+
+
+export interface runtimeStore {
+    rootEl: null | HTMLElement,
+    container: null | HTMLElement,
+    imgEls: NodeList | undefined,
+    index: number
 }
