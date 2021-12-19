@@ -7,14 +7,14 @@
  */
 
 export function debounce<T>(fn: (arg: T) => void, delay: number) {
-    var timer = 0
-    return function (arg: T) {
-        clearTimeout(timer)
-        timer = window.setTimeout(function () {
-            fn(arg)
-            clearTimeout(timer)
-        }, delay)
-    }
+	var timer = 0
+	return function (arg: T) {
+		clearTimeout(timer)
+		timer = window.setTimeout(function () {
+			fn(arg)
+			clearTimeout(timer)
+		}, delay)
+	}
 }
 
 /**
@@ -22,24 +22,23 @@ export function debounce<T>(fn: (arg: T) => void, delay: number) {
  * @param {Object} e
  */
 export function preventDefault(e: Event) {
-    e.preventDefault()
+	e.preventDefault()
 }
 
 // 获取元素是否出现在可视区域
 export function isElementInViewport(el: HTMLElement) {
-    const viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-    const offsetTop = el.offsetTop
-    const offsetHeight = el.offsetHeight
-    const scrollTop = document.documentElement.scrollTop
-    const top = offsetTop - scrollTop
-    return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100
+	const viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+	const offsetTop = el.offsetTop
+	const offsetHeight = el.offsetHeight
+	const scrollTop = document.documentElement.scrollTop
+	const top = offsetTop - scrollTop
+	return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100
 }
 
 // 获取元素位置
 export function getElementRect(el: HTMLElement) {
-    return el.getBoundingClientRect()
+	return el.getBoundingClientRect()
 }
-
 
 /**
  * 获取两数乘以一定比例后,较小的一个
@@ -50,7 +49,13 @@ export function getElementRect(el: HTMLElement) {
  * @returns 两数中比例值小的一个
  */
 export function getTwoNumberSmall(multiplicator: number, number1: number, number2: number, ratio: number) {
-    let a = (multiplicator * ratio) / number1
-    let b = (multiplicator * ratio) / number2
-    return a > b ? b : a
+	let a = (multiplicator * ratio) / number1
+	let b = (multiplicator * ratio) / number2
+	return a > b ? b : a
+}
+
+export function nextTick(fn: Function) {
+	requestAnimationFrame(() => {
+		fn && fn()
+	})
 }

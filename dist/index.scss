@@ -7,12 +7,16 @@
 	width: 100vw;
 	height: 100vh;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	z-index: var(--container-zIndex);
+	display: none;
 	.img-pre__header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 0 25px;
 		background: rgba(0, 0, 0, var(--header-bg-opcity));
+		position: relative;
+		z-index: calc(var(--container-zIndex) + 1);
 		.img-pre__nums {
 			color: #fff;
 		}
