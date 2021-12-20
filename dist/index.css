@@ -117,11 +117,11 @@
 }
 
 .img-pre__container .img-pre__contet-warpper img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
+  position: fixed;
+  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
+  -webkit-transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
+          transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
 }
 
 .img-pre__container.show {

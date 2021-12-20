@@ -85,10 +85,10 @@
 			}
 		}
 		img {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
+			position: fixed;
+			transition: all 0.5s;
+			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0)
+				scale(var(--scale)) rotate(var(--rotate));
 		}
 	}
 
