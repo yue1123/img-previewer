@@ -12,6 +12,8 @@
 }
 
 .img-pre__container .img-pre__header {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -21,9 +23,11 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  padding: 0 25px;
+  height: 55px;
+  width: 100%;
+  padding: 0 calc(25px + (100vw - 100%)) 0 25px;
   background: rgba(0, 0, 0, var(--header-bg-opcity));
-  position: relative;
+  position: absolute;
   z-index: calc(var(--container-zIndex) + 1);
 }
 
@@ -48,16 +52,26 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  cursor: pointer;
   position: relative;
   color: #fff;
+}
+
+.img-pre__container .img-pre__header .img-pre__button-item .bi,
+.img-pre__container .img-pre__header .img-pre__button-item svg {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .img-pre__container .img-pre__header .img-pre__button-item:last-child {
   margin-right: 0;
 }
 
-.img-pre__container .img-pre__header .img-pre__button-item::after {
+.img-pre__container .img-pre__header button:not(:disabled) {
+  cursor: pointer;
+}
+
+.img-pre__container .img-pre__header button:not(:disabled)::after {
   content: attr(data-tooltip);
   font-size: 12px;
   position: absolute;
@@ -66,18 +80,23 @@
   -webkit-transform: translateX(-50%);
           transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.9);
-  padding: 2px 5px;
+  padding: 3px 7px;
   white-space: nowrap;
-  border-radius: 2px;
+  border-radius: 4px;
   display: none;
 }
 
-.img-pre__container .img-pre__header .img-pre__button-item:hover::after {
+.img-pre__container .img-pre__header button:not(:disabled):hover::after {
   display: inline-block;
 }
 
-.img-pre__container .img-pre__header .img-pre__button-item:hover {
+.img-pre__container .img-pre__header button:not(:disabled):hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+.img-pre__container .img-pre__header button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed !important;
 }
 
 .img-pre__container .img-pre__contet-warpper {
@@ -117,11 +136,38 @@
 }
 
 .img-pre__container .img-pre__contet-warpper img {
-  position: fixed;
+  position: absolute;
   -webkit-transition: all 0.5s;
   transition: all 0.5s;
   -webkit-transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
           transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
+}
+
+.img-pre__container #J-img-pre__prev,
+.img-pre__container #J-img-pre__next {
+  background: none;
+  border: none;
+  outline: none;
+  position: fixed;
+  top: 50%;
+  color: #f6f6f6;
+  cursor: pointer;
+  z-index: calc(var(--container-zIndex) + 1);
+}
+
+.img-pre__container #J-img-pre__prev .bi,
+.img-pre__container #J-img-pre__next .bi {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.img-pre__container #J-img-pre__prev {
+  left: 2%;
+}
+
+.img-pre__container #J-img-pre__next {
+  right: calc(2% + 100vw - 100%);
 }
 
 .img-pre__container.show {

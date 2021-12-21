@@ -20,8 +20,11 @@ export interface ImgPreviewerOptions {
 export interface runtimeStore {
     rootEl: null | HTMLElement,
     container: null | HTMLElement,
-    imgEls: NodeList | undefined,
+    imgList: HTMLImageElement[],
+    totalIndex: number,
     index: number,
+    width: number,
+    height: number,
     currentImgElement: null | HTMLImageElement,
     startX: number
     startY: number

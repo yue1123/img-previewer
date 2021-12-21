@@ -7,7 +7,8 @@
 			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
 		/>
 		<title>img-previewer</title>
-		<link rel="stylesheet" href="../src/index.css" />
+		<!-- <link rel="stylesheet" href="../src/index.css" /> -->
+		<link rel="stylesheet" href="../dist/index.css" />
 		<style>
 			* {
 				margin: 0;
@@ -142,10 +143,11 @@
 			</div>
 		</div>
 
-		<script src="./js/img-previewer.min.js"></script>
+		<script src="../dist/img-previewer.js"></script>
 		<script>
 			const a = new ImgPreviewer('body', {
 				scrollbar: true,
+				ratio: 0.7,
 				zoom: {
 					step: 0.2
 				}

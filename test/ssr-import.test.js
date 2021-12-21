@@ -1,2 +1,2 @@
 const ImagePreview = require('../dist/img-previewer')
-console.log(ImagePreview)
+console.log(new ImagePreview())

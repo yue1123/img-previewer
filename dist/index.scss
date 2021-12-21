@@ -10,12 +10,15 @@
 	z-index: var(--container-zIndex);
 	display: none;
 	.img-pre__header {
+		box-sizing: border-box;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 0 25px;
+		height: 55px;
+		width: 100%;
+		padding: 0 calc(25px + (100vw - 100%)) 0 25px;
 		background: rgba(0, 0, 0, var(--header-bg-opcity));
-		position: relative;
+		position: absolute;
 		z-index: calc(var(--container-zIndex) + 1);
 		.img-pre__nums {
 			color: #fff;
@@ -31,12 +34,21 @@
 			display: inline-flex;
 			justify-content: center;
 			align-items: center;
-			cursor: pointer;
 			position: relative;
 			color: #fff;
+			.bi,
+			svg {
+				font-size: 18px;
+				width: 18px;
+				height: 18px;
+			}
 			&:last-child {
 				margin-right: 0;
 			}
+		}
+
+		button:not(:disabled) {
+			cursor: pointer;
 			&::after {
 				content: attr(data-tooltip);
 				font-size: 12px;
@@ -45,9 +57,9 @@
 				top: 130%;
 				transform: translateX(-50%);
 				background: rgba(0, 0, 0, 0.9);
-				padding: 2px 5px;
+				padding: 3px 7px;
 				white-space: nowrap;
-				border-radius: 2px;
+				border-radius: 4px;
 				display: none;
 			}
 			&:hover::after {
@@ -56,6 +68,10 @@
 			&:hover {
 				background: rgba(0, 0, 0, 0.2);
 			}
+		}
+		button[disabled] {
+			opacity: 0.4;
+			cursor: not-allowed !important;
 		}
 	}
 	.img-pre__contet-warpper {
@@ -66,7 +82,6 @@
 		.img-pre__img-item {
 			width: 100%;
 			height: 100%;
-			// background: #f90;
 			position: absolute;
 			top: 0;
 			animation-duration: 0.3s;
@@ -85,11 +100,33 @@
 			}
 		}
 		img {
-			position: fixed;
+			position: absolute;
 			transition: all 0.5s;
-			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0)
-				scale(var(--scale)) rotate(var(--rotate));
+			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale))
+				rotate(var(--rotate));
 		}
+	}
+	#J-img-pre__prev,
+	#J-img-pre__next {
+		background: none;
+		border: none;
+		outline: none;
+		position: fixed;
+		top: 50%;
+		color: #f6f6f6;
+		cursor: pointer;
+		z-index: calc(var(--container-zIndex) + 1);
+		.bi {
+			font-size: 18px;
+			width: 18px;
+			height: 18px;
+		}
+	}
+	#J-img-pre__prev {
+		left: 2%;
+	}
+	#J-img-pre__next {
+		right: calc(2% + 100vw - 100%);
 	}
 
 	&.show {
