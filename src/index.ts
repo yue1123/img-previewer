@@ -1,24 +1,31 @@
-import { getElementRect, isElementInViewport, getTwoNumberSmall, debounce, preventDefault, nextTick } from './utils/index'
+import {
+	getElementRect,
+	isElementInViewport,
+	getTwoNumberSmall,
+	debounce,
+	preventDefault,
+	nextTick
+} from './utils/index'
 
 import { ImgPreviewerOptions, runtimeStore, objectKeyOnlyCss } from './type'
 
 function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions) {
-    if (typeof window !== 'object') {
-        return
-    }
-    // check use new
-    if (!(this instanceof ImgPreviewer)) {
-        return console.error(new Error('ImagePreviewerue is a constructor and should be called with the `new` keyword'))
-    }
-    // check required params is correct incoming
-    if (selector && typeof selector === 'string') {
-        if (!document.querySelector(selector)) return console.error(new Error('selector is invalid'))
-    } else {
-        return console.error(
-            new Error('ImagePreviewer plugin should css string selector that on first params,like #el,.el')
-        )
-    }
-    let template = `
+	if (typeof window !== 'object') {
+		return
+	}
+	// check use new
+	if (!(this instanceof ImgPreviewer)) {
+		return console.error(new Error('ImagePreviewerue is a constructor and should be called with the `new` keyword'))
+	}
+	// check required params is correct incoming
+	if (selector && typeof selector === 'string') {
+		if (!document.querySelector(selector)) return console.error(new Error('selector is invalid'))
+	} else {
+		return console.error(
+			new Error('ImagePreviewer plugin should css string selector that on first params,like #el,.el')
+		)
+	}
+	let template = `
         <div class="img-pre__header img-pre__animated">
             <div class="img-pre__nums">
                 <p>
@@ -55,335 +62,371 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         </div>
         `
 
-    const defaultOptions = {
-        ratio: 0.7,
-        zoom: {
-            min: 0.1,
-            max: 5,
-            step: 0.1
-        },
-        opacity: 0.6,
-        scrollbar: false
-    }
-    let mergeOptions: ImgPreviewerOptions
-    let previewerContainer: HTMLElement | null = null
-    const i18n = {
-        en: {
-            RESET: 'reset',
-            ROTATE_LEFT: 'rotate left',
-            ROTATE_RIGHT: 'rotate right',
-            CLOSE: 'close',
-            NEXT: 'next',
-            PREV: 'prev'
-        },
-        zh: {
-            RESET: '重置',
-            ROTATE_LEFT: '向左旋转',
-            ROTATE_RIGHT: '向右旋转',
-            CLOSE: '关闭',
-            NEXT: '下一张',
-            PREV: '上一张'
-        }
-    }
-    const store: runtimeStore = {
-        rootEl: null,
-        container: null,
-        imgList: [],
-        currentImgElement: null,
-        totalIndex: 0,
-        index: 0,
-        width: 0,
-        height: 0,
-        startX: 0,
-        startY: 0,
-        endX: 0,
-        endY: 0,
-        scale: 0,
-        rotate: 0,
-        currentClickEl: null
-    }
+	const defaultOptions = {
+		ratio: 0.7,
+		zoom: {
+			min: 0.1,
+			max: 5,
+			step: 0.1
+		},
+		opacity: 0.6,
+		scrollbar: false
+	}
+	let mergeOptions: ImgPreviewerOptions
+	let previewerContainer: HTMLElement | null = null
+	const i18n = {
+		en: {
+			RESET: 'reset',
+			ROTATE_LEFT: 'rotate left',
+			ROTATE_RIGHT: 'rotate right',
+			CLOSE: 'close',
+			NEXT: 'next',
+			PREV: 'prev'
+		},
+		zh: {
+			RESET: '重置',
+			ROTATE_LEFT: '向左旋转',
+			ROTATE_RIGHT: '向右旋转',
+			CLOSE: '关闭',
+			NEXT: '下一张',
+			PREV: '上一张'
+		}
+	}
+	const store: runtimeStore = {
+		rootEl: null,
+		container: null,
+		imgList: [],
+		currentImgElement: null,
+		totalIndex: 0,
+		index: 0,
+		width: 0,
+		height: 0,
+		startX: 0,
+		startY: 0,
+		endX: 0,
+		endY: 0,
+		scale: 0,
+		rotate: 0,
+		currentClickEl: null
+	}
 
-    const _BODY = document.body || document.getElementsByTagName('body')[0]
-    let isOpen = false
-    let isLast = false
-    // 绑定事件
-    function bindEvent() {
-        let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
-        let touchstart = mobile ? 'touchstart' : 'mousedown'
-        let touchend = mobile ? 'touchend' : 'mouseup'
-        let touchmove = mobile ? 'touchmove' : 'mousemove'
-        const { rootEl } = store
-        rootEl?.addEventListener('click', (e: any) => {
-            if (e.target === store.currentImgElement) return
-            if (e.target.localName === 'img') {
-                store.currentClickEl = e.target
-                store.index = Number(e.target.dataset.index)
-                handlePrviewershow(e, store.imgList[store.index].src)
-            }
-        })
-        // clone 
-        document.getElementById('J_header-buttons')!.addEventListener('click', (e: any) => {
-            const buttonEl = e.path.find((item: HTMLButtonElement) => item.localName === 'button')
-            if (!buttonEl || buttonEl.disabled) return
-            const { action } = buttonEl.dataset
-            console.log(action);
-            switch (action) {
-                case 'close':
-                    handlePrviewerHide()
-                    break;
-                case 'rotateLeft':
-                    handleRotateLeft()
-                    break;
-                case 'rotateRight':
-                    handleRotateRight()
-                    break;
-                case 'reset':
-                    handleReset()
-                    break;
-                case 'next':
-                    const div = document.createElement('div')
-                    const img = document.createElement('img')
-                    const warpper = document.getElementById('J_content-warpper')
-                    const currentImgWarpper = document.querySelector('#J_current-index')
-                    const clickEl = store.imgList[store.index + 1]
-                    store.width = clickEl.width
-                    store.height = clickEl.height
-                    div.classList.add('img-pre__img-item', 'slide-left-in')
-                    img.src = store.imgList[store.index + 1].src
-                    // console.log(img.src);
-                    store.currentImgElement = img
-                    setImageStyles(window.innerWidth, window.innerHeight)
-                    div.appendChild(img)
-                    warpper!.appendChild(div)
-                    currentImgWarpper!.classList.add('slide-left-out')
-                    currentImgWarpper!.addEventListener('animationend', () => {
-                        warpper!.removeChild(currentImgWarpper as Node)
-                    })
-                    div.addEventListener('animationend', () => {
-                        div.classList.remove('slide-left-in')
-                        div.classList.add('current-index')
-                        div.id = 'J_current-index'
-                        store.currentClickEl = clickEl
-                        store.index += 1
-                    })
-                    // console.log(document.querySelector(``));
-                    break;
-                default:
-                    break;
-            }
-        })
-        // add keyboard event
-        document.addEventListener('keyup', (e: KeyboardEvent) => {
-            switch (e.key) {
-                case 'Escape':
-                    handlePrviewerHide()
-                    break;
-                case 'ArrowRight':
-                    console.log('下一张');
-                    break;
-                case 'ArrowLeft':
-                    console.log('上一张');
-                    break;
-                default:
-                    break;
-            }
-        })
-        const handleResize = debounce(() => {
-            isOpen && setImageStyles(window.innerWidth, window.innerHeight)
-        }, 150)
-        window.addEventListener('resize', handleResize)
-    }
-    function setStyle(imgElement: HTMLElement | null, styleObj: objectKeyOnlyCss) {
-        for (const key in styleObj) {
-            imgElement!.style[key] = styleObj[key]
-        }
-    }
-    // setProperties
-    function setProperties(imgElement: HTMLElement | null, properties: object) {
-        for (const key in properties) {
-            imgElement!.style.setProperty(key, properties[key])
-        }
-    }
-    function setDataset(el: HTMLElement, key: string, value: string) {
-        if (el.dataset) {
-            el.dataset[key] = value;
-        } else {
-            el.setAttribute('data-' + key, value);
-        }
-    }
-    function setImageStyles(w: number, h: number) {
-        store.endX = w / 2 - store.width / 2 - store.startX
-        store.endY = h / 2 - store.height / 2 - store.startY
-        store.scale = getTwoNumberSmall(w, store.width, h, store.height, mergeOptions.ratio || defaultOptions.ratio)
-        setStyle(store.currentImgElement, {
-            top: `${store.startY}px`,
-            // fixed 1px error
-            left: `${store.startX - 1}px`,
-            width: `${store.width}px`,
-            height: `${store.height}px`
-        })
-        setProperties(store.currentImgElement, {
-            '--offsetX': `${store.endX}px`,
-            '--offsetY': `${store.endY}px`,
-            '--scale': `${store.scale}`,
-            '--rotate': `0`
-        })
-    }
-    // show
-    function handlePrviewershow(e: any, src: string) {
-        isOpen = true
-        previewerContainer!.style.display = 'block'
-        nextTick(() => {
-            store.currentImgElement!.src = src
-            previewerContainer!.classList.remove('hide')
-            previewerContainer!.classList.add('show')
-            store.width = e.target.width
-            store.height = e.target.height
-            store.startX = e.clientX - e.offsetX
-            store.startY = e.clientY - e.offsetY + 1
-            setImageStyles(window.innerWidth, window.innerHeight)
-        })
-    }
-    // hide
-    function handlePrviewerHide() {
-        isOpen = false
-        // 如果元素在视图中
-        if (isElementInViewport(store.currentClickEl)) {
-            const { top, left, width, height } = getElementRect(store.currentClickEl)
-            previewerContainer!.classList.remove('show')
-            previewerContainer!.classList.add('hide')
-            store.currentImgElement!.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
-            const fn = () => {
-                previewerContainer!.style.display = 'none'
-                store.currentImgElement!.src = ''
-                store.currentImgElement!.style.cssText = ``
-                store.currentImgElement?.removeEventListener('transitionend', fn)
-            }
-            store.currentImgElement!.addEventListener('transitionend', fn)
-        } else {
+	const _BODY = document.body || document.getElementsByTagName('body')[0]
+	let isOpen: boolean = false
+	let isRunning: boolean = false
+	// 绑定事件
+	function bindEvent() {
+		let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
+		// let touchstart = mobile ? 'touchstart' : 'mousedown'
+		// let touchend = mobile ? 'touchend' : 'mouseup'
+		// let touchmove = mobile ? 'touchmove' : 'mousemove'
+		const { rootEl } = store
+		rootEl?.addEventListener('click', (e: any) => {
+			if (e.target === store.currentImgElement) return
+			if (e.target.localName === 'img') {
+				store.currentClickEl = e.target
+				store.index = Number(e.target.dataset.index)
+				console.log(Number(e.target.dataset.index))
+				handlePrviewershow(e, store.imgList[store.index].src)
+			}
+		})
+		// clone
+		document.getElementById('J_header-buttons')!.addEventListener('click', (e: any) => {
+			const buttonEl = e.path.find((item: HTMLButtonElement) => item.localName === 'button')
+			if (!buttonEl || buttonEl.disabled) return
+			const { action } = buttonEl.dataset
+			console.log(action)
+			switch (action) {
+				case 'close':
+					handlePrviewerHide()
+					break
+				case 'rotateLeft':
+					handleRotateLeft()
+					break
+				case 'rotateRight':
+					handleRotateRight()
+					break
+				case 'reset':
+					handleReset()
+					break
+				case 'next':
+					handleNext()
+					// console.log(document.querySelector(``));
+					break
+				case 'prev':
+					handlePrev()
+					// console.log(document.querySelector(``));
+					break
+				default:
+					break
+			}
+		})
+		// add keyboard event
+		document.addEventListener('keyup', (e: KeyboardEvent) => {
+			switch (e.key) {
+				case 'Escape':
+					handlePrviewerHide()
+					break
+				case 'ArrowRight':
+					handleNext()
+					break
+				case 'ArrowLeft':
+					handlePrev()
+					break
+				default:
+					break
+			}
+		})
+		const handleResize = debounce(() => {
+			isOpen && setImageStyles(window.innerWidth, window.innerHeight)
+		}, 150)
+		window.addEventListener('resize', handleResize)
+	}
+	function setStyle(imgElement: HTMLElement | null, styleObj: objectKeyOnlyCss) {
+		for (const key in styleObj) {
+			imgElement!.style[key] = styleObj[key]
+		}
+	}
+	// setProperties
+	function setProperties(imgElement: HTMLElement | null, properties: object) {
+		for (const key in properties) {
+			imgElement!.style.setProperty(key, properties[key])
+		}
+	}
+	function setDataset(el: HTMLElement, key: string, value: string) {
+		if (el.dataset) {
+			el.dataset[key] = value
+		} else {
+			el.setAttribute('data-' + key, value)
+		}
+	}
+	function setImageStyles(w: number, h: number) {
+		store.endX = w / 2 - store.width / 2 - store.startX
+		store.endY = h / 2 - store.height / 2 - store.startY
+		store.scale = getTwoNumberSmall(w, store.width, h, store.height, mergeOptions.ratio || defaultOptions.ratio)
+		setStyle(store.currentImgElement, {
+			top: `${store.startY}px`,
+			left: `${store.startX - 1}px`,
+			width: `${store.width}px`,
+			height: `${store.height}px`
+		})
+		setProperties(store.currentImgElement, {
+			'--offsetX': `${store.endX}px`,
+			'--offsetY': `${store.endY}px`,
+			'--scale': `${store.scale}`,
+			'--rotate': `0`
+		})
+	}
+	function handleNext() {
+		if (store.index === store.totalIndex - 1 || isRunning) return
+		isRunning = true
+		store.index = store.index + 1
+		const div: HTMLDivElement = document.createElement<'div'>('div')
+		const img: HTMLImageElement = document.createElement<'img'>('img')
+		const warpper = document.getElementById('J_content-warpper')
+		const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
+		const clickEl = store.imgList[store.index]
+		store.width = clickEl.width
+		store.height = clickEl.height
+		div.classList.add('img-pre__img-item', 'slide-left-in')
+		img.src = clickEl.src
+		store.currentImgElement = img
+		setImageStyles(window.innerWidth, window.innerHeight)
+		div.appendChild(img)
+		warpper!.appendChild(div)
+		currentImgWarpper!.classList.add('slide-left-out')
+		currentImgWarpper!.addEventListener('animationend', () => {
+			isRunning = false
+			currentImgWarpper && warpper!.removeChild(currentImgWarpper as Node)
+		})
+		const fn = () => {
+			div.classList.remove('slide-left-in')
+			div.classList.add('current-index')
+			div.id = 'J_current-index'
+			store.currentClickEl = clickEl
+			div.removeEventListener('animationend', fn)
+		}
+		div.addEventListener('animationend', fn)
+	}
+	function handlePrev() {
+		if (store.index === 0 || isRunning) return
+		isRunning = true
+		store.index = store.index - 1
+		const div: HTMLDivElement = document.createElement<'div'>('div')
+		const img: HTMLImageElement = document.createElement<'img'>('img')
+		const warpper = document.getElementById('J_content-warpper')
+		const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
+		const clickEl = store.imgList[store.index]
+		store.width = clickEl.width
+		store.height = clickEl.height
+		div.classList.add('img-pre__img-item', 'slide-right-in')
+		img.src = clickEl.src
+		store.currentImgElement = img
+		setImageStyles(window.innerWidth, window.innerHeight)
+		div.appendChild(img)
+		warpper!.appendChild(div)
+		currentImgWarpper!.classList.add('slide-right-out')
+		currentImgWarpper!.addEventListener('animationend', () => {
+			isRunning = false
+			currentImgWarpper && warpper!.removeChild(currentImgWarpper as Node)
+		})
+		const fn = () => {
+			div.classList.remove('slide-right-in')
+			div.classList.add('current-index')
+			div.id = 'J_current-index'
 
-        }
-    }
-    // 左旋转
-    function handleRotateLeft() {
-        store.rotate -= 90
-        setProperties(store.currentImgElement, {
-            '--rotate': `${store.rotate}deg`
-        })
-    }
-    // 右旋转
-    function handleRotateRight() {
-        store.rotate += 90
-        setProperties(store.currentImgElement, {
-            '--rotate': `${store.rotate}deg`
-        })
-    }
-    // reset
-    function handleReset() {
-        store.rotate = 0
-        setProperties(store.currentImgElement, {
-            '--rotate': `0`
-        })
-    }
-    // listen index change,and update view
-    function onIndexChange(index: number) {
-        document.getElementById('img-pre__current-index')!.innerText = String(index + 1)
-        let prevButton = document.getElementById('J-img-pre__prev') as HTMLButtonElement
-        let nextButton = document.getElementById('J-img-pre__next') as HTMLButtonElement
-        // console.log(index);
-        // console.log(store.totalIndex);
+			store.currentClickEl = clickEl
+			div.removeEventListener('animationend', fn)
+		}
+		div.addEventListener('animationend', fn)
+	}
+	// show
+	function handlePrviewershow(e: any, src: string) {
+		isOpen = true
+		previewerContainer!.style.display = 'block'
+		nextTick(() => {
+			store.currentImgElement!.src = src
+			previewerContainer!.classList.remove('hide')
+			previewerContainer!.classList.add('show')
+			store.width = e.target.width
+			store.height = e.target.height
+			store.startX = e.clientX - e.offsetX
+			store.startY = e.clientY - e.offsetY + 1
+			setImageStyles(window.innerWidth, window.innerHeight)
+		})
+	}
+	// hide
+	function handlePrviewerHide() {
+		isOpen = false
+		// 如果元素在视图中
+		if (isElementInViewport(store.currentClickEl)) {
+			const { top, left, width, height } = getElementRect(store.currentClickEl)
+			previewerContainer!.classList.remove('show')
+			previewerContainer!.classList.add('hide')
+			store.currentImgElement!.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
+			const fn = () => {
+				previewerContainer!.style.display = 'none'
+				store.currentImgElement!.src = ''
+				store.currentImgElement!.style.cssText = ``
+				store.currentImgElement?.removeEventListener('transitionend', fn)
+			}
+			store.currentImgElement!.addEventListener('transitionend', fn)
+		} else {
+		}
+	}
+	// 左旋转
+	function handleRotateLeft() {
+		store.rotate -= 90
+		setProperties(store.currentImgElement, {
+			'--rotate': `${store.rotate}deg`
+		})
+	}
+	// 右旋转
+	function handleRotateRight() {
+		store.rotate += 90
+		setProperties(store.currentImgElement, {
+			'--rotate': `${store.rotate}deg`
+		})
+	}
+	// reset
+	function handleReset() {
+		store.rotate = 0
+		setProperties(store.currentImgElement, {
+			'--rotate': `0`
+		})
+	}
+	// listen index change,and update view
+	function onIndexChange(index: number) {
+		document.getElementById('img-pre__current-index')!.innerText = String(index + 1)
+		let prevButton = document.getElementById('J-img-pre__prev') as HTMLButtonElement
+		let nextButton = document.getElementById('J-img-pre__next') as HTMLButtonElement
+		if (index === 0) {
+			prevButton.disabled = true
+		} else {
+			prevButton.disabled = false
+		}
+		if (index === store.totalIndex - 1) {
+			nextButton.disabled = true
+		} else {
+			nextButton.disabled = false
+		}
+	}
+	function onTotalIndexChange(index: number) {
+		document.getElementById('img-pre__total-index')!.innerText = '' + index
+	}
 
-        if (index === 0) {
-            console.log('禁用后退');
-            prevButton.disabled = true
-        } else {
-            prevButton.disabled = false
-        }
-        if (index === store.totalIndex - 1) {
-            nextButton.disabled = true
-            console.log('禁用前进');
-        } else {
-            nextButton.disabled = false
-        }
+	// 重置图片
+	function reset() {}
+	// get i18n options
+	function geti18nInfo(): object {
+		if (mergeOptions.i18n) {
+			return mergeOptions.i18n
+		} else {
+			const lang: string = window.navigator.language
+			// all display in English except Chinese
+			return lang.indexOf('zh') !== -1 ? i18n.zh : i18n.en
+		}
+	}
 
-    }
-    function onTotalIndexChange(index: number) {
-        document.getElementById('img-pre__total-index')!.innerText = '' + index
-    }
-
-    // 重置图片
-    function reset() { }
-    // get i18n options
-    function geti18nInfo(): object {
-        if (mergeOptions.i18n) {
-            return mergeOptions.i18n
-        } else {
-            const lang: string = window.navigator.language
-            // all display in English except Chinese
-            return lang.indexOf('zh') !== -1 ? i18n.zh : i18n.en
-        }
-    }
-
-    // i18n translate
-    function i18nTranslate(template: string, i18nObj: object): string {
-        return template.replace(/\{\{(.*?)\}\}/g, (_, a) => i18nObj[a])
-    }
-    //
-    function defineReactValue(store: object, key: string, value: any, cal: (newVal: any) => void) {
-        Object.defineProperty(store, key, {
-            enumerable: false,
-            set(newVal) {
-                cal((value = newVal))
-            },
-            get() {
-                return value
-            }
-        })
-    }
-    //
-    function render() {
-        let el: HTMLElement | null = document.getElementById('image-preview-container')
-        if (!el) {
-            previewerContainer = document.createElement('div')
-            previewerContainer.classList.add('img-pre__container', 'img-pre__animated')
-            previewerContainer.id = 'J_container'
-            previewerContainer.style.setProperty('--container-opcity', '0.4')
-            previewerContainer.style.setProperty('--header-bg-opcity', '0.2')
-            previewerContainer.style.setProperty('--container-zIndex', '99')
-            previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo())
-            _BODY.appendChild(previewerContainer)
-        } else {
-            previewerContainer = el
-        }
-    }
-    function _init(this: any, selector: string, options?: ImgPreviewerOptions) {
-        if (options) {
-            options.zoom = Object.assign({}, defaultOptions.zoom, options.zoom || {})
-            mergeOptions = Object.assign({}, defaultOptions, options)
-        } else {
-            mergeOptions = defaultOptions
-        }
-        store.rootEl = document.querySelector(selector)
-        const imgEls = store.rootEl!.querySelectorAll<HTMLImageElement>('img:not(.img-pre__img-item img)')
-        // use defineProperty to init listen index
-        defineReactValue(store, 'index', 0, onIndexChange)
-        defineReactValue(store, 'totalIndex', 0, onTotalIndexChange)
-        render()
-        bindEvent()
-        store.currentImgElement = document.querySelector('#J_current-index img')
-        store.totalIndex = imgEls!.length
-        store.imgList = new Array(store.totalIndex)
-        for (let i = 0, len = store.totalIndex; i < len; i++) {
-            let element = imgEls![i]
-            setDataset(element, 'index', String(i))
-            store.imgList[i] = element
-        }
-        console.log(store);
-    }
-    ImgPreviewer.prototype.reset = function () {
-        console.log(mergeOptions, options)
-    }
-    _init(selector, options)
+	// i18n translate
+	function i18nTranslate(template: string, i18nObj: object): string {
+		return template.replace(/\{\{(.*?)\}\}/g, (_, a) => i18nObj[a])
+	}
+	//
+	function defineReactValue(store: object, key: string, value: any, cal: (newVal: any) => void) {
+		Object.defineProperty(store, key, {
+			enumerable: false,
+			set(newVal) {
+				cal((value = newVal))
+			},
+			get() {
+				return value
+			}
+		})
+	}
+	//
+	function render() {
+		let el: HTMLElement | null = document.getElementById('image-preview-container')
+		if (!el) {
+			previewerContainer = document.createElement('div')
+			previewerContainer.classList.add('img-pre__container', 'img-pre__animated')
+			previewerContainer.id = 'J_container'
+			previewerContainer.style.setProperty('--container-opcity', '0.6')
+			previewerContainer.style.setProperty('--header-bg-opcity', '0.2')
+			previewerContainer.style.setProperty('--container-zIndex', '99')
+			previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo())
+			_BODY.appendChild(previewerContainer)
+		} else {
+			previewerContainer = el
+		}
+	}
+	function _init(this: any, selector: string, options?: ImgPreviewerOptions) {
+		if (options) {
+			options.zoom = Object.assign({}, defaultOptions.zoom, options.zoom || {})
+			mergeOptions = Object.assign({}, defaultOptions, options)
+		} else {
+			mergeOptions = defaultOptions
+		}
+		store.rootEl = document.querySelector(selector)
+		const imgEls = store.rootEl!.querySelectorAll<HTMLImageElement>('img:not(.img-pre__img-item img)')
+		// use defineProperty to init listen index
+		defineReactValue(store, 'index', 0, onIndexChange)
+		defineReactValue(store, 'totalIndex', 0, onTotalIndexChange)
+		render()
+		bindEvent()
+		store.currentImgElement = document.querySelector('#J_current-index img')
+		store.totalIndex = imgEls!.length
+		store.imgList = new Array(store.totalIndex)
+		for (let i = 0, len = store.totalIndex; i < len; i++) {
+			let element = imgEls![i]
+			setDataset(element, 'index', String(i))
+			store.imgList[i] = element
+		}
+		console.log(store)
+	}
+	ImgPreviewer.prototype.reset = function () {
+		console.log(mergeOptions, options)
+	}
+	_init(selector, options)
 }
 
 export default ImgPreviewer
