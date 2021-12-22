@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-22T09:52:21.727Z
+ * Date: 2021-12-22T15:00:53.107Z
  */
 
 (function (global, factory) {
@@ -131,110 +131,84 @@
             endX: 0,
             endY: 0,
             scale: 0,
+            _scale: 0,
             rotate: 0,
             currentClickEl: null
         };
-        var _BODY = document.body || document.getElementsByTagName('body')[0];
         var isOpen = false;
         var isRunning = false;
+        // FIXME: 储存到store中去
+        var moveable = false;
         // 绑定事件
-        function bindEvent() {
+        function bindEvent(rootEl) {
             var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent);
-            // let touchstart = mobile ? 'touchstart' : 'mousedown'
-            // let touchend = mobile ? 'touchend' : 'mouseup'
-            // let touchmove = mobile ? 'touchmove' : 'mousemove'
-            var rootEl = store.rootEl;
             var warpper = document.getElementById('J_content-warpper');
-            rootEl === null || rootEl === void 0 ? void 0 : rootEl.addEventListener('click', function (e) {
-                if (e.target === store.currentImgElement)
+            // add click eventlistener for rootEl, proxy img click event
+            rootEl === null || rootEl === void 0 ? void 0 : rootEl.addEventListener('click', function (event) {
+                var target = event.target;
+                if (target === store.currentImgElement)
                     return;
-                if (e.target.localName === 'img') {
-                    store.currentClickEl = e.target;
-                    store.index = Number(e.target.dataset.index);
-                    console.log(Number(e.target.dataset.index));
-                    handlePrviewershow(e, store.imgList[store.index].src);
+                if (target.localName === 'img') {
+                    store.currentClickEl = target;
+                    store.index = Number(target.dataset.index);
+                    handlePrviewershow(event, store.imgList[store.index].src);
                 }
             }, false);
-            var lastTouchEnd = 0;
-            document.documentElement.addEventListener('touchend', function (event) {
-                var now = Date.now();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
-            }, false);
-            var handleFn = function (actionType) {
-                console.log('调用', actionType);
-                switch (actionType) {
-                    case 'close':
-                        handlePrviewerHide();
-                        break;
-                    case 'Escape':
-                        handlePrviewerHide();
-                        break;
-                    case 'rotateLeft':
-                        handleRotateLeft();
-                        break;
-                    case 'rotateRight':
-                        handleRotateRight();
-                        break;
-                    case 'reset':
-                        setImageStyles(window.innerWidth, window.innerHeight);
-                        break;
-                    case 'next':
-                        handleNext();
-                        break;
-                    case 'ArrowRight':
-                        handleNext();
-                        break;
-                    case 'prev':
-                        handlePrev();
-                        break;
-                    case 'ArrowLeft':
-                        handlePrev();
-                        break;
-                }
-            };
-            document.getElementById('J_header-buttons').addEventListener('click', function (e) {
+            // all buttons event proxy linstener
+            document.getElementById('J_header-buttons').addEventListener('click', function (event) {
                 // fixed mobile Safari and chrome e.path undefined
-                var ev = window.event || e;
-                var path = ev.path || (ev.composedPath && ev.composedPath());
+                var _event = window.event || event;
+                var path = _event.path || (_event.composedPath && _event.composedPath());
                 var buttonEl = path.find(function (item) { return item.localName === 'button'; });
                 if (buttonEl && !buttonEl.disabled) {
-                    handleFn(buttonEl.dataset.action);
+                    handleActionFn(buttonEl.dataset.action);
                 }
             });
-            document.addEventListener('keyup', function (e) {
-                handleFn(e.key);
+            // hot keyboard event listener
+            document.addEventListener('keyup', function (_a) {
+                var key = _a.key;
+                return handleActionFn(key);
             });
+            // mouse wheel to zoom and zoom out image
             warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('mousewheel', function (e) {
                 if (e.target.localName !== 'img')
                     return;
+                moveable = true;
                 preventDefault(e);
-                // store.currentImgElement!.classList.add('moving')
                 var _a = mergeOptions.zoom, min = _a.min, max = _a.max, step = _a.step;
+                var _max = store._scale + max;
                 if (e.wheelDelta > 0) {
-                    // 放大
+                    // zoom
                     var scale = step + store.scale;
-                    store.scale = scale > max ? max : scale;
+                    store.scale = scale > _max ? _max : scale;
                 }
                 else {
-                    // 缩小
+                    // zoom out
                     var scale = store.scale - step;
                     store.scale = scale < min ? min : scale;
                 }
                 store.currentImgElement.style.setProperty('--scale', "".concat(store.scale.toFixed(2)));
-                console.log(store.currentImgElement.classList);
             });
-            // var eleImg = document.querySelector('#image')
-            // 缩放事件的处理
+            // click modal hide preview
+            warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('click', function (event) {
+                if (event.target === document.getElementById('J_current-index')) {
+                    handleActionFn('close');
+                }
+            });
+            //
             if (mobile) {
                 enableMobileScale(warpper);
+                var lastTouchEnd_1 = 0;
+                document.documentElement.addEventListener('touchend', function (event) {
+                    var now = Date.now();
+                    if (now - lastTouchEnd_1 <= 300) {
+                        event.preventDefault();
+                    }
+                    lastTouchEnd_1 = now;
+                }, false);
             }
-            document.ondragstart = preventDefault;
-            document.ondragend = preventDefault;
             warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('mousedown', function (e) {
-                if (e.target.localName !== 'img')
+                if (e.target.localName !== 'img' || !moveable)
                     return;
                 var diffX = e.clientX - e.target.offsetLeft;
                 var diffY = e.clientY - e.target.offsetTop;
@@ -245,7 +219,7 @@
                     var moveY = e.clientY - diffY;
                     setStyle(store.currentImgElement, {
                         top: "".concat(moveY, "px"),
-                        left: "".concat(moveX, "px"),
+                        left: "".concat(moveX, "px")
                     });
                 };
                 warpper['onmouseup'] = function () {
@@ -256,11 +230,37 @@
                     this.onmousemove = null;
                     store.currentImgElement.classList.remove('moving');
                 };
-            }, { passive: true });
+            });
             var handleResize = debounce(function () {
                 isOpen && setImageStyles(window.innerWidth, window.innerHeight);
             }, 100);
             window.addEventListener('resize', handleResize);
+        }
+        // distribute processing function by antionType
+        function handleActionFn(actionType) {
+            switch (actionType) {
+                case 'close':
+                case 'Escape':
+                    handlePrviewerHide();
+                    break;
+                case 'rotateLeft':
+                    handleRotateLeft();
+                    break;
+                case 'rotateRight':
+                    handleRotateRight();
+                    break;
+                case 'reset':
+                    handleReset();
+                    break;
+                case 'next':
+                case 'ArrowRight':
+                    handleNext();
+                    break;
+                case 'prev':
+                case 'ArrowLeft':
+                    handlePrev();
+                    break;
+            }
         }
         function setStyle(imgElement, styleObj) {
             for (var key in styleObj) {
@@ -284,7 +284,7 @@
         function setImageStyles(w, h) {
             store.endX = w / 2 - store.width / 2 - store.startX;
             store.endY = h / 2 - store.height / 2 - store.startY;
-            store.scale = getTwoNumberSmall(w, store.width, h, store.height, mergeOptions.ratio || defaultOptions.ratio);
+            store.scale = store._scale = getTwoNumberSmall(w, store.width, h, store.height, mergeOptions.ratio || defaultOptions.ratio);
             setStyle(store.currentImgElement, {
                 top: "".concat(store.startY, "px"),
                 left: "".concat(store.startX - 1, "px"),
@@ -298,6 +298,7 @@
                 '--rotate': "0"
             });
         }
+        // mobile enable two finger scale
         function enableMobileScale(warpper) {
             var _store = {
                 scale: 1
@@ -328,7 +329,7 @@
                 var touches = event.touches;
                 var events = touches[0];
                 var events2 = touches[1];
-                // 双指移动
+                // two finger move
                 if (events2) {
                     // 第2个指头坐标在touchmove时候获取
                     if (!_store.pageX2) {
@@ -337,7 +338,7 @@
                     if (!_store.pageY2) {
                         _store.pageY2 = events2.pageY;
                     }
-                    // 获取坐标之间的举例
+                    // 获取坐标之间的距离
                     var getDistance = function (start, stop) {
                         return Math.hypot(stop.x - start.x, stop.y - start.y);
                     };
@@ -381,74 +382,88 @@
                 delete _store.pageY2;
             });
         }
+        function handleReset() {
+            moveable = false;
+            setImageStyles(window.innerWidth, window.innerHeight);
+        }
         function handleNext() {
             if (store.index === store.totalIndex - 1 || isRunning)
                 return;
             isRunning = true;
-            store.index = store.index + 1;
+            var index = store.index + 1;
             var div = document.createElement('div');
-            var img = document.createElement('img');
             var warpper = document.getElementById('J_content-warpper');
+            var img = document.createElement('img');
             var currentImgWarpper = document.querySelector('#J_current-index');
-            var clickEl = store.imgList[store.index];
+            var clickEl = store.imgList[index];
+            img.src = clickEl.src;
+            // cache data
+            store.index = index;
             store.width = clickEl.width;
             store.height = clickEl.height;
-            div.classList.add('img-pre__img-item', 'slide-left-in');
-            img.src = clickEl.src;
             store.currentImgElement = img;
+            //
             setImageStyles(window.innerWidth, window.innerHeight);
             div.appendChild(img);
+            div.classList.add('img-pre__img-item', 'slide-left-in');
             warpper.appendChild(div);
             currentImgWarpper.classList.add('slide-left-out');
             currentImgWarpper.addEventListener('animationend', function () {
                 isRunning = false;
                 currentImgWarpper && warpper.removeChild(currentImgWarpper);
             });
-            var fn = function () {
+            // listen animationend and remove prev el
+            div.addEventListener('animationend', function () {
                 div.classList.remove('slide-left-in');
                 div.classList.add('current-index');
                 div.id = 'J_current-index';
                 store.currentClickEl = clickEl;
-                div.removeEventListener('animationend', fn);
-            };
-            div.addEventListener('animationend', fn);
+            }, {
+                once: true
+            });
         }
         function handlePrev() {
             if (store.index === 0 || isRunning)
                 return;
             isRunning = true;
-            store.index = store.index - 1;
+            var index = store.index - 1;
             var div = document.createElement('div');
             var img = document.createElement('img');
             var warpper = document.getElementById('J_content-warpper');
             var currentImgWarpper = document.querySelector('#J_current-index');
-            var clickEl = store.imgList[store.index];
+            var clickEl = store.imgList[index];
+            img.src = clickEl.src;
+            // cache data
+            store.index = index;
             store.width = clickEl.width;
             store.height = clickEl.height;
-            div.classList.add('img-pre__img-item', 'slide-right-in');
-            img.src = clickEl.src;
             store.currentImgElement = img;
+            //
             setImageStyles(window.innerWidth, window.innerHeight);
             div.appendChild(img);
+            div.classList.add('img-pre__img-item', 'slide-right-in');
             warpper.appendChild(div);
             currentImgWarpper.classList.add('slide-right-out');
             currentImgWarpper.addEventListener('animationend', function () {
                 isRunning = false;
                 currentImgWarpper && warpper.removeChild(currentImgWarpper);
             });
-            var fn = function () {
+            // listen animationend and remove next el
+            div.addEventListener('animationend', function () {
                 div.classList.remove('slide-right-in');
                 div.classList.add('current-index');
                 div.id = 'J_current-index';
                 store.currentClickEl = clickEl;
-                div.removeEventListener('animationend', fn);
-            };
-            div.addEventListener('animationend', fn);
+            }, {
+                once: true
+            });
         }
         // show
         function handlePrviewershow(e, src) {
             isOpen = true;
             previewerContainer.style.display = 'block';
+            document.ondragstart = preventDefault;
+            document.ondragend = preventDefault;
             nextTick(function () {
                 store.currentImgElement.src = src;
                 previewerContainer.classList.remove('hide');
@@ -458,42 +473,33 @@
                 store.startX = e.clientX - e.offsetX;
                 store.startY = e.clientY - e.offsetY + 1;
                 setImageStyles(window.innerWidth, window.innerHeight);
-                // store.currentImgElement?.addEventListener('transitionstart', () => {
-                //     setStyle(store.currentClickEl, {
-                //         visibility: 'hidden'
-                //     })
-                // }, {
-                //     once: true
-                // })
             });
         }
         // hide
         function handlePrviewerHide() {
             isOpen = false;
-            // 如果元素在视图中
+            moveable = false;
+            document.ondragstart = null;
+            document.ondragend = null;
+            //  current click image el is in viewport
             if (isElementInViewport(store.currentClickEl)) {
                 var _a = getElementRect(store.currentClickEl), top = _a.top, left = _a.left, width = _a.width, height = _a.height;
                 previewerContainer.classList.remove('show');
                 previewerContainer.classList.add('hide');
                 store.currentImgElement.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position: fixed; top: ").concat(top, "px; left: ").concat(left, "px;");
-                var fn_1 = function () {
-                    var _a;
+                store.currentImgElement.addEventListener('transitionend', function () {
                     previewerContainer.style.display = 'none';
                     store.currentImgElement.src = '';
                     store.currentImgElement.style.cssText = "";
-                    (_a = store.currentImgElement) === null || _a === void 0 ? void 0 : _a.removeEventListener('transitionend', fn_1);
-                };
-                store.currentImgElement.addEventListener('transitionend', fn_1);
+                }, { once: true });
             }
         }
-        // 左旋转
         function handleRotateLeft() {
             store.rotate -= 90;
             setProperties(store.currentImgElement, {
                 '--rotate': "".concat(store.rotate, "deg")
             });
         }
-        // 右旋转
         function handleRotateRight() {
             store.rotate += 90;
             setProperties(store.currentImgElement, {
@@ -559,7 +565,7 @@
                 previewerContainer.style.setProperty('--header-bg-opcity', '0.2');
                 previewerContainer.style.setProperty('--container-zIndex', '99');
                 previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo());
-                _BODY.appendChild(previewerContainer);
+                document.body.appendChild(previewerContainer);
             }
             else {
                 previewerContainer = el;
@@ -573,22 +579,25 @@
             else {
                 mergeOptions = defaultOptions;
             }
-            store.rootEl = document.querySelector(selector);
-            var imgEls = store.rootEl.querySelectorAll('img');
+            var rootEl = document.querySelector(selector);
+            var imgEls = rootEl.querySelectorAll('img');
             // use defineProperty to init listen index
             defineReactValue(store, 'index', 0, onIndexChange);
             defineReactValue(store, 'totalIndex', 0, onTotalIndexChange);
+            // render to document
             render();
-            bindEvent();
-            store.currentImgElement = document.querySelector('#J_current-index img');
+            // bind enent for el
+            bindEvent(rootEl);
+            // cache data
+            // store.rootEl = rootEl
             store.totalIndex = imgEls.length;
             store.imgList = new Array(store.totalIndex);
+            store.currentImgElement = document.querySelector('#J_current-index img');
             for (var i = 0, len = store.totalIndex; i < len; i++) {
                 var element = imgEls[i];
                 setDataset(element, 'index', String(i));
                 store.imgList[i] = element;
             }
-            console.log(store);
         }
         ImgPreviewer.prototype.reset = function () {
             console.log(mergeOptions, options);
