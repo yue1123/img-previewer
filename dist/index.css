@@ -42,7 +42,7 @@
   width: 30px;
   height: 30px;
   border-radius: 4px;
-  margin-right: 10px;
+  margin-right: 1.5vw;
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
@@ -136,6 +136,7 @@
 }
 
 .img-pre__container .img-pre__contet-warpper img {
+  cursor: pointer;
   position: absolute;
   -webkit-transition: all 0.5s;
   transition: all 0.5s;
@@ -153,6 +154,17 @@
   color: #f6f6f6;
   cursor: pointer;
   z-index: calc(var(--container-zIndex) + 1);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding: 5px 2px;
+  border-radius: 2px;
 }
 
 .img-pre__container #J-img-pre__prev .bi,
@@ -162,12 +174,22 @@
   height: 18px;
 }
 
+.img-pre__container #J-img-pre__prev:hover,
+.img-pre__container #J-img-pre__next:hover {
+  background: rgba(0, 0, 0, var(--header-bg-opcity));
+}
+
 .img-pre__container #J-img-pre__prev {
   left: 2%;
 }
 
 .img-pre__container #J-img-pre__next {
   right: calc(2% + 100vw - 100%);
+}
+
+.img-pre__container .moving {
+  -webkit-transition: none !important;
+  transition: none !important;
 }
 
 .img-pre__container.show {

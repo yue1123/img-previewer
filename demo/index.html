@@ -15,6 +15,7 @@
 				padding: 0;
 				/* outline: 1px solid #74ebd5; */
 			}
+            body { height: 100%; width: 100%; overflow: auto; }
 			.banner {
 				height: 300px;
 				width: 100%;
@@ -144,12 +145,13 @@
 		</div>
 
 		<script src="../dist/img-previewer.js"></script>
+		<!-- <script src="./js/img-previewer.min.js"></script> -->
 		<script>
 			const a = new ImgPreviewer('body', {
 				scrollbar: true,
 				ratio: 0.7,
 				zoom: {
-					step: 0.2
+					step: 1
 				}
 			})
 			console.log(a)

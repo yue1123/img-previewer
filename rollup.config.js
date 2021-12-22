@@ -27,13 +27,13 @@ module.exports = {
             format: 'umd'
             
         },
-        // {
-        //     banner,
-        //     name,
-        //     file: `dist/${pkg.name}.min.js`,
-        //     format: 'umd',
-        //     plugins: [terser()]
-        // },
+        {
+            banner,
+            name,
+            file: `dist/${pkg.name}.min.js`,
+            format: 'umd',
+            plugins: [terser()]
+        },
         // {
         //     banner,
         //     name,

@@ -30,102 +30,102 @@
 		/>
 		<script src="./img-previewer.js"></script>
 		<script>
-			// var eleImg = document.querySelector('#image')
-			// var store = {
-			// 	scale: 1
-			// }
-			// // 缩放事件的处理
-			// eleImg.addEventListener('touchstart', function (event) {
-			// 	var touches = event.touches
-			// 	var events = touches[0]
-			// 	var events2 = touches[1]
+			var eleImg = document.querySelector('#image')
+			var _store = {
+				scale: 1
+			}
+			// 缩放事件的处理
+			eleImg.addEventListener('touchstart', function (event) {
+				var touches = event.touches
+				var events = touches[0]
+				var events2 = touches[1]
 
-			// 	event.preventDefault()
+				event.preventDefault()
 
-			// 	// 第一个触摸点的坐标
-			// 	store.pageX = events.pageX
-			// 	store.pageY = events.pageY
+				// 第一个触摸点的坐标
+				_store.pageX = events.pageX
+				_store.pageY = events.pageY
 
-			// 	store.moveable = true
+				_store.moveable = true
 
-			// 	if (events2) {
-			// 		store.pageX2 = events2.pageX
-			// 		store.pageY2 = events2.pageY
-			// 	}
+				if (events2) {
+					_store.pageX2 = events2.pageX
+					_store.pageY2 = events2.pageY
+				}
 
-			// 	store.originScale = store.scale || 1
-			// })
-			// document.addEventListener('touchmove', function (event) {
-			// 	if (!store.moveable) {
-			// 		return
-			// 	}
+				_store.originScale = _store.scale || 1
+			})
+			document.addEventListener('touchmove', function (event) {
+				if (!_store.moveable) {
+					return
+				}
 
-			// 	event.preventDefault()
+				event.preventDefault()
 
-			// 	var touches = event.touches
-			// 	var events = touches[0]
-			// 	var events2 = touches[1]
-			// 	// 双指移动
-			// 	if (events2) {
-			// 		// 第2个指头坐标在touchmove时候获取
-			// 		if (!store.pageX2) {
-			// 			store.pageX2 = events2.pageX
-			// 		}
-			// 		if (!store.pageY2) {
-			// 			store.pageY2 = events2.pageY
-			// 		}
+				var touches = event.touches
+				var events = touches[0]
+				var events2 = touches[1]
+				// 双指移动
+				if (events2) {
+					// 第2个指头坐标在touchmove时候获取
+					if (!_store.pageX2) {
+						_store.pageX2 = events2.pageX
+					}
+					if (!_store.pageY2) {
+						_store.pageY2 = events2.pageY
+					}
 
-			// 		// 获取坐标之间的举例
-			// 		var getDistance = function (start, stop) {
-			// 			return Math.hypot(stop.x - start.x, stop.y - start.y)
-			// 		}
-			// 		// 双指缩放比例计算
-			// 		var zoom =
-			// 			getDistance(
-			// 				{
-			// 					x: events.pageX,
-			// 					y: events.pageY
-			// 				},
-			// 				{
-			// 					x: events2.pageX,
-			// 					y: events2.pageY
-			// 				}
-			// 			) /
-			// 			getDistance(
-			// 				{
-			// 					x: store.pageX,
-			// 					y: store.pageY
-			// 				},
-			// 				{
-			// 					x: store.pageX2,
-			// 					y: store.pageY2
-			// 				}
-			// 			)
-			// 		// 应用在元素上的缩放比例
-			// 		var newScale = store.originScale * zoom
-			// 		// 最大缩放比例限制
-			// 		if (newScale > 100) {
-			// 			newScale = 100
-			// 		}
-			// 		// 记住使用的缩放值
-			// 		store.scale = newScale
-			// 		// 图像应用缩放效果
-			// 		eleImg.style.transform = 'scale(' + newScale + ')'
-			// 	}
-			// })
+					// 获取坐标之间的举例
+					var getDistance = function (start, stop) {
+						return Math.hypot(stop.x - start.x, stop.y - start.y)
+					}
+					// 双指缩放比例计算
+					var zoom =
+						getDistance(
+							{
+								x: events.pageX,
+								y: events.pageY
+							},
+							{
+								x: events2.pageX,
+								y: events2.pageY
+							}
+						) /
+						getDistance(
+							{
+								x: _store.pageX,
+								y: _store.pageY
+							},
+							{
+								x: _store.pageX2,
+								y: _store.pageY2
+							}
+						)
+					// 应用在元素上的缩放比例
+					var newScale = _store.originScale * zoom
+					// 最大缩放比例限制
+					if (newScale > 100) {
+						newScale = 100
+					}
+					// 记住使用的缩放值
+					_store.scale = newScale
+					// 图像应用缩放效果
+					eleImg.style.transform = 'scale(' + newScale + ')'
+				}
+			})
 
-			// document.addEventListener('touchend', function () {
-			// 	store.moveable = false
+			document.addEventListener('touchend', function () {
+				_store.moveable = false
 
-			// 	delete store.pageX2
-			// 	delete store.pageY2
-			// })
-			// document.addEventListener('touchcancel', function () {
-			// 	store.moveable = false
+				delete _store.pageX2
+				delete _store.pageY2
+			})
+			document.addEventListener('touchcancel', function () {
+				_store.moveable = false
 
-			// 	delete store.pageX2
-			// 	delete store.pageY2
-			// })
+				delete _store.pageX2
+				delete _store.pageY2
+			})
 			const a = new ImgPreviewer('body', {
 				zoom: {
 					max: 10
