@@ -15,7 +15,11 @@
 				padding: 0;
 				/* outline: 1px solid #74ebd5; */
 			}
-            body { height: 100%; width: 100%; overflow: auto; }
+			body {
+				height: 100%;
+				width: 100%;
+				overflow: auto;
+			}
 			.banner {
 				height: 300px;
 				width: 100%;
@@ -152,12 +156,20 @@
 				ratio: 0.7,
 				zoom: {
 					step: 1
+				},
+				i18n: {
+					RESET: 'リセット',
+					ROTATE_LEFT: '左に回転',
+					ROTATE_RIGHT: '右に回る',
+					CLOSE: '閉鎖',
+					NEXT: '次',
+					PREV: '前'
 				}
 			})
 			console.log(a)
 			function add() {
 				let img = document.createElement('img')
-				img.src = `https://picsum.photos/500/500?random=${Math.random()}`
+				img.src = `https://picsum.photos/500/500?random}`
 				img.onload = function () {
 					document.getElementById('app').appendChild(img)
 					a.update()

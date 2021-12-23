@@ -103,8 +103,10 @@
 			cursor: pointer;
 			position: absolute;
 			transition: all 0.5s;
+			// transition-timing-function: ease-in-out;
 			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale))
 				rotate(var(--rotate));
+			user-select: none;
 		}
 	}
 	#J-img-pre__prev,

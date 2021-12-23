@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-22T15:00:53.107Z
+ * Date: 2021-12-23T06:54:50.655Z
  */
 
 (function (global, factory) {
@@ -321,9 +321,8 @@
                 _store.originScale = _store.scale || 1;
             });
             document.addEventListener('touchmove', function (event) {
-                if (!_store.moveable) {
+                if (!_store.moveable)
                     return;
-                }
                 event.preventDefault();
                 store.currentImgElement.classList.add('moving');
                 var touches = event.touches;
@@ -580,7 +579,6 @@
                 mergeOptions = defaultOptions;
             }
             var rootEl = document.querySelector(selector);
-            var imgEls = rootEl.querySelectorAll('img');
             // use defineProperty to init listen index
             defineReactValue(store, 'index', 0, onIndexChange);
             defineReactValue(store, 'totalIndex', 0, onTotalIndexChange);
@@ -589,20 +587,24 @@
             // bind enent for el
             bindEvent(rootEl);
             // cache data
-            // store.rootEl = rootEl
+            store.currentImgElement = document.querySelector('#J_current-index img');
+            store.rootEl = rootEl;
+            // 
+            initImgList();
+        }
+        // get selector all img children to init totalIndex and store these
+        function initImgList() {
+            var imgEls = store.rootEl.querySelectorAll('img');
             store.totalIndex = imgEls.length;
             store.imgList = new Array(store.totalIndex);
-            store.currentImgElement = document.querySelector('#J_current-index img');
             for (var i = 0, len = store.totalIndex; i < len; i++) {
                 var element = imgEls[i];
                 setDataset(element, 'index', String(i));
                 store.imgList[i] = element;
             }
         }
-        ImgPreviewer.prototype.reset = function () {
-            console.log(mergeOptions, options);
-        };
         _init(selector, options);
+        ImgPreviewer.prototype.update = initImgList;
     }
 
     return ImgPreviewer;

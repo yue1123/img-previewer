@@ -142,6 +142,10 @@
   transition: all 0.5s;
   -webkit-transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
           transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale)) rotate(var(--rotate));
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 .img-pre__container #J-img-pre__prev,
