@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-23T06:54:50.655Z
+ * Date: 2021-12-23T16:34:08.605Z
  */
 
 (function (global, factory) {
@@ -170,14 +170,14 @@
                 return handleActionFn(key);
             });
             // mouse wheel to zoom and zoom out image
-            warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('mousewheel', function (e) {
-                if (e.target.localName !== 'img')
+            warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('mousewheel', function (event) {
+                preventDefault(event);
+                if (event.target.localName !== 'img')
                     return;
                 moveable = true;
-                preventDefault(e);
                 var _a = mergeOptions.zoom, min = _a.min, max = _a.max, step = _a.step;
                 var _max = store._scale + max;
-                if (e.wheelDelta > 0) {
+                if (event.wheelDelta > 0) {
                     // zoom
                     var scale = step + store.scale;
                     store.scale = scale > _max ? _max : scale;
@@ -232,7 +232,7 @@
                 };
             });
             var handleResize = debounce(function () {
-                isOpen && setImageStyles(window.innerWidth, window.innerHeight);
+                isOpen && setImageStyles(window.innerWidth, window.innerHeight, false);
             }, 100);
             window.addEventListener('resize', handleResize);
         }
@@ -281,10 +281,16 @@
                 el.setAttribute('data-' + key, value);
             }
         }
-        function setImageStyles(w, h) {
+        function setImageStyles(w, h, setRotate) {
             store.endX = w / 2 - store.width / 2 - store.startX;
             store.endY = h / 2 - store.height / 2 - store.startY;
             store.scale = store._scale = getTwoNumberSmall(w, store.width, h, store.height, mergeOptions.ratio || defaultOptions.ratio);
+            if (setRotate) {
+                store.rotate = 0;
+                setProperties(store.currentImgElement, {
+                    '--rotate': "0"
+                });
+            }
             setStyle(store.currentImgElement, {
                 top: "".concat(store.startY, "px"),
                 left: "".concat(store.startX - 1, "px"),
@@ -294,8 +300,7 @@
             setProperties(store.currentImgElement, {
                 '--offsetX': "".concat(store.endX, "px"),
                 '--offsetY': "".concat(store.endY, "px"),
-                '--scale': "".concat(store.scale),
-                '--rotate': "0"
+                '--scale': "".concat(store.scale)
             });
         }
         // mobile enable two finger scale
@@ -383,7 +388,7 @@
         }
         function handleReset() {
             moveable = false;
-            setImageStyles(window.innerWidth, window.innerHeight);
+            setImageStyles(window.innerWidth, window.innerHeight, true);
         }
         function handleNext() {
             if (store.index === store.totalIndex - 1 || isRunning)
@@ -402,7 +407,7 @@
             store.height = clickEl.height;
             store.currentImgElement = img;
             //
-            setImageStyles(window.innerWidth, window.innerHeight);
+            setImageStyles(window.innerWidth, window.innerHeight, true);
             div.appendChild(img);
             div.classList.add('img-pre__img-item', 'slide-left-in');
             warpper.appendChild(div);
@@ -438,7 +443,7 @@
             store.height = clickEl.height;
             store.currentImgElement = img;
             //
-            setImageStyles(window.innerWidth, window.innerHeight);
+            setImageStyles(window.innerWidth, window.innerHeight, true);
             div.appendChild(img);
             div.classList.add('img-pre__img-item', 'slide-right-in');
             warpper.appendChild(div);
@@ -471,7 +476,7 @@
                 store.height = e.target.height;
                 store.startX = e.clientX - e.offsetX;
                 store.startY = e.clientY - e.offsetY + 1;
-                setImageStyles(window.innerWidth, window.innerHeight);
+                setImageStyles(window.innerWidth, window.innerHeight, true);
             });
         }
         // hide
@@ -561,7 +566,7 @@
                 previewerContainer.classList.add('img-pre__container', 'img-pre__animated');
                 previewerContainer.id = 'J_container';
                 previewerContainer.style.setProperty('--container-opcity', '0.6');
-                previewerContainer.style.setProperty('--header-bg-opcity', '0.2');
+                previewerContainer.style.setProperty('--header-bg-opcity', '0');
                 previewerContainer.style.setProperty('--container-zIndex', '99');
                 previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo());
                 document.body.appendChild(previewerContainer);
@@ -589,7 +594,7 @@
             // cache data
             store.currentImgElement = document.querySelector('#J_current-index img');
             store.rootEl = rootEl;
-            // 
+            //
             initImgList();
         }
         // get selector all img children to init totalIndex and store these
