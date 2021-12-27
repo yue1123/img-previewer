@@ -50,13 +50,13 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 # 属性列表
 
-|            | 类型   | 说明                   | 默认值                                                   |
-| ---------- | ------ | ---------------------- | -------------------------------------------------------- |
-| fillRatio  | number | 图片铺满预览区域的比例 | 0.9(90%)                                                 |
-| dataUrlKey | string | 图片地址取值的 key     | src                                                      |
-| imageZoom  | object | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                              |
-| style      | object | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99}          |
-| i18n       | object | tooltips 国际化配置    | zh_cn 或者 es(默认支持简体中文和英语,其他的需要自行配置) |
+|            | 类型   | 说明                   | 默认值                                          |
+| ---------- | ------ | ---------------------- | ----------------------------------------------- |
+| fillRatio  | number | 图片铺满预览区域的比例 | 0.9(90%)                                        |
+| dataUrlKey | string | 图片地址取值的 key     | src                                             |
+| imageZoom  | object | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
+| style      | object | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+| i18n       | object | tooltips 国际化配置    | zh_cn 或者 es                                   |
 
 ## options.imageZoom
 
@@ -76,14 +76,15 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 ## options.i18n
 
-|              | 说明     |
+默认支持简体中文和英语,其他的需要自行配置
+| | 说明 |
 | ------------ | -------- |
-| RESET        | 重置     |
-| ROTATE_LEFT  | 左旋转   |
-| ROTATE_RIGHT | 右旋转   |
-| CLOSE        | 关闭预览 |
-| NEXT         | 下一张   |
-| PREV         | 上一张   |
+| RESET | 重置 |
+| ROTATE_LEFT | 左旋转 |
+| ROTATE_RIGHT | 右旋转 |
+| CLOSE | 关闭预览 |
+| NEXT | 下一张 |
+| PREV | 上一张 |
 
 ### 快捷键
 
