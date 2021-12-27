@@ -36,8 +36,8 @@ export function isElementInViewport(el: any) {
 }
 
 // 获取元素位置
-export function getElementRect(el: any) {
-    return el.getBoundingClientRect()
+export function getElementRect(el: Element | null): DOMRect {
+    return el!.getBoundingClientRect()
 }
 
 /**

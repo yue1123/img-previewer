@@ -9,7 +9,7 @@ import {
 // style sheet
 import './index.scss'
 
-import { ImgPreviewerOptions, runtimeStore, objectKeyOnlyCss } from './type'
+import type { ImgPreviewerOptions, runtimeStore, objectKeyOnlyCss } from './type'
 
 function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions) {
     if (typeof window !== 'object') {
@@ -470,14 +470,15 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         document.ondragstart = preventDefault
         document.ondragend = preventDefault
         listenImageLoading(document.getElementById('J_current-index'), src)
+        const { width, height, x, y } = getElementRect(e.target)
         nextTick(() => {
             store.currentImgElement!.src = src
             previewerContainer!.classList.remove('hide', 'fadeout')
             previewerContainer!.classList.add('show')
-            store.width = e.target.width
-            store.height = e.target.height
-            store.startX = e.clientX - e.offsetX
-            store.startY = e.clientY - e.offsetY + 1
+            store.width = width
+            store.height = height
+            store.startX = x
+            store.startY = y
             setImageStyles(window.innerWidth, window.innerHeight, true)
         })
 

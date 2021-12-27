@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-27T01:57:40.700Z
+ * Date: 2021-12-27T06:49:45.854Z
  */
 
 (function (global, factory) {
@@ -490,13 +490,14 @@
             document.ondragend = preventDefault;
             listenImageLoading(document.getElementById('J_current-index'), src);
             nextTick(function () {
+                var _a = getElementRect(e.target), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
                 store.currentImgElement.src = src;
                 previewerContainer.classList.remove('hide', 'fadeout');
                 previewerContainer.classList.add('show');
-                store.width = e.target.width;
-                store.height = e.target.height;
-                store.startX = e.clientX - e.offsetX;
-                store.startY = e.clientY - e.offsetY + 1;
+                store.width = width;
+                store.height = height;
+                store.startX = x;
+                store.startY = y;
                 setImageStyles(window.innerWidth, window.innerHeight, true);
             });
         }
