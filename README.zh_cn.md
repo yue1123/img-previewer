@@ -13,7 +13,7 @@
 7. 多语言国际化支持
 8. 图片加载监听
 
-其他语言: [English](./README.md), [简体中文](./README.zh_ch.md).
+其他语言: [English](./README.md), [简体中文](./README.zh_cn.md).
 
 **tips: 出于性能考虑,移动端没有做 swiper**
 
@@ -50,12 +50,13 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 # 属性列表
 
-|            | 说明                   | 默认值                                          |
-| ---------- | ---------------------- | ----------------------------------------------- |
-| fillRatio  | 图片铺满预览区域的比例 | 0.9(90%)                                        |
-| dataUrlKey | 图片地址取值的 key     | src                                             |
-| imageZoom  | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
-| style      | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+|            | 类型   | 说明                   | 默认值                                                   |
+| ---------- | ------ | ---------------------- | -------------------------------------------------------- |
+| fillRatio  | number | 图片铺满预览区域的比例 | 0.9(90%)                                                 |
+| dataUrlKey | string | 图片地址取值的 key     | src                                                      |
+| imageZoom  | object | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                              |
+| style      | object | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99}          |
+| i18n       | object | tooltips 国际化配置    | zh_cn 或者 es(默认支持简体中文和英语,其他的需要自行配置) |
 
 ## options.imageZoom
 
@@ -72,6 +73,17 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 | modalOpacity  | 预览区域蒙版透明度 | 0.6    |
 | headerOpacity | 工具栏透明度       | 0      |
 | zIndex        | 插件渲染的层级     | 99     |
+
+## options.i18n
+
+|              | 说明     |
+| ------------ | -------- |
+| RESET        | 重置     |
+| ROTATE_LEFT  | 左旋转   |
+| ROTATE_RIGHT | 右旋转   |
+| CLOSE        | 关闭预览 |
+| NEXT         | 下一张   |
+| PREV         | 上一张   |
 
 ### 快捷键
 
