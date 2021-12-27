@@ -40,7 +40,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             modalOpacity: 0.6,
             headerOpacity: 0,
             zIndex: 99
-        }
+        },
+        dataUrlKey: 'src'
     }
     let mergeOptions: any
     let previewerContainer: HTMLElement | null = null
@@ -97,7 +98,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
                 if (target.localName === 'img') {
                     store.currentClickEl = target
                     store.index = Number(target.dataset.index)
-                    handlePrviewershow(event, store.imgList[store.index].src)
+                    handlePrviewershow(event, getImageSrc(store.imgList[store.index]))
                 }
             },
             false
@@ -362,6 +363,9 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         moveable = false
         setImageStyles(window.innerWidth, window.innerHeight, true)
     }
+    function getImageSrc(el: HTMLImageElement): string {
+        return mergeOptions.dataUrlKey && el.getAttribute(mergeOptions.dataUrlKey) || el.src
+    }
     function handleNext() {
         if (store.index === store.totalIndex - 1 || isRunning) return
         isRunning = true
@@ -371,7 +375,9 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         const img: HTMLImageElement = document.createElement<'img'>('img')
         const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
         const clickEl = store.imgList[index]
-        img.src = clickEl.src
+        const src = getImageSrc(clickEl)
+
+        img.src = src
 
         // cache data
         store.index = index
@@ -382,7 +388,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         setImageStyles(window.innerWidth, window.innerHeight, true)
         div.appendChild(img)
         div.classList.add('img-pre__img-item', 'slide-left-in')
-        listenImageLoading(div, clickEl.src)
+        listenImageLoading(div, src)
         warpper!.appendChild(div)
 
         currentImgWarpper!.classList.add('slide-left-out')
@@ -414,7 +420,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         const warpper = document.getElementById('J_content-warpper')
         const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
         const clickEl = store.imgList[index]
-        img.src = clickEl.src
+        const src = getImageSrc(clickEl)
+        img.src = src
         // cache data
         store.index = index
         store.width = clickEl.width
@@ -424,7 +431,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         setImageStyles(window.innerWidth, window.innerHeight, true)
         div.appendChild(img)
         div.classList.add('img-pre__img-item', 'slide-right-in')
-        listenImageLoading(div, clickEl.src)
+        listenImageLoading(div, src)
         warpper!.appendChild(div)
 
         currentImgWarpper!.classList.add('slide-right-out')

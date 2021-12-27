@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-27T06:49:45.854Z
+ * Date: 2021-12-27T07:58:17.444Z
  */
 
 (function (global, factory) {
@@ -98,7 +98,8 @@
                 modalOpacity: 0.6,
                 headerOpacity: 0,
                 zIndex: 99
-            }
+            },
+            dataUrlKey: 'src'
         };
         var mergeOptions;
         var previewerContainer = null;
@@ -154,7 +155,7 @@
                 if (target.localName === 'img') {
                     store.currentClickEl = target;
                     store.index = Number(target.dataset.index);
-                    handlePrviewershow(event, store.imgList[store.index].src);
+                    handlePrviewershow(event, getImageSrc(store.imgList[store.index]));
                 }
             }, false);
             // all buttons event proxy linstener
@@ -393,6 +394,9 @@
             moveable = false;
             setImageStyles(window.innerWidth, window.innerHeight, true);
         }
+        function getImageSrc(el) {
+            return mergeOptions.dataUrlKey && el.getAttribute(mergeOptions.dataUrlKey) || el.src;
+        }
         function handleNext() {
             if (store.index === store.totalIndex - 1 || isRunning)
                 return;
@@ -403,7 +407,8 @@
             var img = document.createElement('img');
             var currentImgWarpper = document.querySelector('#J_current-index');
             var clickEl = store.imgList[index];
-            img.src = clickEl.src;
+            var src = getImageSrc(clickEl);
+            img.src = src;
             // cache data
             store.index = index;
             store.width = clickEl.width;
@@ -413,7 +418,7 @@
             setImageStyles(window.innerWidth, window.innerHeight, true);
             div.appendChild(img);
             div.classList.add('img-pre__img-item', 'slide-left-in');
-            listenImageLoading(div, clickEl.src);
+            listenImageLoading(div, src);
             warpper.appendChild(div);
             currentImgWarpper.classList.add('slide-left-out');
             currentImgWarpper.addEventListener('animationend', function () {
@@ -440,7 +445,8 @@
             var warpper = document.getElementById('J_content-warpper');
             var currentImgWarpper = document.querySelector('#J_current-index');
             var clickEl = store.imgList[index];
-            img.src = clickEl.src;
+            var src = getImageSrc(clickEl);
+            img.src = src;
             // cache data
             store.index = index;
             store.width = clickEl.width;
@@ -450,7 +456,7 @@
             setImageStyles(window.innerWidth, window.innerHeight, true);
             div.appendChild(img);
             div.classList.add('img-pre__img-item', 'slide-right-in');
-            listenImageLoading(div, clickEl.src);
+            listenImageLoading(div, src);
             warpper.appendChild(div);
             currentImgWarpper.classList.add('slide-right-out');
             currentImgWarpper.addEventListener('animationend', function () {
@@ -489,8 +495,8 @@
             document.ondragstart = preventDefault;
             document.ondragend = preventDefault;
             listenImageLoading(document.getElementById('J_current-index'), src);
+            var _a = getElementRect(e.target), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
             nextTick(function () {
-                var _a = getElementRect(e.target), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
                 store.currentImgElement.src = src;
                 previewerContainer.classList.remove('hide', 'fadeout');
                 previewerContainer.classList.add('show');

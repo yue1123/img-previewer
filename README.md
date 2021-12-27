@@ -50,11 +50,12 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 # Property list
 
-|           | Description                                             | Default value                                   |
-| --------- | ------------------------------------------------------- | ----------------------------------------------- |
-| fillRatio | The proportion of the image that fills the preview area | 0.9(90%)                                        |
-| imageZoom | Zoom image configuration                                | {min: 0.1,max: 5,step: 0.1}                     |
-| style     | Style configuration                                     | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+|            | Description                                             | Default value                                   |
+| ---------- | ------------------------------------------------------- | ----------------------------------------------- |
+| fillRatio  | The proportion of the image that fills the preview area | 0.9(90%)                                        |
+| dataUrlKey | The key of the image address value                      | src                                             |
+| imageZoom  | Zoom image configuration                                | {min: 0.1,max: 5,step: 0.1}                     |
+| style      | Style configuration                                     | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 
 ## options.imageZoom
 

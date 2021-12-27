@@ -50,11 +50,12 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 # 属性列表
 
-|           | 说明                   | 默认值                                          |
-| --------- | ---------------------- | ----------------------------------------------- |
-| fillRatio | 图片铺满预览区域的比例 | 0.9(90%)                                        |
-| imageZoom | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
-| style     | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+|            | 说明                   | 默认值                                          |
+| ---------- | ---------------------- | ----------------------------------------------- |
+| fillRatio  | 图片铺满预览区域的比例 | 0.9(90%)                                        |
+| dataUrlKey | 图片地址取值的 key     | src                                             |
+| imageZoom  | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
+| style      | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 
 ## options.imageZoom
 
