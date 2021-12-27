@@ -1,33 +1,33 @@
 # Img-previewer Js
 
-轻量且强大的 `javascript` 图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面 `html` 代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验
+Lightweight and powerful `javascript` image preview plug-in, silky animation allows you to elegantly preview the images in your website. Out of the box, you don't need extra configuration (by default) or change the page `html` code structure, you can easily enable the plugin in any type of website and upgrade your user experience
 
-提供了这些功能:
+These functions are provided:
 
-1. 丝滑的可打断过渡动画
-2. 鼠标滚轮缩放图片
-3. 图标拖动图片
-4. 上一张&下一张
-5. 快捷键支持
-6. 移动端手势(双指放大)支持
-7. 多语言国际化支持
-8. 图片加载监听
+1. Silky, interruptible transition animation
+2. Use mouse wheel to zoom picture
+3. Icon drag picture
+4. Previous & Next
+5. Shortcut key support
+6. Support for mobile gestures (zoom in with two fingers)
+7. Multi-language internationalization support
+8. Picture loading monitor
 
-其他语言: [English](./README.es.md), [简体中文](./README.md).
+Read this document in other languages: [English](./README.md), [简体中文](./README.zh_ch.md).
 
-**tips: 出于性能考虑,移动端没有做 swiper**
+**tips: For performance reasons, the mobile terminal does not do swiper**
 
-# 示例
+# Example
 
-[预览](https://yue1123.github.io/img-previewer/demo/)
+[Preview](https://yue1123.github.io/img-previewer/demo/index.es.html)
 
-# 如何使用
+# how to use
 
 ### NPM
 
 ```bash
 npm i img-previewer
-# 或者
+# or
 yarn add img-previewer
 ```
 
@@ -37,55 +37,55 @@ yarn add img-previewer
 <script src="https://cdn.jsdelivr.net/npm/img-previewer@1.0.1/dist/img-previewer.min.js"></script>
 ```
 
-### 启用
+### Enable
 
 ```js
 //js
-import ImgPreviewer from 'img-previewer'
+import ImgPreviewer from'img-previewer'
 //css
-import 'img-previewer/dist/index.css'
+import'img-previewer/dist/index.css'
 
 const imgpreviewer = new ImgPreviewer(css selector,{options...})
 ```
 
-# 属性列表
+# Property list
 
-|           | 说明                   | 默认值                                          |
-| --------- | ---------------------- | ----------------------------------------------- |
-| fillRatio | 图片铺满预览区域的比例 | 0.9(90%)                                        |
-| imageZoom | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
-| style     | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+|           | Description                                             | Default value                                   |
+| --------- | ------------------------------------------------------- | ----------------------------------------------- |
+| fillRatio | The proportion of the image that fills the preview area | 0.9(90%)                                        |
+| imageZoom | Zoom image configuration                                | {min: 0.1,max: 5,step: 0.1}                     |
+| style     | Style configuration                                     | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 
 ## options.imageZoom
 
-|      | 说明                   | 默认值   |
-| ---- | ---------------------- | -------- |
-| min  | 最小缩放比例           | 0.1(10%) |
-| max  | 最大缩放比例           | 5(500%)  |
-| step | 滚轮每次滚动变化的比例 | 0.1      |
+|      | Description                                    | Default value |
+| ---- | ---------------------------------------------- | ------------- |
+| min  | Minimum zoom ratio                             | 0.1(10%)      |
+| max  | Maximum zoom ratio                             | 5(500%)       |
+| step | The change ratio of the scroll wheel each time | 0.1           |
 
 ## options.style
 
-|               | 说明               | 默认值 |
-| ------------- | ------------------ | ------ |
-| modalOpacity  | 预览区域蒙版透明度 | 0.6    |
-| headerOpacity | 工具栏透明度       | 0      |
-| zIndex        | 插件渲染的层级     | 99     |
+|               | Description                    | Default value |
+| ------------- | ------------------------------ | ------------- |
+| modalOpacity  | Preview area mask transparency | 0.6           |
+| headerOpacity | Toolbar transparency           | 0             |
+| zIndex        | Level of plug-in rendering     | 99            |
 
-### 快捷键
+### hot key
 
-| 按键 | 说明     |
-| ---- | -------- |
-| Esc  | 关闭预览 |
-| <=   | 上一张   |
-| =>   | 下一张   |
+| Button | Description   |
+| ------ | ------------- |
+| Esc    | Close preview |
+| <=     | Previous      |
+| =>     | Next          |
 
-# 更新图片
+# Update picture
 
-一些动态更新图片列表使用
+Some dynamically updated picture lists use
 
 ```js
 const a = new ImgPreviewer('body')
-// 图片渲染到页面后调用
+// Called after the image is rendered on the page
 a.update()
 ```
