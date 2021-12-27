@@ -19,7 +19,7 @@ Read this document in other languages: [English](./README.es.md), [Chinese](./RE
 
 # Example
 
-[Preview](https://yue1123.github.io/img-previewer/demo/)
+[Preview](https://yue1123.github.io/img-previewer/demo/index.es.html)
 
 # how to use
 
