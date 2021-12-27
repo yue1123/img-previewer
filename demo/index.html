@@ -7,7 +7,6 @@
 			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
 		/>
 		<title>img-previewer</title>
-		<!-- <link rel="stylesheet" href="../src/index.css" /> -->
 		<link rel="stylesheet" href="../dist/index.css" />
 		<style>
 			* {
@@ -154,19 +153,21 @@
 			const a = new ImgPreviewer('#app', {
 				scrollbar: true,
 				ratio: 0.7,
-				zoom: {
+				imageZoom: {
 					step: 1
 				},
-				i18n: {
-					RESET: 'リセット',
-					ROTATE_LEFT: '左に回転',
-					ROTATE_RIGHT: '右に回る',
-					CLOSE: '閉鎖',
-					NEXT: '次',
-					PREV: '前'
+				style: {
+					modalOpacity: 0.8
 				}
+				// i18n: {
+				// 	RESET: 'リセット',
+				// 	ROTATE_LEFT: '左に回転',
+				// 	ROTATE_RIGHT: '右に回る',
+				// 	CLOSE: '閉鎖',
+				// 	NEXT: '次',
+				// 	PREV: '前'
+				// }
 			})
-			console.log(a)
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random}`

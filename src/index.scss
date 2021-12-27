@@ -98,6 +98,18 @@
 			&.slide-right-in {
 				animation-name: img-pre_slide-right-show;
 			}
+			&.loading::after {
+				content: '';
+				display: inline-block;
+				width: 40px;
+				height: 40px;
+				background: url('data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJsb2FkZXItMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiCiAgIHdpZHRoPSI0MHB4IiBoZWlnaHQ9IjQwcHgiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDAgNDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPgogIDxwYXRoIG9wYWNpdHk9IjAuMiIgZmlsbD0iI2NjYyIgZD0iTTIwLjIwMSw1LjE2OWMtOC4yNTQsMC0xNC45NDYsNi42OTItMTQuOTQ2LDE0Ljk0NmMwLDguMjU1LDYuNjkyLDE0Ljk0NiwxNC45NDYsMTQuOTQ2CiAgICBzMTQuOTQ2LTYuNjkxLDE0Ljk0Ni0xNC45NDZDMzUuMTQ2LDExLjg2MSwyOC40NTUsNS4xNjksMjAuMjAxLDUuMTY5eiBNMjAuMjAxLDMxLjc0OWMtNi40MjUsMC0xMS42MzQtNS4yMDgtMTEuNjM0LTExLjYzNAogICAgYzAtNi40MjUsNS4yMDktMTEuNjM0LDExLjYzNC0xMS42MzRjNi40MjUsMCwxMS42MzMsNS4yMDksMTEuNjMzLDExLjYzNEMzMS44MzQsMjYuNTQxLDI2LjYyNiwzMS43NDksMjAuMjAxLDMxLjc0OXoiLz4KICA8cGF0aCBmaWxsPSIjY2NjIiBkPSJNMjYuMDEzLDEwLjA0N2wxLjY1NC0yLjg2NmMtMi4xOTgtMS4yNzItNC43NDMtMi4wMTItNy40NjYtMi4wMTJoMHYzLjMxMmgwCiAgICBDMjIuMzIsOC40ODEsMjQuMzAxLDkuMDU3LDI2LjAxMywxMC4wNDd6Ij4KICAgIDxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZVR5cGU9InhtbCIKICAgICAgYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIgogICAgICB0eXBlPSJyb3RhdGUiCiAgICAgIGZyb209IjAgMjAgMjAiCiAgICAgIHRvPSIzNjAgMjAgMjAiCiAgICAgIGR1cj0iMXMiCiAgICAgIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgICA8L3BhdGg+CiAgPC9zdmc+')
+					no-repeat center center / cover;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
 		}
 		img {
 			cursor: pointer;
@@ -130,7 +142,7 @@
 			height: 18px;
 		}
 		&:hover {
-			background: rgba(0, 0, 0, var(--header-bg-opcity));
+			background: rgba(0, 0, 0, 0.2);
 		}
 	}
 	#J-img-pre__prev {
@@ -151,6 +163,9 @@
 	&.hide {
 		animation-name: img-pre_hide;
 		.img-pre__header {
+			animation-name: img-pre_header-hide;
+		}
+		img.img-pre__animated {
 			animation-name: img-pre_header-hide;
 		}
 	}
@@ -180,21 +195,17 @@
 }
 @keyframes img-pre_header-show {
 	0% {
-		// transform: translateY(-100%) translateZ(0);
 		opacity: 0;
 	}
 	100% {
-		// transform: translateY(0) translateZ(0);
 		opacity: 1;
 	}
 }
 @keyframes img-pre_header-hide {
 	0% {
-		// transform: translateY(0) translateZ(0);
 		opacity: 1;
 	}
 	100% {
-		// transform: translateY(-100%) translateZ(0);
 		opacity: 0;
 	}
 }
