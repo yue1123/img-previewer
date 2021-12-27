@@ -2,3 +2,9 @@
 /src
 /demo
 /test
+rollup.config.js
+tsconfig.json
+yarn.lock
+README.es.1.txt
+.babelrc
+.npmignore
