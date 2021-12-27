@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-27T07:58:17.444Z
+ * Date: 2021-12-27T08:07:27.019Z
  */
 
 (function (global, factory) {
@@ -651,7 +651,7 @@
         }
         _init(selector, options);
         ImgPreviewer.prototype.update = initImgList;
-        ImgPreviewer.prototype.version = '2.0.0_beta-0.1';
+        ImgPreviewer.prototype.version = '2.0.0';
     }
 
     return ImgPreviewer;

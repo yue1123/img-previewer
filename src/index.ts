@@ -646,7 +646,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 
     _init(selector, options)
     ImgPreviewer.prototype.update = initImgList
-    ImgPreviewer.prototype.version = '2.0.0_beta-0.1'
+    ImgPreviewer.prototype.version = '2.0.0'
 }
 
 export default ImgPreviewer
