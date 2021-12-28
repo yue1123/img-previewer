@@ -123,9 +123,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         // mouse wheel to zoom and zoom out image
         warpper?.addEventListener('wheel', (event: any) => {
             preventDefault(event)
-            console.log(event);
             if (event.target.localName !== 'img') return
-            console.log(event);
             moveable = true
             let { min, max, step } = mergeOptions.imageZoom
             let _max = store._scale + max

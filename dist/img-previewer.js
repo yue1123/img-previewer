@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v2.0.0
+ * ImgPreviewer v2.0.1
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2021-12-28T02:07:32.389Z
+ * Date: 2021-12-28T07:05:12.521Z
  */
 
 (function (global, factory) {
@@ -176,10 +176,8 @@
             // mouse wheel to zoom and zoom out image
             warpper === null || warpper === void 0 ? void 0 : warpper.addEventListener('wheel', function (event) {
                 preventDefault(event);
-                console.log(event);
                 if (event.target.localName !== 'img')
                     return;
-                console.log(event);
                 moveable = true;
                 var _a = mergeOptions.imageZoom, min = _a.min, max = _a.max, step = _a.step;
                 var _max = store._scale + max;
