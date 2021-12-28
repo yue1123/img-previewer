@@ -1,10 +1,4 @@
-/**
- * 防抖函数
- * @export {Funcion}
- * @param {Function} fn 回调函数
- * @param {Number} delay 防抖时间
- * @returns {Function}
- */
+import type { objectKeyOnlyCss } from '../type'
 
 export function debounce<T>(fn: (arg: T) => void, delay: number) {
     var timer = 0
@@ -17,15 +11,10 @@ export function debounce<T>(fn: (arg: T) => void, delay: number) {
     }
 }
 
-/**
- * 阻止默认事件
- * @param {Object} e
- */
 export function preventDefault(e: Event) {
     e.preventDefault()
 }
 
-// 获取元素是否出现在可视区域
 export function isElementInViewport(el: any) {
     const viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
     const offsetTop = el.offsetTop
@@ -35,14 +24,14 @@ export function isElementInViewport(el: any) {
     return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100
 }
 
-// 获取元素位置
 export function getElementRect(el: Element | null): DOMRect {
     return el!.getBoundingClientRect()
 }
 
 /**
  * 获取两数乘以一定比例后,较小的一个
- * @param multiplicator 乘数
+ * @param multiplicator1 乘数1
+ * @param multiplicator2 乘数2
  * @param number1 计算比例数1
  * @param number2 计算比例数2
  * @param ratio 比例
@@ -54,8 +43,31 @@ export function getTwoNumberSmall(multiplicator1: number, number1: number, multi
     return a > b ? b : a
 }
 
+// 页面绘制后的下一帧回调
 export function nextTick(fn: Function) {
     requestAnimationFrame(() => {
         fn && fn()
     })
+}
+
+// set element inline style
+export function setStyle(imgElement: HTMLElement | null, styleObj: objectKeyOnlyCss) {
+    for (const key in styleObj) {
+        imgElement!.style[key] = styleObj[key]
+    }
+}
+// setProperties
+export function setProperties(imgElement: HTMLElement | null, properties: object) {
+    for (const key in properties) {
+        imgElement!.style.setProperty(key, properties[key])
+    }
+}
+
+// set element data-* attr
+export function setDataset(el: HTMLElement, key: string, value: string) {
+    if (el.dataset) {
+        el.dataset[key] = value
+    } else {
+        el.setAttribute('data-' + key, value)
+    }
 }
