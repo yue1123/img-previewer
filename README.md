@@ -13,7 +13,7 @@ These functions are provided:
 7. Multi-language internationalization support
 8. Picture loading monitor
 
-Other languages: [English](./README.md), [Simplified Chinese](./README.zh_cn.md).
+Other languages: [English](./README.md), [简体中文](./README.zh_cn.md).
 
 **tips: For performance reasons, the mobile terminal does not do swiper**
 
