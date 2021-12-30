@@ -8,7 +8,7 @@ import {
     setStyle,
     setProperties,
     setDataset
-} from './utils/index'
+} from './utils'
 // style sheet
 import './index.scss'
 // runtime store init function
