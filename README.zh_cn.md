@@ -34,7 +34,7 @@ yarn add img-previewer
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.3/dist/img-previewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.4/dist/img-previewer.min.js"></script>
 ```
 
 ### 启用
