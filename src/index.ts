@@ -1,3 +1,4 @@
+import { version } from '../package.json'
 import {
     getElementRect,
     isElementInViewport,
@@ -603,7 +604,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 
     _init(selector, options)
     ImgPreviewer.prototype.update = initImgList
-    ImgPreviewer.prototype.version = '2.0.0'
+    ImgPreviewer.prototype.version = version
 }
 
 export default ImgPreviewer

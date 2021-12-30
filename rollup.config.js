@@ -7,7 +7,7 @@ const typescript = require('rollup-plugin-typescript');
 const scss = require('rollup-plugin-scss')
 const { terser } = require('rollup-plugin-terser')
 const pkg = require('./package')
-
+const json = require('@rollup/plugin-json');
 
 const name = changeCase.pascalCase(pkg.name)
 const banner = createBanner({
@@ -45,6 +45,7 @@ module.exports = {
         scss({
             output: './dist/index.css',
             outputStyle: 'compressed'
-        })
+        }),
+        json()
     ]
 }
