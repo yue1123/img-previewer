@@ -1,8 +1,13 @@
 # Img-previewer Js
 [![GitHub license](https://img.shields.io/github/license/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/stargazers)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square)
-![GitHub package.json version (subfolder of monorepo)](https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square)
+<a href="https://www.npmjs.com/package/img-previewer">
+<img src="https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square" alt="npm bundle size">
+</a>
+<a href="https://github.com/yue1123/img-previewer/releases">
+<img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="GitHub package.json version (subfolder of monorepo)">
+</a>
+
 
 
 轻量且强大的 `javascript` 图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面 `html` 代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验

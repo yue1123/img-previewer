@@ -1,8 +1,13 @@
 # Img-previewer Js
+
 [![GitHub license](https://img.shields.io/github/license/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/stargazers)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square)
-![GitHub package.json version (subfolder of monorepo)](https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square)
+<a href="https://www.npmjs.com/package/img-previewer">
+<img src="https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square" alt="npm bundle size">
+</a>
+<a href="https://github.com/yue1123/img-previewer/releases">
+<img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="GitHub package.json version (subfolder of monorepo)">
+</a>
 
 Lightweight and powerful `javascript` image preview plug-in, silky animation allows you to elegantly preview the images in your website. Out of the box, you don't need extra configuration (by default) or change the page `html` code structure, you can easily enable the plugin in any type of website and upgrade your user experience
 
