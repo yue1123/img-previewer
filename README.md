@@ -65,7 +65,7 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 | dataUrlKey | string | The key of the image address value                      | src                                             |
 | imageZoom  | object | Zoom image configuration                                | {min: 0.1,max: 5,step: 0.1}                     |
 | style      | object | Style configuration                                     | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
-| i18n       | object | tooltips International configuration                    | zh_cn or es                                     |
+| i18n       | object | tooltips International configuration                    | null                                    |
 
 ## options.imageZoom
 

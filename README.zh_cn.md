@@ -66,7 +66,7 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 | dataUrlKey | string | 图片地址取值的 key     | src                                             |
 | imageZoom  | object | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
 | style      | object | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
-| i18n       | object | tooltips 国际化配置    | zh_cn 或者 es                                   |
+| i18n       | object | tooltips 国际化配置    | null                                  |
 
 ## options.imageZoom
 
