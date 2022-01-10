@@ -1,6 +1,6 @@
 {
 	"name": "img-previewer",
-	"version": "2.0.5",
+	"version": "2.0.6",
 	"description": "A light wight javascript image viewing plugin with smooth animation",
 	"main": "dist/img-previewer.js",
 	"types": "./type.d.ts",

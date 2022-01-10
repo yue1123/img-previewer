@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v2.0.5
+ * ImgPreviewer v2.0.6
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-01-10T10:14:37.818Z
+ * Date: 2022-01-10T10:20:57.335Z
  */
 
 (function (global, factory) {
@@ -14,7 +14,7 @@
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ImgPreviewer = factory());
 })(this, (function () { 'use strict';
 
-	var version = "2.0.5";
+	var version = "2.0.6";
 
 	function debounce(fn, delay) {
 	    var timer = 0;
