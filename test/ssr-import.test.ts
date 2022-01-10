@@ -1,6 +1,8 @@
 const ImagePreview = require('../dist/img-previewer')
-console.log(new ImagePreview({
-    i18n:{
-        
+try {
+    new ImagePreview('body')
+} catch (error) {
+    if (error instanceof Error) {
+        console.log(error);
     }
-}))
+}

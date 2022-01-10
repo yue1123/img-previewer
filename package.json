@@ -1,46 +1,47 @@
 {
-  "name": "img-previewer",
-  "version": "2.0.4",
-  "description": "A light wight javascript image viewing plugin with smooth animation",
-  "main": "dist/img-previewer.js",
-  "browser": "dist/img-previewer.min.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c",
-    "serve": "rollup -c -w"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:yue1123/img-previewer.git"
-  },
-  "keywords": [
-    "image",
-    "viewer",
-    "preview",
-    "javascript-plugin"
-  ],
-  "author": {
-    "name": "dh",
-    "url": "https://dhwork.top/dh"
-  },
-  "homepage": "https://github.com/yue1123/img-previewer",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.13.8",
-    "@babel/preset-env": "^7.13.8",
-    "@rollup/plugin-json": "^4.1.0",
-    "babel-preset-es2015": "^6.24.1",
-    "change-case": "^4.1.2",
-    "create-banner": "^2.0.0",
-    "node-sass": "^7.0.1",
-    "rollup": "^2.60.0",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-scss": "^3.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript": "^1.0.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
-  }
+	"name": "img-previewer",
+	"version": "2.0.5",
+	"description": "A light wight javascript image viewing plugin with smooth animation",
+	"main": "dist/img-previewer.js",
+	"types": "./type.d.ts",
+	"browser": "./dist/img-previewer.min.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "rollup -c",
+		"serve": "rollup -c -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:yue1123/img-previewer.git"
+	},
+	"keywords": [
+		"image",
+		"viewer",
+		"preview",
+		"javascript-plugin"
+	],
+	"author": {
+		"name": "dh",
+		"url": "https://dhwork.top/dh"
+	},
+	"homepage": "https://github.com/yue1123/img-previewer",
+	"license": "MIT",
+	"devDependencies": {
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.8",
+		"@rollup/plugin-json": "^4.1.0",
+		"babel-preset-es2015": "^6.24.1",
+		"change-case": "^4.1.2",
+		"create-banner": "^2.0.0",
+		"node-sass": "^7.0.1",
+		"rollup": "^2.60.0",
+		"rollup-plugin-babel": "^4.4.0",
+		"rollup-plugin-commonjs": "^10.1.0",
+		"rollup-plugin-node-resolve": "^5.2.0",
+		"rollup-plugin-scss": "^3.0.0",
+		"rollup-plugin-terser": "^7.0.2",
+		"rollup-plugin-typescript": "^1.0.1",
+		"tslib": "^2.3.1",
+		"typescript": "^4.5.2"
+	}
 }

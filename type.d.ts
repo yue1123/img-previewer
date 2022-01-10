@@ -1,18 +1,32 @@
-// export interface IImagePreviewer {
-// 	_init: () => void
-// }
+
+interface ImgPreviewer {
+    update: () => void;
+}
+
+declare const ImgPreviewer: {
+    update: () => void;
+    new(selector: string, options?: ImgPreviewerOptions): ImgPreviewer;
+}
 
 export interface ImgPreviewerOptionsZoom {
     min?: number
     max?: number
     step?: number
 }
+export interface Ii18n {
+    RESET: string,
+    ROTATE_LEFT: string,
+    ROTATE_RIGHT: string,
+    CLOSE: string,
+    NEXT: string,
+    PREV: string
+}
+
+
 export interface ImgPreviewerOptions {
     fillRatio?: number
-    // scrollBar?: boolean
-    // onInited?: () => void
     imageZoom?: ImgPreviewerOptionsZoom
-    i18n?: object,
+    i18n?: Ii18n,
     style?: {
         modalOpacity: number,
         headerOpacity: number,
@@ -42,3 +56,4 @@ export interface runtimeStore {
 export type objectKeyOnlyCss = {
     [k in keyof CSSStyleDeclaration]?: any
 }
+export default ImgPreviewer

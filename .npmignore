@@ -7,4 +7,3 @@ tsconfig.json
 yarn.lock
 README.es.1.txt
 .babelrc
-.npmignore
