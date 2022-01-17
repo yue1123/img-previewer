@@ -1,4 +1,4 @@
-import type { runtimeStore } from './type'
+import type { runtimeStore } from '../type.d'
 function createStore(): runtimeStore {
     return {
         rootEl: null,

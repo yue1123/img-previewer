@@ -19,7 +19,7 @@ import i18n from './i18n/index'
 // html template
 import template from './template'
 // type
-import type { ImgPreviewerOptions } from './type'
+import type { ImgPreviewerOptions } from '../type.d'
 
 function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions) {
     if (typeof window !== 'object') {
