@@ -27,14 +27,14 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     }
     // check use new
     if (!(this instanceof ImgPreviewer)) {
-        return console.error(new Error('ImagePreviewerue is a constructor and should be called with the `new` keyword'))
+        return console.error(new Error('ImgPreviewer is a constructor and should be called with the `new` keyword'))
     }
     // check required params is correct incoming
-    if (selector && typeof selector === 'string') {
+    if (selector) {
         if (!document.querySelector(selector)) return console.error(new Error('selector ' + selector + ' is invalid'))
     } else {
         return console.error(
-            new Error('ImagePreviewer plugin should css string selector that on first params,like #el,.el')
+            new Error('ImgPreviewer plugin should css string selector that on first params,like #el,.el')
         )
     }
 
@@ -63,8 +63,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     // 绑定事件
     function bindEvent(rootEl: HTMLElement | null) {
         let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
-        const warpper = document.getElementById('J_content-warpper')
-        // add click eventlistener for rootEl, proxy img click event
+        const wrapper = document.getElementById('J_content-wrapper')
+        // add click eventListener for rootEl, proxy img click event
         rootEl?.addEventListener(
             'click',
             (event: any) => {
@@ -73,13 +73,13 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
                 if (target.localName === 'img') {
                     store.currentClickEl = target
                     store.index = Number(target.dataset.index)
-                    handlePrviewershow(event, getImageSrc(store.imgList[store.index]))
+                    handlePreviewerShow(event, getImageSrc(store.imgList[store.index]))
                 }
             },
             false
         )
 
-        // all buttons event proxy linstener
+        // all buttons event proxy listener
         document.getElementById('J_header-buttons')!.addEventListener('click', (event: any) => {
             // fixed mobile Safari and chrome e.path undefined
             const _event = window.event || event
@@ -96,7 +96,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         document.addEventListener('keyup', ({ key }: KeyboardEvent) => handleActionFn(key))
 
         // mouse wheel to zoom and zoom out image
-        warpper?.addEventListener('wheel', (event: any) => {
+        wrapper?.addEventListener('wheel', (event: any) => {
             preventDefault(event)
             if (event.target.localName !== 'img') return
             moveable = true
@@ -115,14 +115,14 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         })
 
         // click modal hide preview
-        warpper?.addEventListener('click', (event) => {
+        wrapper?.addEventListener('click', (event) => {
             if (event.target === document.getElementById('J_current-index')) {
                 handleActionFn('close')
             }
         })
         //
         if (mobile) {
-            enableMobileScale(warpper)
+            enableMobileScale(wrapper)
             let lastTouchEnd = 0
             document.documentElement.addEventListener(
                 'touchend',
@@ -136,13 +136,13 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
                 false
             )
         }
-        warpper?.addEventListener('mousedown', (e: any) => {
+        wrapper?.addEventListener('mousedown', (e: any) => {
             if (e.target.localName !== 'img' || !moveable) return
             let diffX = e.clientX - e.target!.offsetLeft
             let diffY = e.clientY - e.target!.offsetTop
             e.preventDefault()
             store.currentImgElement!.classList.add('moving')
-            warpper['onmousemove'] = function (e: any) {
+            wrapper['onmousemove'] = function (e: any) {
                 let moveX = e.clientX - diffX
                 let moveY = e.clientY - diffY
                 setStyle(store.currentImgElement, {
@@ -150,11 +150,11 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
                     left: `${moveX}px`
                 })
             }
-            warpper['onmouseup'] = function () {
+            wrapper['onmouseup'] = function () {
                 this.onmousemove = null
                 store.currentImgElement!.classList.remove('moving')
             }
-            warpper['onmouseout'] = function () {
+            wrapper['onmouseout'] = function () {
                 this.onmousemove = null
                 store.currentImgElement!.classList.remove('moving')
             }
@@ -170,7 +170,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         switch (actionType) {
             case 'close':
             case 'Escape':
-                handlePrviewerHide()
+                handlePreviewerHide()
                 break
             case 'rotateLeft':
                 handleRotateLeft()
@@ -224,11 +224,11 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     }
 
     // mobile enable two finger scale
-    function enableMobileScale(warpper: any) {
+    function enableMobileScale(wrapper: any) {
         let _store: any = {
             scale: 1
         }
-        warpper?.addEventListener('touchstart', function (event: any) {
+        wrapper?.addEventListener('touchstart', function (event: any) {
             if (event.target.localName !== 'img') return
             event.preventDefault()
             let touches = event.touches
@@ -329,9 +329,9 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         isRunning = true
         const index: number = store.index + 1
         const div: HTMLDivElement = document.createElement<'div'>('div')
-        const warpper: HTMLElement | null = document.getElementById('J_content-warpper')
+        const wrapper: HTMLElement | null = document.getElementById('J_content-wrapper')
         const img: HTMLImageElement = document.createElement<'img'>('img')
-        const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
+        const currentImgWrapper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
         const clickEl = store.imgList[index]
         const src = getImageSrc(clickEl)
 
@@ -347,12 +347,12 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         div.appendChild(img)
         div.classList.add('img-pre__img-item', 'slide-left-in')
         listenImageLoading(div, src)
-        warpper!.appendChild(div)
+        wrapper!.appendChild(div)
 
-        currentImgWarpper!.classList.add('slide-left-out')
-        currentImgWarpper!.addEventListener('animationend', () => {
+        currentImgWrapper!.classList.add('slide-left-out')
+        currentImgWrapper!.addEventListener('animationend', () => {
             isRunning = false
-            currentImgWarpper && warpper!.removeChild(currentImgWarpper as Node)
+            currentImgWrapper && wrapper!.removeChild(currentImgWrapper as Node)
         })
 
         // listen animationend and remove prev el
@@ -375,8 +375,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         const index = store.index - 1
         const div: HTMLDivElement = document.createElement<'div'>('div')
         const img: HTMLImageElement = document.createElement<'img'>('img')
-        const warpper = document.getElementById('J_content-warpper')
-        const currentImgWarpper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
+        const wrapper = document.getElementById('J_content-wrapper')
+        const currentImgWrapper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
         const clickEl = store.imgList[index]
         const src = getImageSrc(clickEl)
         img.src = src
@@ -390,12 +390,12 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         div.appendChild(img)
         div.classList.add('img-pre__img-item', 'slide-right-in')
         listenImageLoading(div, src)
-        warpper!.appendChild(div)
+        wrapper!.appendChild(div)
 
-        currentImgWarpper!.classList.add('slide-right-out')
-        currentImgWarpper!.addEventListener('animationend', () => {
+        currentImgWrapper!.classList.add('slide-right-out')
+        currentImgWrapper!.addEventListener('animationend', () => {
             isRunning = false
-            currentImgWarpper && warpper!.removeChild(currentImgWarpper as Node)
+            currentImgWrapper && wrapper!.removeChild(currentImgWrapper as Node)
         })
 
         // listen animationend and remove next el
@@ -429,7 +429,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         }
     }
     // show
-    function handlePrviewershow(e: any, src: string): void {
+    function handlePreviewerShow(e: any, src: string): void {
         isOpen = true
         previewerContainer!.style.display = 'block'
         document.ondragstart = preventDefault
@@ -449,7 +449,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 
     }
     // hide
-    function handlePrviewerHide(): void {
+    function handlePreviewerHide(): void {
         isOpen = false
         moveable = false
         document.ondragstart = null
@@ -534,7 +534,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 
     // i18n translate
     function i18nTranslate(template: string, i18nObj: object): string {
-        return template.replace(/\{\{(.*?)\}\}/g, (_, a: string) => i18nObj[a])
+        return template.replace(/{{(.*?)}}/g, (_, a: string) => i18nObj[a])
     }
     //
     function defineReactValue(store: object, key: string, value: any, cal: (newVal: any) => void): void {
@@ -582,7 +582,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         defineReactValue(store, 'totalIndex', 0, onTotalIndexChange)
         // render to document
         render()
-        // bind enent for el
+        // bind event for el
         bindEvent(rootEl)
         // cache data
         store.currentImgElement = document.querySelector('#J_current-index img')
