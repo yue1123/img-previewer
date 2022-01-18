@@ -19,7 +19,7 @@ import i18n from './i18n/index'
 // html template
 import template from './template'
 // type
-import type { ImgPreviewerOptions } from '../type.d'
+import type { ImgPreviewerOptions } from '../type'
 
 function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions) {
     if (typeof window !== 'object') {
@@ -59,7 +59,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     let isOpen: boolean = false
     let isRunning: boolean = false
     // FIXME: 储存到store中去
-    let moveable: boolean = false
+    let movable: boolean = false
     // 绑定事件
     function bindEvent(rootEl: HTMLElement | null) {
         let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
@@ -99,7 +99,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         wrapper?.addEventListener('wheel', (event: any) => {
             preventDefault(event)
             if (event.target.localName !== 'img') return
-            moveable = true
+            movable = true
             let { min, max, step } = mergeOptions.imageZoom
             let _max = store._scale + max
             if (event.wheelDelta > 0) {
@@ -137,7 +137,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             )
         }
         wrapper?.addEventListener('mousedown', (e: any) => {
-            if (e.target.localName !== 'img' || !moveable) return
+            if (e.target.localName !== 'img' || !movable) return
             let diffX = e.clientX - e.target!.offsetLeft
             let diffY = e.clientY - e.target!.offsetTop
             e.preventDefault()
@@ -239,7 +239,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             _store.pageX = events.pageX
             _store.pageY = events.pageY
 
-            _store.moveable = true
+            _store.movable = true
 
             if (events2) {
                 _store.pageX2 = events2.pageX
@@ -249,7 +249,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             _store.originScale = _store.scale || 1
         })
         document.addEventListener('touchmove', function (event) {
-            if (!_store.moveable) return
+            if (!_store.movable) return
             event.preventDefault()
             store.currentImgElement!.classList.add('moving')
             let touches = event.touches
@@ -305,20 +305,20 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         })
 
         document.addEventListener('touchend', function () {
-            _store.moveable = false
+            _store.movable = false
             store.currentImgElement!.classList.remove('moving')
             delete _store.pageX2
             delete _store.pageY2
         })
         document.addEventListener('touchcancel', function () {
-            _store.moveable = false
+            _store.movable = false
             store.currentImgElement!.classList.remove('moving')
             delete _store.pageX2
             delete _store.pageY2
         })
     }
     function handleReset() {
-        moveable = false
+        movable = false
         setImageStyles(window.innerWidth, window.innerHeight, true)
     }
     function getImageSrc(el: HTMLImageElement): string {
@@ -451,7 +451,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     // hide
     function handlePreviewerHide(): void {
         isOpen = false
-        moveable = false
+        movable = false
         document.ondragstart = null
         document.ondragend = null
         //  current click image el is in viewport
@@ -505,16 +505,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         document.getElementById('img-pre__current-index')!.innerText = String(index + 1)
         let prevButton = document.getElementById('J-img-pre__prev') as HTMLButtonElement
         let nextButton = document.getElementById('J-img-pre__next') as HTMLButtonElement
-        if (index === 0) {
-            prevButton.disabled = true
-        } else {
-            prevButton.disabled = false
-        }
-        if (index === store.totalIndex - 1) {
-            nextButton.disabled = true
-        } else {
-            nextButton.disabled = false
-        }
+        prevButton.disabled = index === 0;
+        nextButton.disabled = index === store.totalIndex - 1;
     }
 
     function onTotalIndexChange(index: number): void {
@@ -558,8 +550,8 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             previewerContainer = document.createElement('div')
             previewerContainer.classList.add('img-pre__container', 'img-pre__animated')
             previewerContainer.id = 'J_container'
-            previewerContainer.style.setProperty('--container-opcity', String(modalOpacity))
-            previewerContainer.style.setProperty('--header-bg-opcity', String(headerOpacity))
+            previewerContainer.style.setProperty('--container-opacity', String(modalOpacity))
+            previewerContainer.style.setProperty('--header-bg-opacity', String(headerOpacity))
             previewerContainer.style.setProperty('--container-zIndex', String(zIndex))
             previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo())
             document.body.appendChild(previewerContainer)

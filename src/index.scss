@@ -134,7 +134,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 5px 2px;
+		padding: 7px 5px;
 		border-radius: 2px;
 		.bi {
 			font-size: 18px;
@@ -182,12 +182,12 @@
 		background: rgba(0, 0, 0, 0);
 	}
 	100% {
-		background: rgba(0, 0, 0, var(--container-opcity));
+		background: rgba(0, 0, 0, var(--container-opacity));
 	}
 }
 @keyframes img-pre_hide {
 	0% {
-		background: rgba(0, 0, 0, var(--container-opcity));
+		background: rgba(0, 0, 0, var(--container-opacity));
 	}
 	100% {
 		background: rgba(0, 0, 0, 0);
