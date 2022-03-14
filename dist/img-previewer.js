@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-01-18T12:58:01.221Z
+ * Date: 2022-03-14T08:06:17.111Z
  */
 
 (function (global, factory) {
@@ -29,13 +29,26 @@
 	function preventDefault(e) {
 	    e.preventDefault();
 	}
+	/**
+	 * 判断一个元素是否出现在当前视口中
+	 * @param el 要判断的元素
+	 * @returns {boolean}
+	 */
 	function isElementInViewport(el) {
-	    var viewPortHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	    var offsetTop = el.offsetTop;
-	    var offsetHeight = el.offsetHeight;
-	    var scrollTop = document.documentElement.scrollTop;
-	    var top = offsetTop - scrollTop;
-	    return offsetHeight + offsetTop > scrollTop && top <= viewPortHeight + 100;
+	    var rect = getElementRect(el);
+	    var vWidth = window.innerWidth || document.documentElement.clientWidth;
+	    var vHeight = window.innerHeight || document.documentElement.clientHeight;
+	    // if element display:none
+	    if (rect.width === 0 || rect.height === 0) {
+	        return false;
+	    }
+	    else if (rect.right < 0 ||
+	        rect.bottom < 0 ||
+	        rect.left > vWidth ||
+	        rect.top > vHeight) {
+	        return false;
+	    }
+	    return true;
 	}
 	function getElementRect(el) {
 	    return el.getBoundingClientRect();
@@ -562,7 +575,7 @@
 	        document.getElementById('img-pre__total-index').innerText = String(index);
 	    }
 	    // get i18n options
-	    function geti18nInfo() {
+	    function getI18nInfo() {
 	        if (mergeOptions.i18n) {
 	            return mergeOptions.i18n;
 	        }
@@ -599,7 +612,7 @@
 	            previewerContainer.style.setProperty('--container-opacity', String(modalOpacity));
 	            previewerContainer.style.setProperty('--header-bg-opacity', String(headerOpacity));
 	            previewerContainer.style.setProperty('--container-zIndex', String(zIndex));
-	            previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo());
+	            previewerContainer.innerHTML = i18nTranslate(template, getI18nInfo());
 	            document.body.appendChild(previewerContainer);
 	        }
 	        else {

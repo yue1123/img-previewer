@@ -514,7 +514,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
     }
 
     // get i18n options
-    function geti18nInfo(): object {
+    function getI18nInfo(): object {
         if (mergeOptions.i18n) {
             return mergeOptions.i18n
         } else {
@@ -553,7 +553,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
             previewerContainer.style.setProperty('--container-opacity', String(modalOpacity))
             previewerContainer.style.setProperty('--header-bg-opacity', String(headerOpacity))
             previewerContainer.style.setProperty('--container-zIndex', String(zIndex))
-            previewerContainer.innerHTML = i18nTranslate(template, geti18nInfo())
+            previewerContainer.innerHTML = i18nTranslate(template, getI18nInfo())
             document.body.appendChild(previewerContainer)
         } else {
             previewerContainer = el
