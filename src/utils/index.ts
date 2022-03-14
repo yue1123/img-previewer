@@ -1,6 +1,6 @@
 import type { objectKeyOnlyCss } from '../../type'
 
-export function debounce<T>(fn: (arg: T) => void, delay: number) {
+export function debounce<T>(fn: (arg: T) => void, delay: number): (arg: T) => void {
 	var timer = 0
 	return function (arg: T) {
 		clearTimeout(timer)
@@ -11,31 +11,46 @@ export function debounce<T>(fn: (arg: T) => void, delay: number) {
 	}
 }
 
-export function preventDefault(e: Event) {
+export function preventDefault(e: Event): void {
 	e.preventDefault()
 }
+
+/**
+ * check element is hidden by css
+ * @param el check el
+ * @param  bubblingLevel The level to look up from the current element 
+ * @returns {boolean}
+ */
+export function isElementHiddenByCss(el: Element | null, bubblingLevel: number): boolean {
+	if (!el) return false
+	while (bubblingLevel-- && el) {
+		const { visibility, height, opacity, width } = getComputedStyle(el)
+		if (visibility === 'hidden' || height === '0px' || width === '0px' || opacity === '0') {
+			return false
+		}
+    el = el?.parentElement
+	}
+	return true
+}
+
+
 /**
  * 判断一个元素是否出现在当前视口中
  * @param el 要判断的元素
  * @returns {boolean}
  */
-export function isElementInViewport(el: any) {
+export function isElementInViewport(el: any, bubblingLevel: number): boolean {
 	const rect = getElementRect(el)
 	const vWidth = window.innerWidth || document.documentElement.clientWidth
 	const vHeight = window.innerHeight || document.documentElement.clientHeight
-	// if element display:none
+	// if element display:none or transform:scale(0)
 	if (rect.width === 0 || rect.height === 0) {
 		return false
-	} else if (
-		rect.right < 0 ||
-		rect.bottom < 0 ||
-		rect.left > vWidth ||
-		rect.top > vHeight
-	) {
+	} else if (rect.right < 0 || rect.bottom < 0 || rect.left > vWidth || rect.top > vHeight) {
 		return false
+	} else {
+		return isElementHiddenByCss(el, bubblingLevel)
 	}
-
-	return true
 }
 
 export function getElementRect(el: Element | null): DOMRect {
@@ -44,30 +59,28 @@ export function getElementRect(el: Element | null): DOMRect {
 
 /**
  * 获取两数乘以一定比例后,较小的一个
- * @param multiplicator1 乘数1
- * @param multiplicator2 乘数2
+ * @param multiplier1 乘数1
+ * @param multiplier2 乘数2
  * @param number1 计算比例数1
  * @param number2 计算比例数2
  * @param ratio 比例
  * @returns 两数中比例值小的一个
  */
 export function getTwoNumberSmall(
-	multiplicator1: number,
+	multiplier1: number,
 	number1: number,
-	multiplicator2: number,
+	multiplier2: number,
 	number2: number,
 	ratio: number
 ) {
-	let a = (multiplicator1 * ratio) / number1
-	let b = (multiplicator2 * ratio) / number2
+	let a = (multiplier1 * ratio) / number1
+	let b = (multiplier2 * ratio) / number2
 	return a > b ? b : a
 }
 
 // 页面绘制后的下一帧回调
-export function nextTick(fn: Function) {
-	requestAnimationFrame(() => {
-		fn && fn()
-	})
+export function nextTick(fn: () => void) {
+	requestAnimationFrame(fn)
 }
 
 // set element inline style

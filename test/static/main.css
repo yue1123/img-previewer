@@ -6,6 +6,9 @@ body {
     overflow-y: scroll; 
 }
 
+body::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+}
 html,body {
 	-webkit-text-size-adjust:none;
 	background:#f7f7f7;

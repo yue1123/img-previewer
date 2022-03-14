@@ -24,14 +24,15 @@ export interface Ii18n {
 
 
 export interface ImgPreviewerOptions {
-    fillRatio?: number
-    imageZoom?: ImgPreviewerOptionsZoom
-    i18n?: Ii18n,
-    style?: {
-        modalOpacity: number,
-        headerOpacity: number,
-        zIndex: number
-    }
+	fillRatio?: number
+	imageZoom?: ImgPreviewerOptionsZoom
+	i18n?: Ii18n
+	style?: {
+		modalOpacity: number
+		headerOpacity: number
+		zIndex: number
+	}
+	bubblingLevel: number
 }
 
 export interface runtimeStore {

@@ -18,6 +18,8 @@ import createStore from './store'
 import i18n from './i18n/index'
 // html template
 import template from './template'
+// default options
+import defaultOptions from './defaultOptions'
 // type
 import type { ImgPreviewerOptions } from '../type'
 
@@ -38,20 +40,6 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         )
     }
 
-    const defaultOptions = {
-        fillRatio: 0.8,
-        imageZoom: {
-            min: 1,
-            max: 5,
-            step: 0.1
-        },
-        style: {
-            modalOpacity: 0.6,
-            headerOpacity: 0,
-            zIndex: 99
-        },
-        dataUrlKey: 'src'
-    }
     let mergeOptions: any
     let previewerContainer: HTMLElement | null = null
     // const i18n =
@@ -455,35 +443,35 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
         document.ondragstart = null
         document.ondragend = null
         //  current click image el is in viewport
-        if (isElementInViewport(store.currentClickEl)) {
-            const { top, left, width, height } = getElementRect(store.currentClickEl)
-            previewerContainer!.classList.remove('show')
-            previewerContainer!.classList.add('hide')
-            store.currentImgElement!.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
-            store.currentImgElement!.addEventListener(
-                'transitionend',
-                () => {
-                    previewerContainer!.style.display = 'none'
-                    store.currentImgElement!.src = ''
-                    store.currentImgElement!.style.cssText = ``
-                },
-                { once: true }
-            )
-        } else {
-            previewerContainer!.classList.remove('show')
-            previewerContainer!.classList.add('hide')
-            store.currentImgElement!.classList.add('img-pre__animated')
-            store.currentImgElement!.addEventListener(
-                'animationend',
-                () => {
-                    previewerContainer!.style.display = 'none'
-                    store.currentImgElement!.src = ''
-                    store.currentImgElement!.style.cssText = ``
-                    store.currentImgElement!.classList.remove('img-pre__animated')
-                },
-                { once: true }
-            )
-        }
+        if (isElementInViewport(store.currentClickEl, mergeOptions.bubblingLevel)) {
+					const { top, left, width, height } = getElementRect(store.currentClickEl)
+					previewerContainer!.classList.remove('show')
+					previewerContainer!.classList.add('hide')
+					store.currentImgElement!.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
+					store.currentImgElement!.addEventListener(
+						'transitionend',
+						() => {
+							previewerContainer!.style.display = 'none'
+							store.currentImgElement!.src = ''
+							store.currentImgElement!.style.cssText = ``
+						},
+						{ once: true }
+					)
+				} else {
+					previewerContainer!.classList.remove('show')
+					previewerContainer!.classList.add('hide')
+					store.currentImgElement!.classList.add('img-pre__animated')
+					store.currentImgElement!.addEventListener(
+						'animationend',
+						() => {
+							previewerContainer!.style.display = 'none'
+							store.currentImgElement!.src = ''
+							store.currentImgElement!.style.cssText = ``
+							store.currentImgElement!.classList.remove('img-pre__animated')
+						},
+						{ once: true }
+					)
+				}
     }
 
     function handleRotateLeft(): void {
