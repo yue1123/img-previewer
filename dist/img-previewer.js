@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-03-14T14:27:46.633Z
+ * Date: 2022-03-15T13:31:39.962Z
  */
 
 (function (global, factory) {
@@ -141,12 +141,12 @@
 	};
 
 	var zh_cn = {
-	    RESET: 'reset',
-	    ROTATE_LEFT: 'rotate left',
-	    ROTATE_RIGHT: 'rotate right',
-	    CLOSE: 'close',
-	    NEXT: 'next',
-	    PREV: 'prev'
+	    RESET: '重置',
+	    ROTATE_LEFT: '向左选择',
+	    ROTATE_RIGHT: '向右选装',
+	    CLOSE: '关闭',
+	    NEXT: '下一张',
+	    PREV: '上一张'
 	};
 
 	var i18n = { en: es, zh: zh_cn };
@@ -205,7 +205,7 @@
 	            if (target.localName === 'img') {
 	                store.currentClickEl = target;
 	                store.index = Number(target.dataset.index);
-	                handlePreviewerShow(event, getImageSrc(store.imgList[store.index]));
+	                handlePreviewerShow(target, getImageSrc(store.imgList[store.index]));
 	            }
 	        }, false);
 	        // all buttons event proxy listener
@@ -426,13 +426,13 @@
 	        setImageStyles(window.innerWidth, window.innerHeight, true);
 	    }
 	    function getImageSrc(el) {
-	        return mergeOptions.dataUrlKey && el.getAttribute(mergeOptions.dataUrlKey) || el.src;
+	        return (mergeOptions.dataUrlKey && el.getAttribute(mergeOptions.dataUrlKey)) || el.src;
 	    }
-	    function handleNext() {
+	    function handleNext(i) {
 	        if (store.index === store.totalIndex - 1 || isRunning)
 	            return;
 	        isRunning = true;
-	        var index = store.index + 1;
+	        var index = i || store.index + 1;
 	        var div = document.createElement('div');
 	        var wrapper = document.getElementById('J_content-wrapper');
 	        var img = document.createElement('img');
@@ -466,11 +466,11 @@
 	            once: true
 	        });
 	    }
-	    function handlePrev() {
+	    function handlePrev(i) {
 	        if (store.index === 0 || isRunning)
 	            return;
 	        isRunning = true;
-	        var index = store.index - 1;
+	        var index = i || store.index - 1;
 	        var div = document.createElement('div');
 	        var img = document.createElement('img');
 	        var wrapper = document.getElementById('J_content-wrapper');
@@ -520,13 +520,13 @@
 	        };
 	    }
 	    // show
-	    function handlePreviewerShow(e, src) {
+	    function handlePreviewerShow(img, src) {
 	        isOpen = true;
 	        previewerContainer.style.display = 'block';
 	        document.ondragstart = preventDefault;
 	        document.ondragend = preventDefault;
 	        listenImageLoading(document.getElementById('J_current-index'), src);
-	        var _a = getElementRect(e.target), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
+	        var _a = getElementRect(img), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
 	        nextTick(function () {
 	            store.currentImgElement.src = src;
 	            previewerContainer.classList.remove('hide', 'fadeout');
@@ -536,6 +536,7 @@
 	            store.startX = x;
 	            store.startY = y;
 	            setImageStyles(window.innerWidth, window.innerHeight, true);
+	            mergeOptions.onShow && mergeOptions.onShow();
 	        });
 	    }
 	    // hide
@@ -544,7 +545,7 @@
 	        movable = false;
 	        document.ondragstart = null;
 	        document.ondragend = null;
-	        //  current click image el is in viewport
+	        // current click image el is in viewport
 	        if (isElementInViewport(store.currentClickEl, mergeOptions.bubblingLevel)) {
 	            var _a = getElementRect(store.currentClickEl), top = _a.top, left = _a.left, width = _a.width, height = _a.height;
 	            previewerContainer.classList.remove('show');
@@ -567,6 +568,7 @@
 	                store.currentImgElement.classList.remove('img-pre__animated');
 	            }, { once: true });
 	        }
+	        mergeOptions.onShow && mergeOptions.onHide();
 	    }
 	    function handleRotateLeft() {
 	        store.rotate -= 90;
@@ -670,8 +672,36 @@
 	            store.imgList[i] = element;
 	        }
 	    }
+	    function goto(index) {
+	        var img = store.imgList[index];
+	        store.currentClickEl = img;
+	        if (index < 0 || index > store.totalIndex - 1) {
+	            throw new Error('invalid index');
+	        }
+	        if (isOpen) {
+	            index < store.index ? handlePrev(index) : handleNext(index);
+	        }
+	        else {
+	            handlePreviewerShow(img, img.src);
+	        }
+	        store.index = index;
+	    }
 	    _init(selector, options);
+	    ImgPreviewer.prototype.getTotalIndex = function () { return store.totalIndex - 1; };
 	    ImgPreviewer.prototype.update = initImgList;
+	    ImgPreviewer.prototype.goto = goto;
+	    ImgPreviewer.prototype.next = function () {
+	        if (!isOpen) {
+	            return goto(0);
+	        }
+	        handleNext();
+	    };
+	    ImgPreviewer.prototype.prev = function () {
+	        if (!isOpen) {
+	            return goto(store.totalIndex - 1);
+	        }
+	        handlePrev();
+	    };
 	    ImgPreviewer.prototype.version = version;
 	}
 

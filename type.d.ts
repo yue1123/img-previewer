@@ -1,11 +1,51 @@
 
 interface ImgPreviewer {
-    update: () => void;
+	/**
+	 * update image el
+	 */
+	update: () => void
+	/**
+	 * get total image el numbers
+	 */
+	getTotalIndex: () => number
+	/**
+	 * show index image el
+	 * @param {number} index
+	 */
+	goto: (index: number) => void
+	/**
+	 * goto next
+	 */
+	next: () => void
+	/**
+	 * goto prev
+	 */
+	prev: () => void
 }
 
 declare const ImgPreviewer: {
-    update: () => void;
-    new(selector: string, options?: ImgPreviewerOptions): ImgPreviewer;
+	/**
+	 * update image el
+	 */
+	update: () => void
+	/**
+	 * get total image el numbers
+	 */
+	getTotalIndex: () => number
+	/**
+	 * show index image el
+	 * @param {number} index
+	 */
+	goto: (index: number) => void
+	/**
+	 * goto next
+	 */
+	next: () => void
+	/**
+	 * goto prev
+	 */
+	prev: () => void
+	new (selector: string, options?: ImgPreviewerOptions): ImgPreviewer
 }
 
 export interface ImgPreviewerOptionsZoom {
@@ -33,6 +73,8 @@ export interface ImgPreviewerOptions {
 		zIndex: number
 	}
 	bubblingLevel: number
+	onShow: () => void
+	onClose: () => void
 }
 
 export interface runtimeStore {

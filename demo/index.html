@@ -165,7 +165,7 @@
 				style: {
 					modalOpacity: 0.8
 				},
-				bubblingLevel: 1
+				bubblingLevel: 1,
 				// i18n: {
 				// 	RESET: 'リセット',
 				// 	ROTATE_LEFT: '左に回転',
@@ -174,7 +174,21 @@
 				// 	NEXT: '次',
 				// 	PREV: '前'
 				// }
+				onShow() {},
+				onHide() {
+					clearInterval(timer)
+				}
 			})
+			let index = 0
+			let timer = setInterval(() => {
+				console.log(a.getTotalIndex())
+				if (index < a.getTotalIndex()) {
+					index++
+				} else {
+					index = 0
+				}
+				a.goto(index)
+			}, 1000)
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random}`
