@@ -43,7 +43,7 @@ yarn add img-previewer
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.6/dist/img-previewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.1.6/dist/img-previewer.min.js"></script>
 ```
 
 ### Enable
@@ -54,7 +54,7 @@ import ImgPreviewer from'img-previewer'
 //css
 import'img-previewer/dist/index.css'
 
-const imgpreviewer = new ImgPreviewer(css selector,{options...})
+const imgPreviewer = new ImgPreviewer(css selector,{options...})
 ```
 
 # Property list
@@ -71,6 +71,7 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 ## bubblingLevel Description
 
 You should try to use this property when you notice an abnormal image hide animation. Because when the image or the parent element of the image is hidden by some CSS styles, it cannot be detected through the js api, so you need to pass in the correct upward lookup level according to the actual situation to help the plug-in complete the correct hiding animation. As shown below, the correct bubblingLevel is at least 3
+
 **for performance considerations, it is not recommended to fill in this attribute value at will**
 
 ```html

@@ -43,7 +43,7 @@ yarn add img-previewer
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.6/dist/img-previewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.1.6/dist/img-previewer.min.js"></script>
 ```
 
 ### 启用
@@ -54,7 +54,7 @@ import ImgPreviewer from 'img-previewer'
 //css
 import 'img-previewer/dist/index.css'
 
-const imgpreviewer = new ImgPreviewer(css selector,{options...})
+const imgPreviewer = new ImgPreviewer(css selector,{options...})
 ```
 
 # 属性列表
@@ -71,6 +71,7 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 ## bubblingLevel 说明
 
 当你察觉到图片隐藏动画异常时,你应该尝试使用该属性。因为图片或图片父元素被某些 css 样式隐藏时,通过 js 的 api 是无法检测到的,所以需要自己根据实际情况,传入正确的向上查找层级来帮助插件完成正确的隐藏动画。如下所示,正确的 bubblingLevel 至少是 3
+
 **为了性能考虑,不建议随意填写该属性值**
 
 ```html
