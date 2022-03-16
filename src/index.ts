@@ -470,7 +470,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 				{ once: true }
 			)
 		}
-		mergeOptions.onShow && mergeOptions.onHide()
+		mergeOptions.onHide && mergeOptions.onHide()
 	}
 
 	function handleRotateLeft(): void {
@@ -578,7 +578,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 			store.imgList[i] = element
 		}
 	}
-	function goto(index: number) {
+	function show(index: number) {
 		let img = store.imgList[index]
 		store.currentClickEl = img
 		if (index < 0 || index > store.totalIndex - 1) {
@@ -594,16 +594,16 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 	_init(selector, options)
 	ImgPreviewer.prototype.getTotalIndex = () => store.totalIndex - 1
 	ImgPreviewer.prototype.update = initImgList
-	ImgPreviewer.prototype.goto = goto
+	ImgPreviewer.prototype.show = show
 	ImgPreviewer.prototype.next = () => {
 		if (!isOpen) {
-			return goto(0)
+			return show(0)
 		}
 		handleNext()
 	}
 	ImgPreviewer.prototype.prev = () => {
 		if (!isOpen) {
-			return goto(store.totalIndex - 1)
+			return show(store.totalIndex - 1)
 		}
 		handlePrev()
 	}

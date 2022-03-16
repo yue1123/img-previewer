@@ -1,7 +1,7 @@
 
 interface ImgPreviewer {
 	/**
-	 * update image el
+	 * update image els
 	 */
 	update: () => void
 	/**
@@ -9,10 +9,10 @@ interface ImgPreviewer {
 	 */
 	getTotalIndex: () => number
 	/**
-	 * show index image el
+	 * show index image 
 	 * @param {number} index
 	 */
-	goto: (index: number) => void
+	show: (index: number) => void
 	/**
 	 * goto next
 	 */
@@ -25,7 +25,7 @@ interface ImgPreviewer {
 
 declare const ImgPreviewer: {
 	/**
-	 * update image el
+	 * update image els
 	 */
 	update: () => void
 	/**
@@ -33,10 +33,10 @@ declare const ImgPreviewer: {
 	 */
 	getTotalIndex: () => number
 	/**
-	 * show index image el
+	 * show index image
 	 * @param {number} index
 	 */
-	goto: (index: number) => void
+	show: (index: number) => void
 	/**
 	 * goto next
 	 */

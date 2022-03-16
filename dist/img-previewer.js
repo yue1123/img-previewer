@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-03-15T13:31:39.962Z
+ * Date: 2022-03-16T13:41:44.039Z
  */
 
 (function (global, factory) {
@@ -14,7 +14,7 @@
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ImgPreviewer = factory());
 })(this, (function () { 'use strict';
 
-	var version = "2.0.6";
+	var version = "2.1.6";
 
 	function debounce(fn, delay) {
 	    var timer = 0;
@@ -568,7 +568,7 @@
 	                store.currentImgElement.classList.remove('img-pre__animated');
 	            }, { once: true });
 	        }
-	        mergeOptions.onShow && mergeOptions.onHide();
+	        mergeOptions.onHide && mergeOptions.onHide();
 	    }
 	    function handleRotateLeft() {
 	        store.rotate -= 90;
@@ -672,7 +672,7 @@
 	            store.imgList[i] = element;
 	        }
 	    }
-	    function goto(index) {
+	    function show(index) {
 	        var img = store.imgList[index];
 	        store.currentClickEl = img;
 	        if (index < 0 || index > store.totalIndex - 1) {
@@ -689,16 +689,16 @@
 	    _init(selector, options);
 	    ImgPreviewer.prototype.getTotalIndex = function () { return store.totalIndex - 1; };
 	    ImgPreviewer.prototype.update = initImgList;
-	    ImgPreviewer.prototype.goto = goto;
+	    ImgPreviewer.prototype.show = show;
 	    ImgPreviewer.prototype.next = function () {
 	        if (!isOpen) {
-	            return goto(0);
+	            return show(0);
 	        }
 	        handleNext();
 	    };
 	    ImgPreviewer.prototype.prev = function () {
 	        if (!isOpen) {
-	            return goto(store.totalIndex - 1);
+	            return show(store.totalIndex - 1);
 	        }
 	        handlePrev();
 	    };

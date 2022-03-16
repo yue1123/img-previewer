@@ -1,4 +1,5 @@
 # Img-previewer Js
+
 [![GitHub license](https://img.shields.io/github/license/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/stargazers)
 <a href="https://www.npmjs.com/package/img-previewer">
@@ -7,8 +8,6 @@
 <a href="https://github.com/yue1123/img-previewer/releases">
 <img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="GitHub package.json version (subfolder of monorepo)">
 </a>
-
-
 
 轻量且强大的 `javascript` 图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面 `html` 代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验
 
@@ -60,13 +59,38 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 
 # 属性列表
 
-|            | 类型   | 说明                   | 默认值                                          |
-| ---------- | ------ | ---------------------- | ----------------------------------------------- |
-| fillRatio  | number | 图片铺满预览区域的比例 | 0.9(90%)                                        |
-| dataUrlKey | string | 图片地址取值的 key     | src                                             |
-| imageZoom  | object | 缩放图片的配置         | {min: 0.1,max: 5,step: 0.1}                     |
-| style      | object | 样式配置               | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
-| i18n       | object | tooltips 国际化配置    | null                                  |
+|               | 类型   | 说明                                        | 默认值                                          |
+| ------------- | ------ | ------------------------------------------- | ----------------------------------------------- |
+| fillRatio     | number | 图片铺满预览区域的比例                      | 0.9(90%)                                        |
+| dataUrlKey    | string | 图片地址取值的 key                          | src                                             |
+| imageZoom     | object | 缩放图片的配置                              | {min: 0.1,max: 5,step: 0.1}                     |
+| style         | object | 样式配置                                    | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+| i18n          | object | tooltips 国际化配置                         | null                                            |
+| bubblingLevel | number | 冒泡检测图片父元素是否被 css 样式隐藏的层级 | 0                                               |
+
+## bubblingLevel 说明
+
+当你察觉到图片隐藏动画异常时,你应该尝试使用该属性。因为图片或图片父元素被某些 css 样式隐藏时,通过 js 的 api 是无法检测到的,所以需要自己根据实际情况,传入正确的向上查找层级来帮助插件完成正确的隐藏动画。如下所示,正确的 bubblingLevel 至少是 3
+**为了性能考虑,不建议随意填写该属性值**
+
+```html
+<div style="opacity:0">
+	<!-- 3 -->
+	<div>
+		<!-- 2 -->
+		<img src="" alt="" />
+		<!-- 1 -->
+	</div>
+</div>
+```
+
+**注意:**
+目前检测元素或父元素被 css 样式隐藏只支持以下样式:
+
+- opacity: 0;
+- height: 0;
+- width: 0;
+- visibility: hidden;
 
 ## options.imageZoom
 
@@ -96,6 +120,16 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 | NEXT | 下一张 |
 | PREV | 上一张 |
 
+## 实例方法
+
+|                    | Description          |
+| ------------------ | -------------------- |
+| update()           | 更新图片             |
+| getTotalIndex()    | 获取实例预览图片张数 |
+| show(index:number) | 显示                 |
+| next()             | 下一张               |
+| prev()             | 上一张               |
+
 ### 快捷键
 
 | 按键 | 说明     |
@@ -109,7 +143,27 @@ const imgpreviewer = new ImgPreviewer(css selector,{options...})
 一些动态更新图片列表使用
 
 ```js
-const a = new ImgPreviewer('body')
+const imgPreviewer = new ImgPreviewer('body')
 // 图片渲染到页面后调用
-a.update()
+imgPreviewer.update()
+```
+
+# 幻灯片
+
+```js
+let timer = null
+function play() {
+	timer && clearInterval(timer)
+	let index = 0
+	a.show(index)
+	timer = setInterval(() => {
+		if (index < a.getTotalIndex()) {
+			index++
+		} else {
+			index = 0
+		}
+		a.show(index)
+	}, 2000)
+}
+play()
 ```

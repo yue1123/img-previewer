@@ -96,7 +96,8 @@
 				width: 100%;
 				margin: 6px 0;
 			}
-			#add {
+			#add,
+			#play {
 				margin-bottom: 10px;
 				margin-top: 15px;
 				display: inline-block;
@@ -139,6 +140,7 @@
 			<h2>simple demo</h2>
 			<p>可动态的更新图片列表</p>
 			<button id="add">添加一张</button>
+			<button id="play">播放幻灯片</button>
 			<div id="app">
 				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
 
@@ -153,8 +155,7 @@
 			</div>
 		</div>
 
-		<script src="../dist/img-previewer.js"></script>
-		<!-- <script src="./js/img-previewer.min.js"></script> -->
+		<script src="../dist/img-previewer.min.js"></script>
 		<script>
 			const a = new ImgPreviewer('#app', {
 				scrollbar: true,
@@ -166,29 +167,25 @@
 					modalOpacity: 0.8
 				},
 				bubblingLevel: 1,
-				// i18n: {
-				// 	RESET: 'リセット',
-				// 	ROTATE_LEFT: '左に回転',
-				// 	ROTATE_RIGHT: '右に回る',
-				// 	CLOSE: '閉鎖',
-				// 	NEXT: '次',
-				// 	PREV: '前'
-				// }
-				onShow() {},
 				onHide() {
 					clearInterval(timer)
 				}
 			})
-			let index = 0
-			let timer = setInterval(() => {
-				console.log(a.getTotalIndex())
-				if (index < a.getTotalIndex()) {
-					index++
-				} else {
-					index = 0
-				}
-				a.goto(index)
-			}, 1000)
+			let timer = null
+			function play() {
+				timer && clearInterval(timer)
+				let index = 0
+        a.show(index)
+				timer = setInterval(() => {
+					if (index < a.getTotalIndex()) {
+						index++
+					} else {
+						index = 0
+					}
+					a.show(index)
+				}, 2000)
+			}
+
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random}`
@@ -198,6 +195,7 @@
 				}
 			}
 			document.getElementById('add').onclick = add
+			document.getElementById('play').onclick = play
 		</script>
 	</body>
 </html>
