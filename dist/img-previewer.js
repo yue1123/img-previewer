@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v2.1.6
+ * ImgPreviewer v2.0.6
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-03-16T14:54:17.302Z
+ * Date: 2022-03-16T13:41:44.039Z
  */
 
 (function (global, factory) {
