@@ -43,7 +43,7 @@ yarn add img-previewer
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.6/dist/img-previewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.1.6/dist/img-previewer.min.js"></script>
 ```
 
 ### Enable
@@ -54,18 +54,41 @@ import ImgPreviewer from'img-previewer'
 //css
 import'img-previewer/dist/index.css'
 
-const imgpreviewer = new ImgPreviewer(css selector,{options...})
+const imgPreviewer = new ImgPreviewer(css selector,{options...})
 ```
 
 # Property list
 
-|            | Type   | Description                                             | Default Value                                   |
-| ---------- | ------ | ------------------------------------------------------- | ----------------------------------------------- |
-| fillRatio  | number | The proportion of the image that fills the preview area | 0.9(90%)                                        |
-| dataUrlKey | string | The key of the image address value                      | src                                             |
-| imageZoom  | object | Zoom image configuration                                | {min: 0.1,max: 5,step: 0.1}                     |
-| style      | object | Style configuration                                     | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
-| i18n       | object | tooltips International configuration                    | null                                    |
+|               | Type   | Description                                                                         | Default Value                                   |
+| ------------- | ------ | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
+| fillRatio     | number | The proportion of the image that fills the preview area                             | 0.9(90%)                                        |
+| dataUrlKey    | string | The key of the image address value                                                  | src                                             |
+| imageZoom     | object | Zoom image configuration                                                            | {min: 0.1,max: 5,step: 0.1}                     |
+| style         | object | Style configuration                                                                 | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
+| i18n          | object | tooltips International configuration                                                | null                                            |
+| bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
+
+## bubblingLevel Description
+
+You should try to use this property when you notice an abnormal image hide animation. Because when the image or the parent element of the image is hidden by some CSS styles, it cannot be detected through the js api, so you need to pass in the correct upward lookup level according to the actual situation to help the plug-in complete the correct hiding animation. As shown below, the correct bubblingLevel is at least 3
+
+**for performance considerations, it is not recommended to fill in this attribute value at will**
+
+```html
+<div style="opacity:0"> <!-- 3 -->
+	<div> <!-- 2 -->
+		<img src="" alt="" /> <!-- 1 -->
+	</div>
+</div>
+```
+
+**Notice:**
+Currently detecting that an element or parent element is hidden by a css style only supports the following styles:
+
+- opacity: 0;
+- height: 0;
+- width: 0;
+- visibility: hidden;
 
 ## options.imageZoom
 
@@ -96,6 +119,16 @@ Simplified Chinese and English are supported by default, others need to be confi
 | NEXT         | Next          |
 | PREV         | Previous      |
 
+## api methods
+
+|                    | Description                |
+| ------------------ | -------------------------- |
+| update()           | update image els           |
+| getTotalIndex()    | get total image el numbers |
+| show(index:number) | show index image           |
+| next()             | goto next                  |
+| prev()             | goto prev                  |
+
 ### hot key
 
 | Button | Description   |
@@ -109,7 +142,27 @@ Simplified Chinese and English are supported by default, others need to be confi
 Some dynamically updated picture lists use
 
 ```js
-const a = new ImgPreviewer('body')
+const imgPreviewer = new ImgPreviewer('body')
 // Called after the image is rendered on the page
-a.update()
+imgPreviewer.update()
+```
+
+# play slideshow
+
+```js
+let timer = null
+function play() {
+	timer && clearInterval(timer)
+	let index = 0
+	a.show(index)
+	timer = setInterval(() => {
+		if (index < a.getTotalIndex()) {
+			index++
+		} else {
+			index = 0
+		}
+		a.show(index)
+	}, 2000)
+}
+play()
 ```

@@ -96,7 +96,8 @@
 				width: 100%;
 				margin: 6px 0;
 			}
-			#add {
+			#add,
+			#play {
 				margin-bottom: 10px;
 				margin-top: 15px;
 				display: inline-block;
@@ -112,17 +113,16 @@
 		<div class="banner">
 			<div>
 				<h1>img-previewer</h1>
-				<p>Lightweight and powerful javascript image preview plug-in</p>
+				<p>Lightweight and powerful javascript image preview plugin</p>
 				<a href="https://github.com/yue1123/img-previewer">gitHub API documention</a>
 			</div>
 		</div>
 		<div class="container">
 			<h2>img-previewer</h2>
 			<p>
-				Lightweight and powerful javascript image preview plug-in, silky animation allows you to elegantly
-				preview the images in your website. Out of the box, you don't need extra configuration (by default) or
-				change the page html code structure, you can easily enable the plugin in any type of website and upgrade
-				your user experience
+				Lightweight and powerful javascript image preview plug-in, silky animation allows you to elegantly preview the
+				images in your website. Out of the box, you don't need extra configuration (by default) or change the page html
+				code structure, you can easily enable the plugin in any type of website and upgrade your user experience
 			</p>
 			<p>These functions are provided:</p>
 			<ol>
@@ -140,6 +140,7 @@
 			<h2>simple demo</h2>
 			<p>Can dynamically update the picture list</p>
 			<button id="add">add one</button>
+			<button id="play">play slideshow</button>
 			<div id="app">
 				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
 
@@ -154,8 +155,7 @@
 			</div>
 		</div>
 
-		<script src="../dist/img-previewer.js"></script>
-		<!-- <script src="./js/img-previewer.min.js"></script> -->
+		<script src="../dist/img-previewer.min.js"></script>
 		<script>
 			const a = new ImgPreviewer('#app', {
 				scrollbar: true,
@@ -166,21 +166,33 @@
 				style: {
 					modalOpacity: 0.8
 				},
+				bubblingLevel: 1,
 				i18n: {
-					// RESET: 'リセット',
-					// ROTATE_LEFT: '左に回転',
-					// ROTATE_RIGHT: '右に回る',
-					// CLOSE: '閉鎖',
-					// NEXT: '次',
-					// PREV: '前'
 					RESET: 'reset',
 					ROTATE_LEFT: 'rotate left',
 					ROTATE_RIGHT: 'rotate right',
 					CLOSE: 'close',
 					NEXT: 'next',
 					PREV: 'prev'
+				},
+				onHide() {
+					clearInterval(timer)
 				}
 			})
+			let timer = null
+			function play() {
+				timer && clearInterval(timer)
+				let index = 0
+				a.show(index)
+				timer = setInterval(() => {
+					if (index < a.getTotalIndex()) {
+						index++
+					} else {
+						index = 0
+					}
+					a.show(index)
+				}, 2000)
+			}
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random}`
@@ -190,6 +202,7 @@
 				}
 			}
 			document.getElementById('add').onclick = add
+			document.getElementById('play').onclick = play
 		</script>
 	</body>
 </html>

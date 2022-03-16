@@ -8,6 +8,7 @@
 	height: 100vh;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	z-index: var(--container-zIndex);
+  pointer-events: none;
 	display: none;
 	.img-pre__header {
 		box-sizing: border-box;
@@ -38,9 +39,9 @@
 			color: #fff;
 			.bi,
 			svg {
-				font-size: 18px;
-				width: 18px;
-				height: 18px;
+				font-size: 16px;
+				width: 16px;
+				height: 16px;
 			}
 			&:last-child {
 				margin-right: 0;
@@ -76,8 +77,6 @@
 	}
 	.img-pre__content-wrapper {
 		height: 100%;
-		// position: relative;
-		// display: flex;
 		position: relative;
 		.img-pre__img-item {
 			width: 100%;
@@ -85,6 +84,7 @@
 			position: absolute;
 			top: 0;
 			animation-duration: 0.3s;
+			will-change: transform, opacity;
 			animation-timing-function: ease-in-out;
 			&.slide-left-out {
 				animation-name: img-pre_slide-left-hide;
@@ -115,7 +115,7 @@
 			cursor: pointer;
 			position: absolute;
 			transition: all 0.5s;
-			// transition-timing-function: ease-in-out;
+			will-change: transform;
 			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale))
 				rotate(var(--rotate));
 			user-select: none;
@@ -137,9 +137,9 @@
 		padding: 7px 5px;
 		border-radius: 2px;
 		.bi {
-			font-size: 18px;
-			width: 18px;
-			height: 18px;
+			font-size: 20px;
+			width: 20px;
+			height: 20px;
 		}
 		&:hover {
 			background: rgba(0, 0, 0, 0.2);
@@ -156,6 +156,7 @@
 	}
 	&.show {
 		animation-name: img-pre_show;
+    pointer-events: auto;
 		.img-pre__header {
 			animation-name: img-pre_header-show;
 		}

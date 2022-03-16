@@ -1,11 +1,51 @@
 
 interface ImgPreviewer {
-    update: () => void;
+	/**
+	 * update image els
+	 */
+	update: () => void
+	/**
+	 * get total image el numbers
+	 */
+	getTotalIndex: () => number
+	/**
+	 * show index image 
+	 * @param {number} index
+	 */
+	show: (index: number) => void
+	/**
+	 * goto next
+	 */
+	next: () => void
+	/**
+	 * goto prev
+	 */
+	prev: () => void
 }
 
 declare const ImgPreviewer: {
-    update: () => void;
-    new(selector: string, options?: ImgPreviewerOptions): ImgPreviewer;
+	/**
+	 * update image els
+	 */
+	update: () => void
+	/**
+	 * get total image el numbers
+	 */
+	getTotalIndex: () => number
+	/**
+	 * show index image
+	 * @param {number} index
+	 */
+	show: (index: number) => void
+	/**
+	 * goto next
+	 */
+	next: () => void
+	/**
+	 * goto prev
+	 */
+	prev: () => void
+	new (selector: string, options?: ImgPreviewerOptions): ImgPreviewer
 }
 
 export interface ImgPreviewerOptionsZoom {
@@ -24,14 +64,17 @@ export interface Ii18n {
 
 
 export interface ImgPreviewerOptions {
-    fillRatio?: number
-    imageZoom?: ImgPreviewerOptionsZoom
-    i18n?: Ii18n,
-    style?: {
-        modalOpacity: number,
-        headerOpacity: number,
-        zIndex: number
-    }
+	fillRatio?: number
+	imageZoom?: ImgPreviewerOptionsZoom
+	i18n?: Ii18n
+	style?: {
+		modalOpacity: number
+		headerOpacity: number
+		zIndex: number
+	}
+	bubblingLevel: number
+	onShow: () => void
+	onClose: () => void
 }
 
 export interface runtimeStore {

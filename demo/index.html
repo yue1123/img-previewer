@@ -96,7 +96,8 @@
 				width: 100%;
 				margin: 6px 0;
 			}
-			#add {
+			#add,
+			#play {
 				margin-bottom: 10px;
 				margin-top: 15px;
 				display: inline-block;
@@ -120,8 +121,8 @@
 			<h2>img-previewer</h2>
 			<p>
 				轻量且强大的 javascript
-				图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面
-				html 代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验
+				图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面 html
+				代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验
 			</p>
 			<p>提供了这些功能:</p>
 			<ol>
@@ -139,6 +140,7 @@
 			<h2>simple demo</h2>
 			<p>可动态的更新图片列表</p>
 			<button id="add">添加一张</button>
+			<button id="play">播放幻灯片</button>
 			<div id="app">
 				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
 
@@ -153,8 +155,7 @@
 			</div>
 		</div>
 
-		<script src="../dist/img-previewer.js"></script>
-		<!-- <script src="./js/img-previewer.min.js"></script> -->
+		<script src="../dist/img-previewer.min.js"></script>
 		<script>
 			const a = new ImgPreviewer('#app', {
 				scrollbar: true,
@@ -164,16 +165,27 @@
 				},
 				style: {
 					modalOpacity: 0.8
+				},
+				bubblingLevel: 1,
+				onHide() {
+					clearInterval(timer)
 				}
-				// i18n: {
-				// 	RESET: 'リセット',
-				// 	ROTATE_LEFT: '左に回転',
-				// 	ROTATE_RIGHT: '右に回る',
-				// 	CLOSE: '閉鎖',
-				// 	NEXT: '次',
-				// 	PREV: '前'
-				// }
 			})
+			let timer = null
+			function play() {
+				timer && clearInterval(timer)
+				let index = 0
+        a.show(index)
+				timer = setInterval(() => {
+					if (index < a.getTotalIndex()) {
+						index++
+					} else {
+						index = 0
+					}
+					a.show(index)
+				}, 2000)
+			}
+
 			function add() {
 				let img = document.createElement('img')
 				img.src = `https://picsum.photos/500/500?random}`
@@ -183,6 +195,7 @@
 				}
 			}
 			document.getElementById('add').onclick = add
+			document.getElementById('play').onclick = play
 		</script>
 	</body>
 </html>
