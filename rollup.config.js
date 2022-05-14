@@ -4,7 +4,7 @@ const changeCase = require('change-case')
 const createBanner = require('create-banner')
 const commonjs = require('rollup-plugin-commonjs');
 const typescript = require('rollup-plugin-typescript');
-const scss = require('rollup-plugin-scss')
+const less = require('rollup-plugin-less')
 const { terser } = require('rollup-plugin-terser')
 const pkg = require('./package')
 const json = require('@rollup/plugin-json');
@@ -18,34 +18,33 @@ const banner = createBanner({
 })
 
 module.exports = {
-    input: 'src/index.ts',
-    output: [
-        {
-            banner,
-            name,
-            file: `dist/${pkg.name}.js`,
-            format: 'umd'
-
-        },
-        {
-            banner,
-            name,
-            file: `dist/${pkg.name}.min.js`,
-            format: 'umd',
-            plugins: [terser()]
-        }
-    ],
-    plugins: [
-        nodeResolve(),
-        commonjs(),
-        typescript(),
-        babel({
-            exclude: 'node_modules/**'
-        }),
-        scss({
-            output: './dist/index.css',
-            outputStyle: 'compressed'
-        }),
-        json()
-    ]
+	input: 'src/index.ts',
+	output: [
+		{
+			banner,
+			name,
+			file: `dist/${pkg.name}.js`,
+			format: 'umd'
+		},
+		{
+			banner,
+			name,
+			file: `dist/${pkg.name}.min.js`,
+			format: 'umd',
+			plugins: [terser()]
+		}
+	],
+	plugins: [
+		nodeResolve(),
+		commonjs(),
+		typescript(),
+		babel({
+			exclude: 'node_modules/**'
+		}),
+		less({
+			output: './dist/index.css',
+			option: { compress: true }
+		}),
+		json()
+	]
 }

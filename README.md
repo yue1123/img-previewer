@@ -63,11 +63,13 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | ------------- | ------ | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
 | fillRatio     | number | The proportion of the image that fills the preview area                             | 0.9(90%)                                        |
 | dataUrlKey    | string | The key of the image address value                                                  | src                                             |
+| triggerEvent  | string | trigger event                                                                       | click                                           |
 | imageZoom     | object | Zoom image configuration                                                            | {min: 0.1,max: 5,step: 0.1}                     |
 | style         | object | Style configuration                                                                 | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 | i18n          | object | tooltips International configuration                                                | null                                            |
 | bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
 
+> Optional values for triggerEvent are: click and dblclick
 ## bubblingLevel Description
 
 You should try to use this property when you notice an abnormal image hide animation. Because when the image or the parent element of the image is hidden by some CSS styles, it cannot be detected through the js api, so you need to pass in the correct upward lookup level according to the actual situation to help the plug-in complete the correct hiding animation. As shown below, the correct bubblingLevel is at least 3
@@ -121,7 +123,7 @@ Simplified Chinese and English are supported by default, others need to be confi
 
 ## api methods
 
-|                    | Description                |
+|       Method name             | Description                |
 | ------------------ | -------------------------- |
 | update()           | update image els           |
 | getTotalIndex()    | get total image el numbers |

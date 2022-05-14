@@ -143,7 +143,6 @@
 			<button id="play">播放幻灯片</button>
 			<div id="app">
 				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
-
 				<img src="./img/pexels-photo-210307.jpeg" alt="" />
 				<img src="./img/pexels-photo-347145.jpeg" alt="" />
 				<img src="./img/pexels-photo-358238.jpeg" alt="" />
@@ -175,7 +174,7 @@
 			function play() {
 				timer && clearInterval(timer)
 				let index = 0
-        a.show(index)
+				a.show(index)
 				timer = setInterval(() => {
 					if (index < a.getTotalIndex()) {
 						index++
