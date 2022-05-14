@@ -72,6 +72,7 @@ export interface ImgPreviewerOptions {
 		headerOpacity: number
 		zIndex: number
 	}
+	triggerEvent: 'click' | 'dblclick'
 	bubblingLevel: number
 	onShow: () => void
 	onClose: () => void

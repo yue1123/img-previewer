@@ -10,6 +10,7 @@ const defaultOptions = {
 		headerOpacity: 0,
 		zIndex: 99
 	},
+	triggerEvent: 'click',
 	dataUrlKey: 'src',
 	bubblingLevel: 0
 } as const

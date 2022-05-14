@@ -63,11 +63,13 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | ------------- | ------ | ------------------------------------------- | ----------------------------------------------- |
 | fillRatio     | number | 图片铺满预览区域的比例                      | 0.9(90%)                                        |
 | dataUrlKey    | string | 图片地址取值的 key                          | src                                             |
+| triggerEvent  | string | 触发事件                                    | click                                           |
 | imageZoom     | object | 缩放图片的配置                              | {min: 0.1,max: 5,step: 0.1}                     |
 | style         | object | 样式配置                                    | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 | i18n          | object | tooltips 国际化配置                         | null                                            |
 | bubblingLevel | number | 冒泡检测图片父元素是否被 css 样式隐藏的层级 | 0                                               |
 
+> triggerEvent 的可选值有: click 和 dblclick
 ## bubblingLevel 说明
 
 当你察觉到图片隐藏动画异常时,你应该尝试使用该属性。因为图片或图片父元素被某些 css 样式隐藏时,通过 js 的 api 是无法检测到的,所以需要自己根据实际情况,传入正确的向上查找层级来帮助插件完成正确的隐藏动画。如下所示,正确的 bubblingLevel 至少是 3
@@ -112,14 +114,14 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 ## options.i18n
 
 默认支持简体中文和英语,其他的需要自行配置
-| | 说明 |
+|              | 说明     |
 | ------------ | -------- |
-| RESET | 重置 |
-| ROTATE_LEFT | 左旋转 |
-| ROTATE_RIGHT | 右旋转 |
-| CLOSE | 关闭预览 |
-| NEXT | 下一张 |
-| PREV | 上一张 |
+| RESET        | 重置     |
+| ROTATE_LEFT  | 左旋转   |
+| ROTATE_RIGHT | 右旋转   |
+| CLOSE        | 关闭预览 |
+| NEXT         | 下一张   |
+| PREV         | 上一张   |
 
 ## 实例方法
 

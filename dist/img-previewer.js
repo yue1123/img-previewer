@@ -1,11 +1,11 @@
 /*!
- * ImgPreviewer v2.0.6
+ * ImgPreviewer v2.1.6
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-03-16T13:41:44.039Z
+ * Date: 2022-05-14T17:16:16.873Z
  */
 
 (function (global, factory) {
@@ -165,6 +165,7 @@
 	        headerOpacity: 0,
 	        zIndex: 99
 	    },
+	    triggerEvent: 'click',
 	    dataUrlKey: 'src',
 	    bubblingLevel: 0
 	};
@@ -198,7 +199,7 @@
 	        var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent);
 	        var wrapper = document.getElementById('J_content-wrapper');
 	        // add click eventListener for rootEl, proxy img click event
-	        rootEl === null || rootEl === void 0 ? void 0 : rootEl.addEventListener('click', function (event) {
+	        rootEl === null || rootEl === void 0 ? void 0 : rootEl.addEventListener(mergeOptions.triggerEvent, function (event) {
 	            var target = event.target;
 	            if (target === store.currentImgElement)
 	                return;

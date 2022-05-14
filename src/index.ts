@@ -52,7 +52,7 @@ function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions
 		const wrapper = document.getElementById('J_content-wrapper')
 		// add click eventListener for rootEl, proxy img click event
 		rootEl?.addEventListener(
-			'click',
+			mergeOptions.triggerEvent,
 			(event: any) => {
 				const target: HTMLImageElement = event.target
 				if (target === store.currentImgElement) return
