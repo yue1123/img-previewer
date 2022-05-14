@@ -5,7 +5,7 @@
  * Copyright 2021-present dh
  * Released under the MIT license
  *
- * Date: 2022-05-14T17:16:16.873Z
+ * Date: 2022-05-14T17:35:53.800Z
  */
 
 (function (global, factory) {

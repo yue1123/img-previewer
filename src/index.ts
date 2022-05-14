@@ -11,7 +11,7 @@ import {
 	setDataset
 } from './utils'
 // style sheet
-import './index.scss'
+import './index.less'
 // runtime store init function
 import createStore from './store'
 // i18n language config
