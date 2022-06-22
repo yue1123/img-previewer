@@ -37,7 +37,7 @@ Other languages: [English](./README.md), [简体中文](./README.zh_cn.md).
 ```bash
 npm i img-previewer
 # or
-yarn add img-previewer
+pnpm add img-previewer
 ```
 
 ### CDN
