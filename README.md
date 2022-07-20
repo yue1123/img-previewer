@@ -8,6 +8,8 @@
 <a href="https://github.com/yue1123/img-previewer/releases">
 <img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="GitHub package.json version (subfolder of monorepo)">
 </a>
+[![](https://data.jsdelivr.com/v1/package/npm/img-previewer/badge)](https://www.jsdelivr.com/package/npm/img-previewer)
+
 
 Lightweight and powerful `javascript` image preview plug-in, silky animation allows you to elegantly preview the images in your website. Out of the box, you don't need extra configuration (by default) or change the page `html` code structure, you can easily enable the plugin in any type of website and upgrade your user experience
 
@@ -38,12 +40,17 @@ Other languages: [English](./README.md), [简体中文](./README.zh_cn.md).
 npm i img-previewer
 # or
 yarn add img-previewer
+# or
+pnpm add img-previewer
 ```
 
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.1.6/dist/img-previewer.min.js"></script>
+// css
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-previewer@2.1.7/dist/index.css">
+// js
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.6/dist/img-previewer.min.js"></script>
 ```
 
 ### Enable
