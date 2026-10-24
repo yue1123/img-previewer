@@ -1,200 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 	<head>
 		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>img-previewer 图片预览插件</title>
+		<meta name="description" content="轻量、无依赖的 JavaScript 图片预览插件，带有从原位置展开的过渡动画。" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
 		/>
-		<title>img-previewer</title>
 		<link rel="stylesheet" href="../dist/index.css" />
-		<style>
-			* {
-				margin: 0;
-				padding: 0;
-				/* outline: 1px solid #74ebd5; */
-			}
-			body {
-				height: 100%;
-				width: 100%;
-				overflow: auto;
-			}
-			.banner {
-				height: 300px;
-				width: 100%;
-				background: #74ebd5; /* fallback for old browsers */
-				background: -webkit-linear-gradient(to right, #155b95, #16955c); /* Chrome 10-25, Safari 5.1-6 */
-				background: linear-gradient(
-					to right,
-					#155b95,
-					#16955c
-				); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-				color: #fff;
-				text-align: center;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-			.banner p {
-				color: #f1f1f1;
-				margin-top: 15px;
-			}
-			.banner a {
-				margin-top: 15px;
-				display: inline-block;
-				color: #fff;
-				border: 1px solid #f1f1f1;
-				padding: 7.5px 15px;
-				border-radius: 4px;
-				text-decoration: none;
-				cursor: pointer;
-			}
-			.banner a:hover {
-				border: 1px solid #c3c3c3;
-				color: #c3c3c3;
-			}
-			.container {
-				width: 1000px;
-				margin: 0 auto;
-				color: #606c71;
-			}
-			.container h2 {
-				font-weight: 500;
-				color: #159957;
-				margin-top: 25px;
-			}
-			.container p {
-				margin: 7.5px 0;
-				line-height: 1.5;
-			}
-
-			.container ol {
-				margin-top: 15px;
-			}
-			.container ol,
-			.container li {
-				line-height: 1.5;
-				list-style-position: inside;
-			}
-			.container pre {
-				padding: 15px 10px;
-				text-align: left;
-				background: #f1f1f1;
-				border-radius: 4px;
-				margin-top: 15px;
-			}
-			#app {
-				width: 100%;
-				-webkit-column-count: 4;
-				-moz-column-count: 4;
-				column-count: 4;
-				-webkit-column-gap: 15px;
-				-moz-column-gap: 15px;
-				column-gap: 15px;
-			}
-			#app img {
-				width: 100%;
-				margin: 6px 0;
-			}
-			#add,
-			#play {
-				margin-bottom: 10px;
-				margin-top: 15px;
-				display: inline-block;
-				border: 1px solid #f1f1f1;
-				padding: 7.5px 15px;
-				border-radius: 4px;
-				text-decoration: none;
-				cursor: pointer;
-			}
-		</style>
+		<link rel="stylesheet" href="./demo.css" />
 	</head>
-	<body>
-		<div class="banner">
-			<div>
-				<h1>img-previewer</h1>
-				<p>轻量且强大的 javascript 图片预览插件</p>
-				<a href="https://github.com/yue1123/img-previewer/blob/main/README.zh_cn.md">gitHub API文档</a>
+	<body data-lang="zh">
+		<header class="wrap topbar">
+			<span id="version"></span>
+			<nav>
+				<a href="./index.es.html" lang="en">English</a>
+				<a class="icon-link" href="https://github.com/yue1123/img-previewer" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+				<a class="icon-link" href="https://www.npmjs.com/package/img-previewer" aria-label="npm" title="npm"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z"/></svg></a>
+			</nav>
+		</header>
+
+		<main>
+			<div class="wrap hero">
+				<div>
+					<h1>img-previewer</h1>
+					<p>轻量、无依赖的图片预览插件。点击图片，它会从原来的位置平滑放大到屏幕中央，关闭时再飞回去。</p>
+				</div>
+				<div class="install">
+					<span>npm i img-previewer</span>
+					<button class="btn" id="copy" type="button" data-copy="npm i img-previewer" data-done="已复制">复制</button>
+				</div>
 			</div>
-		</div>
-		<div class="container">
-			<h2>img-previewer</h2>
-			<p>
-				轻量且强大的 javascript
-				图片预览插件,丝滑的动画让你可以优雅的预览你的网站中的图片。开箱即用,你无需多余的配置(默认情况下)或改变页面 html
-				代码结构,即可在任何类型的网站中轻松启用该插件,升级你的用户体验
-			</p>
-			<p>提供了这些功能:</p>
-			<ol>
-				<li>丝滑的可打断过渡动画</li>
-				<li>鼠标滚轮缩放图片</li>
-				<li>图标拖动图片</li>
-				<li>上一张&下一张</li>
-				<li>快捷键支持</li>
-				<li>移动端手势(双指放大)支持</li>
-				<li>多语言国际化支持</li>
-				<li>图片加载监听</li>
-			</ol>
-			<h2>安装</h2>
-			<pre><code>npm i img-previewer</code></pre>
-			<h2>simple demo</h2>
-			<p>可动态的更新图片列表</p>
-			<button id="add">添加一张</button>
-			<button id="play">播放幻灯片</button>
-			<div id="app">
-				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
-				<img src="./img/pexels-photo-210307.jpeg" alt="" />
-				<img src="./img/pexels-photo-347145.jpeg" alt="" />
-				<img src="./img/pexels-photo-358238.jpeg" alt="" />
-				<img src="./img/pexels-photo-53893.jpeg" alt="" />
-				<img src="./img/pexels-photo-1658967.jpeg" alt="" />
-				<img src="./img/pexels-photo-620337.jpeg" alt="" />
-				<img src="./img/pexels-photo-994605.jpeg" alt="" />
-				<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+
+			<div class="wrap">
+				<div class="gallery-bar">
+					<p>点击任意一张照片开始预览</p>
+					<div class="actions">
+						<label class="toggle"><input type="checkbox" id="hide-original" /> 隐藏原图</label>
+						<button class="btn" id="add" type="button">添加一张图片</button>
+						<button class="btn btn-primary" id="play" type="button">播放幻灯片</button>
+					</div>
+				</div>
+				<div id="app">
+					<img src="./img/pexels-photo-1172064.jpeg" alt="" />
+					<img src="./img/pexels-photo-210307.jpeg" alt="" />
+					<img src="./img/pexels-photo-347145.jpeg" alt="" />
+					<img src="./img/pexels-photo-358238.jpeg" alt="" />
+					<img src="./img/pexels-photo-53893.jpeg" alt="" />
+					<img src="./img/pexels-photo-1658967.jpeg" alt="" />
+					<img src="./img/pexels-photo-620337.jpeg" alt="" />
+					<img src="./img/pexels-photo-994605.jpeg" alt="" />
+					<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+				</div>
 			</div>
-		</div>
+
+			<div class="wrap docs">
+				<nav class="toc" aria-label="目录">
+					<a href="#try">操作方式</a>
+					<a href="#install">安装</a>
+					<a href="#usage">使用</a>
+					<a href="#options">配置项</a>
+					<a href="#methods">实例方法</a>
+				</nav>
+				<div>
+					<section id="try">
+						<h2>操作方式</h2>
+						<p>打开预览后可以这样操作，移动端支持双指缩放。</p>
+						<ul class="try">
+							<li><span>缩放图片</span><span>鼠标滚轮或 <kbd>+</kbd> <kbd>-</kbd></span></li>
+							<li><span>拖动图片</span><span>放大后按住拖动</span></li>
+							<li><span>上一张 / 下一张</span><span><kbd>←</kbd> <kbd>→</kbd></span></li>
+							<li><span>关闭预览</span><span><kbd>Esc</kbd> 或点击空白处</span></li>
+							<li><span>旋转、缩放、重置</span><span>右上角工具栏</span></li>
+						</ul>
+					</section>
+
+					<section id="install">
+						<h2>安装</h2>
+						<pre><code>npm i img-previewer
+# 或
+pnpm add img-previewer</code></pre>
+						<p>也可以直接通过 CDN 引入：</p>
+						<pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/img-previewer/dist/img-previewer.min.js"&gt;&lt;/script&gt;</code></pre>
+					</section>
+
+					<section id="usage">
+						<h2>使用</h2>
+						<p>传入一个 CSS 选择器，选择器内的所有 <code>&lt;img&gt;</code> 都可以点击预览，不需要改动已有的 HTML。</p>
+						<pre><code>import ImgPreviewer from 'img-previewer'
+import 'img-previewer/dist/index.css'
+
+const previewer = new ImgPreviewer('#app', {
+  fillRatio: 0.8,
+  onShow() {},
+  onHide() {}
+})</code></pre>
+						<p>图片是动态加载的？渲染完成后调用 <code>previewer.update()</code> 即可。</p>
+					</section>
+
+					<section id="options">
+						<h2>配置项</h2>
+						<div class="table">
+							<table>
+								<thead>
+									<tr><th>名称</th><th>说明</th><th>默认值</th></tr>
+								</thead>
+								<tbody>
+									<tr><td><code>fillRatio</code></td><td>图片占预览区域的比例</td><td>0.8</td></tr>
+									<tr><td><code>dataUrlKey</code></td><td>存放大图地址的属性名</td><td><code>src</code></td></tr>
+									<tr><td><code>triggerEvent</code></td><td>触发预览的事件，<code>click</code> 或 <code>dblclick</code></td><td><code>click</code></td></tr>
+									<tr><td><code>imageZoom</code></td><td>缩放配置：<code>min</code>、<code>max</code>、<code>step</code></td><td>1 / 5 / 0.1</td></tr>
+									<tr><td><code>style</code></td><td>样式配置：<code>modalOpacity</code>、<code>headerOpacity</code>、<code>zIndex</code></td><td>0.6 / 0 / 99</td></tr>
+									<tr><td><code>i18n</code></td><td>工具栏提示文字，默认按浏览器语言显示中文或英文</td><td>自动</td></tr>
+									<tr><td><code>bubblingLevel</code></td><td>向上检查父元素是否被 CSS 隐藏的层数</td><td>0</td></tr>
+									<tr><td><code>hideOriginal</code></td><td>预览时隐藏页面上原位的图片</td><td><code>false</code></td></tr>
+									<tr><td><code>onShow</code></td><td>预览打开后的回调</td><td>—</td></tr>
+									<tr><td><code>onHide</code></td><td>预览关闭时的回调（别名 <code>onClose</code>）</td><td>—</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section id="methods">
+						<h2>实例方法</h2>
+						<div class="table">
+							<table>
+								<thead>
+									<tr><th>方法</th><th>说明</th></tr>
+								</thead>
+								<tbody>
+									<tr><td><code>show(index)</code></td><td>预览指定索引的图片</td></tr>
+									<tr><td><code>next()</code> / <code>prev()</code></td><td>切换到下一张 / 上一张</td></tr>
+									<tr><td><code>hide()</code></td><td>关闭预览</td></tr>
+									<tr><td><code>update()</code></td><td>重新收集图片列表</td></tr>
+									<tr><td><code>getTotalIndex()</code></td><td>获取最后一张图片的索引</td></tr>
+									<tr><td><code>destroy()</code></td><td>销毁实例，移除事件监听和 DOM</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			</div>
+		</main>
+
+		<footer class="wrap">
+			以 MIT 协议开源。示例照片来自 <a href="https://www.pexels.com">Pexels</a>。
+		</footer>
 
 		<script src="../dist/img-previewer.min.js"></script>
-		<script>
-			const a = new ImgPreviewer('#app', {
-				scrollbar: true,
-				ratio: 0.7,
-				imageZoom: {
-					step: 1
-				},
-				style: {
-					modalOpacity: 0.8
-				},
-				bubblingLevel: 1,
-				onHide() {
-					clearInterval(timer)
-				}
-			})
-			let timer = null
-			function play() {
-				timer && clearInterval(timer)
-				let index = 0
-				a.show(index)
-				timer = setInterval(() => {
-					if (index < a.getTotalIndex()) {
-						index++
-					} else {
-						index = 0
-					}
-					a.show(index)
-				}, 2000)
-			}
-
-			function add() {
-				let img = document.createElement('img')
-				img.src = `https://picsum.photos/500/500?random}`
-				img.onload = function () {
-					document.getElementById('app').appendChild(img)
-					a.update()
-				}
-			}
-			document.getElementById('add').onclick = add
-			document.getElementById('play').onclick = play
-		</script>
+		<script src="./demo.js"></script>
 	</body>
 </html>

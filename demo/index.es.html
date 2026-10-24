@@ -2,207 +2,157 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>img-previewer image viewer</title>
+		<meta name="description" content="A lightweight, dependency-free JavaScript image viewer that zooms images out from where they sit on the page." />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
 		/>
-		<title>img-previewer</title>
 		<link rel="stylesheet" href="../dist/index.css" />
-		<style>
-			* {
-				margin: 0;
-				padding: 0;
-				/* outline: 1px solid #74ebd5; */
-			}
-			body {
-				height: 100%;
-				width: 100%;
-				overflow: auto;
-			}
-			.banner {
-				height: 300px;
-				width: 100%;
-				background: #74ebd5; /* fallback for old browsers */
-				background: -webkit-linear-gradient(to right, #155b95, #16955c); /* Chrome 10-25, Safari 5.1-6 */
-				background: linear-gradient(
-					to right,
-					#155b95,
-					#16955c
-				); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-				color: #fff;
-				text-align: center;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-			.banner p {
-				color: #f1f1f1;
-				margin-top: 15px;
-			}
-			.banner a {
-				margin-top: 15px;
-				display: inline-block;
-				color: #fff;
-				border: 1px solid #f1f1f1;
-				padding: 7.5px 15px;
-				border-radius: 4px;
-				text-decoration: none;
-				cursor: pointer;
-			}
-			.banner a:hover {
-				border: 1px solid #c3c3c3;
-				color: #c3c3c3;
-			}
-			.container {
-				width: 1000px;
-				margin: 0 auto;
-				color: #606c71;
-			}
-			.container h2 {
-				font-weight: 500;
-				color: #159957;
-				margin-top: 25px;
-			}
-			.container p {
-				margin: 7.5px 0;
-				line-height: 1.5;
-			}
-
-			.container ol {
-				margin-top: 15px;
-			}
-			.container ol,
-			.container li {
-				line-height: 1.5;
-				list-style-position: inside;
-			}
-			.container pre {
-				padding: 15px 10px;
-				text-align: left;
-				background: #f1f1f1;
-				border-radius: 4px;
-				margin-top: 15px;
-			}
-			#app {
-				width: 100%;
-				-webkit-column-count: 4;
-				-moz-column-count: 4;
-				column-count: 4;
-				-webkit-column-gap: 15px;
-				-moz-column-gap: 15px;
-				column-gap: 15px;
-			}
-			#app img {
-				width: 100%;
-				margin: 6px 0;
-			}
-			#add,
-			#play {
-				margin-bottom: 10px;
-				margin-top: 15px;
-				display: inline-block;
-				border: 1px solid #f1f1f1;
-				padding: 7.5px 15px;
-				border-radius: 4px;
-				text-decoration: none;
-				cursor: pointer;
-			}
-		</style>
+		<link rel="stylesheet" href="./demo.css" />
 	</head>
-	<body>
-		<div class="banner">
-			<div>
-				<h1>img-previewer</h1>
-				<p>Lightweight and powerful javascript image preview plugin</p>
-				<a href="https://github.com/yue1123/img-previewer">gitHub API documention</a>
-			</div>
-		</div>
-		<div class="container">
-			<h2>img-previewer</h2>
-			<p>
-				Lightweight and powerful javascript image preview plug-in, silky animation allows you to elegantly preview the
-				images in your website. Out of the box, you don't need extra configuration (by default) or change the page html
-				code structure, you can easily enable the plugin in any type of website and upgrade your user experience
-			</p>
-			<p>These functions are provided:</p>
-			<ol>
-				<li>Silky, interruptible transition animation</li>
-				<li>Use mouse wheel to zoom picture</li>
-				<li>Icon drag picture</li>
-				<li>Previous & Next</li>
-				<li>Shortcut key support</li>
-				<li>Support for mobile gestures (zoom in with two fingers)</li>
-				<li>Multi-language internationalization support</li>
-				<li>Picture loading monitor</li>
-			</ol>
-			<h2>Setup</h2>
-			<pre><code>npm i img-previewer</code></pre>
-			<h2>simple demo</h2>
-			<p>Can dynamically update the picture list</p>
-			<button id="add">add one</button>
-			<button id="play">play slideshow</button>
-			<div id="app">
-				<img src="./img/pexels-photo-1172064.jpeg" alt="" />
+	<body data-lang="en">
+		<header class="wrap topbar">
+			<span id="version"></span>
+			<nav>
+				<a href="./index.html" lang="zh-CN">简体中文</a>
+				<a class="icon-link" href="https://github.com/yue1123/img-previewer" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+				<a class="icon-link" href="https://www.npmjs.com/package/img-previewer" aria-label="npm" title="npm"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z"/></svg></a>
+			</nav>
+		</header>
 
-				<img src="./img/pexels-photo-210307.jpeg" alt="" />
-				<img src="./img/pexels-photo-347145.jpeg" alt="" />
-				<img src="./img/pexels-photo-358238.jpeg" alt="" />
-				<img src="./img/pexels-photo-53893.jpeg" alt="" />
-				<img src="./img/pexels-photo-1658967.jpeg" alt="" />
-				<img src="./img/pexels-photo-620337.jpeg" alt="" />
-				<img src="./img/pexels-photo-994605.jpeg" alt="" />
-				<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+		<main>
+			<div class="wrap hero">
+				<div>
+					<h1>img-previewer</h1>
+					<p>A lightweight, dependency-free image viewer. Click a photo and it grows from where it sits to the center of the screen, then flies back when you close it.</p>
+				</div>
+				<div class="install">
+					<span>npm i img-previewer</span>
+					<button class="btn" id="copy" type="button" data-copy="npm i img-previewer" data-done="Copied">Copy</button>
+				</div>
 			</div>
-		</div>
+
+			<div class="wrap">
+				<div class="gallery-bar">
+					<p>Click any photo to open it</p>
+					<div class="actions">
+						<label class="toggle"><input type="checkbox" id="hide-original" /> Hide original</label>
+						<button class="btn" id="add" type="button">Add a photo</button>
+						<button class="btn btn-primary" id="play" type="button">Play slideshow</button>
+					</div>
+				</div>
+				<div id="app">
+					<img src="./img/pexels-photo-1172064.jpeg" alt="" />
+					<img src="./img/pexels-photo-210307.jpeg" alt="" />
+					<img src="./img/pexels-photo-347145.jpeg" alt="" />
+					<img src="./img/pexels-photo-358238.jpeg" alt="" />
+					<img src="./img/pexels-photo-53893.jpeg" alt="" />
+					<img src="./img/pexels-photo-1658967.jpeg" alt="" />
+					<img src="./img/pexels-photo-620337.jpeg" alt="" />
+					<img src="./img/pexels-photo-994605.jpeg" alt="" />
+					<img src="./img/pexels-photo-1006121.jpeg" alt="" />
+				</div>
+			</div>
+
+			<div class="wrap docs">
+				<nav class="toc" aria-label="Contents">
+					<a href="#try">Controls</a>
+					<a href="#install">Install</a>
+					<a href="#usage">Usage</a>
+					<a href="#options">Options</a>
+					<a href="#methods">Methods</a>
+				</nav>
+				<div>
+					<section id="try">
+						<h2>Controls</h2>
+						<p>Once a photo is open you can use these. On touch screens, pinch to zoom.</p>
+						<ul class="try">
+							<li><span>Zoom</span><span>Mouse wheel or <kbd>+</kbd> <kbd>-</kbd></span></li>
+							<li><span>Pan</span><span>Drag after zooming in</span></li>
+							<li><span>Previous / next</span><span><kbd>←</kbd> <kbd>→</kbd></span></li>
+							<li><span>Close</span><span><kbd>Esc</kbd> or click the backdrop</span></li>
+							<li><span>Rotate, zoom and reset</span><span>Toolbar, top right</span></li>
+						</ul>
+					</section>
+
+					<section id="install">
+						<h2>Install</h2>
+						<pre><code>npm i img-previewer
+# or
+pnpm add img-previewer</code></pre>
+						<p>Or load it from a CDN:</p>
+						<pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/img-previewer/dist/img-previewer.min.js"&gt;&lt;/script&gt;</code></pre>
+					</section>
+
+					<section id="usage">
+						<h2>Usage</h2>
+						<p>Pass a CSS selector. Every <code>&lt;img&gt;</code> inside it opens on click, with no changes to your existing HTML.</p>
+						<pre><code>import ImgPreviewer from 'img-previewer'
+import 'img-previewer/dist/index.css'
+
+const previewer = new ImgPreviewer('#app', {
+  fillRatio: 0.8,
+  onShow() {},
+  onHide() {}
+})</code></pre>
+						<p>Adding images later? Call <code>previewer.update()</code> after they render.</p>
+					</section>
+
+					<section id="options">
+						<h2>Options</h2>
+						<div class="table">
+							<table>
+								<thead>
+									<tr><th>Name</th><th>Description</th><th>Default</th></tr>
+								</thead>
+								<tbody>
+									<tr><td><code>fillRatio</code></td><td>How much of the viewport the image fills</td><td>0.8</td></tr>
+									<tr><td><code>dataUrlKey</code></td><td>Attribute that holds the full-size image URL</td><td><code>src</code></td></tr>
+									<tr><td><code>triggerEvent</code></td><td>Event that opens the viewer, <code>click</code> or <code>dblclick</code></td><td><code>click</code></td></tr>
+									<tr><td><code>imageZoom</code></td><td>Zoom: <code>min</code>, <code>max</code>, <code>step</code></td><td>1 / 5 / 0.1</td></tr>
+									<tr><td><code>style</code></td><td>Style: <code>modalOpacity</code>, <code>headerOpacity</code>, <code>zIndex</code></td><td>0.6 / 0 / 99</td></tr>
+									<tr><td><code>i18n</code></td><td>Toolbar tooltip text. Chinese or English by browser language</td><td>Auto</td></tr>
+									<tr><td><code>bubblingLevel</code></td><td>How many parent levels to check for CSS hiding</td><td>0</td></tr>
+									<tr><td><code>hideOriginal</code></td><td>Hide the original image on the page while previewing</td><td><code>false</code></td></tr>
+									<tr><td><code>onShow</code></td><td>Called after the viewer opens</td><td>—</td></tr>
+									<tr><td><code>onHide</code></td><td>Called when the viewer closes (alias <code>onClose</code>)</td><td>—</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section id="methods">
+						<h2>Methods</h2>
+						<div class="table">
+							<table>
+								<thead>
+									<tr><th>Method</th><th>Description</th></tr>
+								</thead>
+								<tbody>
+									<tr><td><code>show(index)</code></td><td>Open the image at an index</td></tr>
+									<tr><td><code>next()</code> / <code>prev()</code></td><td>Go to the next / previous image</td></tr>
+									<tr><td><code>hide()</code></td><td>Close the viewer</td></tr>
+									<tr><td><code>update()</code></td><td>Re-collect images under the selector</td></tr>
+									<tr><td><code>getTotalIndex()</code></td><td>Index of the last image</td></tr>
+									<tr><td><code>destroy()</code></td><td>Remove listeners and DOM created by the instance</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			</div>
+		</main>
+
+		<footer class="wrap">
+			MIT licensed. Sample photos from <a href="https://www.pexels.com">Pexels</a>.
+		</footer>
 
 		<script src="../dist/img-previewer.min.js"></script>
-		<script>
-			const a = new ImgPreviewer('#app', {
-				scrollbar: true,
-				ratio: 0.7,
-				imageZoom: {
-					step: 1
-				},
-				style: {
-					modalOpacity: 0.8
-				},
-				bubblingLevel: 1,
-				i18n: {
-					RESET: 'reset',
-					ROTATE_LEFT: 'rotate left',
-					ROTATE_RIGHT: 'rotate right',
-					CLOSE: 'close',
-					NEXT: 'next',
-					PREV: 'prev'
-				},
-				onHide() {
-					clearInterval(timer)
-				}
-			})
-			let timer = null
-			function play() {
-				timer && clearInterval(timer)
-				let index = 0
-				a.show(index)
-				timer = setInterval(() => {
-					if (index < a.getTotalIndex()) {
-						index++
-					} else {
-						index = 0
-					}
-					a.show(index)
-				}, 2000)
-			}
-			function add() {
-				let img = document.createElement('img')
-				img.src = `https://picsum.photos/500/500?random}`
-				img.onload = function () {
-					document.getElementById('app').appendChild(img)
-					a.update()
-				}
-			}
-			document.getElementById('add').onclick = add
-			document.getElementById('play').onclick = play
-		</script>
+		<script src="./demo.js"></script>
 	</body>
 </html>
