@@ -23,8 +23,6 @@ export type {
 	Ii18n
 } from './types'
 
-type Direction = 'next' | 'prev'
-
 class ImgPreviewer {
 	static version: string = typeof __VERSION__ === 'string' ? __VERSION__ : ''
 	version: string = ImgPreviewer.version
@@ -108,7 +106,7 @@ class ImgPreviewer {
 			throw new Error('invalid index')
 		}
 		if (this.isOpen) {
-			if (index !== this.index) this.slideTo(index, index < this.index ? 'prev' : 'next')
+			if (index !== this.index) this.slideTo(index)
 		} else {
 			this.open(img)
 		}
@@ -116,12 +114,12 @@ class ImgPreviewer {
 
 	next(): void {
 		if (!this.isOpen) return this.show(0)
-		if (this.index < this.imgList.length - 1) this.slideTo(this.index + 1, 'next')
+		if (this.index < this.imgList.length - 1) this.slideTo(this.index + 1)
 	}
 
 	prev(): void {
 		if (!this.isOpen) return this.show(this.imgList.length - 1)
-		if (this.index > 0) this.slideTo(this.index - 1, 'prev')
+		if (this.index > 0) this.slideTo(this.index - 1)
 	}
 
 	/** close the previewer */
@@ -129,11 +127,9 @@ class ImgPreviewer {
 		if (!this.isOpen) return
 		const { onBeforeHide, onHide, onClose, onHidden } = this.options
 		const context = this.context()
-		if (onBeforeHide && onBeforeHide(context) === false) return
+		if (onBeforeHide?.(context) === false) return
 		this.isOpen = false
 		this.movable = false
-		document.ondragstart = null
-		document.ondragend = null
 		const { container, currentImg } = this
 		const finish = () => {
 			// reopened before the animation finished
@@ -143,7 +139,7 @@ class ImgPreviewer {
 			currentImg.removeAttribute('src')
 			currentImg.style.cssText = ''
 			currentImg.classList.remove('img-pre__animated')
-			onHidden && onHidden(context)
+			onHidden?.(context)
 		}
 		container.classList.remove('show')
 		container.classList.add('hide')
@@ -162,16 +158,12 @@ class ImgPreviewer {
 			currentImg.classList.add('img-pre__animated')
 			onceEnd(currentImg, 'animationend', finish)
 		}
-		onHide && onHide(context)
-		onClose && onClose(context)
+		onHide?.(context)
+		onClose?.(context)
 	}
 
 	/** remove all listeners and DOM created by this instance */
 	destroy(): void {
-		if (this.isOpen) {
-			document.ondragstart = null
-			document.ondragend = null
-		}
 		this.isOpen = false
 		this.restoreOriginal()
 		this.disposers.forEach((dispose) => dispose())
@@ -241,6 +233,11 @@ class ImgPreviewer {
 		// hot keys
 		this.on(document, 'keyup', (event) => {
 			if (this.isOpen) this.handleAction(event.key)
+		})
+
+		// no native image dragging while previewing
+		this.on(document, 'dragstart', (event) => {
+			if (this.isOpen) preventDefault(event)
 		})
 
 		// click backdrop to close
@@ -324,7 +321,7 @@ class ImgPreviewer {
 			{ passive: false }
 		)
 		this.on(
-			document,
+			this.container,
 			'touchmove',
 			(event) => {
 				if (!pinching) return
@@ -336,12 +333,12 @@ class ImgPreviewer {
 					return
 				}
 				this.currentImg.classList.add('moving')
-				const { min, max } = this.options.imageZoom
-				this.setScale((startScale * distance(event.touches)) / startDistance, min, this.baseScale + max)
+				this.setScale((startScale * distance(event.touches)) / startDistance)
 			},
 			{ passive: false }
 		)
-		this.on(document, 'touchend', (event) => {
+		// touches while previewing all happen on the full screen container
+		this.on(this.container, 'touchend', (event) => {
 			stop()
 			// prevent double tap zoom while previewing
 			if (!this.isOpen) return
@@ -349,7 +346,7 @@ class ImgPreviewer {
 			if (now - lastTouchEnd <= 300) event.preventDefault()
 			lastTouchEnd = now
 		})
-		this.on(document, 'touchcancel', stop)
+		this.on(this.container, 'touchcancel', stop)
 	}
 
 	// distribute processing function by action type
@@ -396,21 +393,31 @@ class ImgPreviewer {
 		this.nextButton.disabled = index >= this.imgList.length - 1
 	}
 
-	private setScale(scale: number, min: number, max: number): void {
-		this.scale = clamp(scale, min, max)
+	// clamp within options.imageZoom, max is relative to the fitted scale
+	private setScale(scale: number): void {
+		const { min, max } = this.options.imageZoom
+		this.scale = clamp(scale, min, this.baseScale + max)
 		setProperties(this.currentImg, { '--scale': this.scale.toFixed(2) })
 	}
 
-	// zoom within options.imageZoom, max is relative to the fitted scale
 	private zoomTo(scale: number): void {
-		const { min, max } = this.options.imageZoom
 		this.movable = true
-		this.setScale(scale, min, this.baseScale + max)
+		this.setScale(scale)
 	}
 
 	private setRotate(deg: number): void {
 		this.rotate = deg
 		setProperties(this.currentImg, { '--rotate': `${deg}deg` })
+	}
+
+	// put the preview image on the clicked image's rect
+	private placeAtStart(): void {
+		setStyle(this.currentImg, {
+			top: `${this.startY}px`,
+			left: `${this.startX - 1}px`,
+			width: `${this.width}px`,
+			height: `${this.height}px`
+		})
 	}
 
 	// move image from its start rect to the viewport center and fit it
@@ -420,12 +427,7 @@ class ImgPreviewer {
 		const img = this.currentImg
 		this.scale = this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio)
 		if (resetRotate) this.setRotate(0)
-		setStyle(img, {
-			top: `${this.startY}px`,
-			left: `${this.startX - 1}px`,
-			width: `${this.width}px`,
-			height: `${this.height}px`
-		})
+		this.placeAtStart()
 		setProperties(img, {
 			'--offsetX': `${w / 2 - this.width / 2 - this.startX}px`,
 			'--offsetY': `${h / 2 - this.height / 2 - this.startY}px`,
@@ -458,22 +460,20 @@ class ImgPreviewer {
 		return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src
 	}
 
-	// show a loading spinner on el until src is loaded
-	private watchLoading(el: HTMLElement, src: string): void {
+	// show a loading spinner on el until img is loaded
+	private watchLoading(el: HTMLElement, img: HTMLImageElement): void {
 		const timer = setTimeout(() => el.classList.add('loading'), 32)
-		const image = new Image()
-		image.onload = image.onerror = () => {
+		img.onload = img.onerror = () => {
 			clearTimeout(timer)
 			el.classList.remove('loading')
 		}
-		image.src = src
 	}
 
 	private open(img: HTMLImageElement): void {
 		const { container, options } = this
 		const index = this.imgList.indexOf(img)
 		const context: ImgPreviewerHookContext = { index, img }
-		if (options.onBeforeShow && options.onBeforeShow(context) === false) return
+		if (options.onBeforeShow?.(context) === false) return
 		const src = this.getImageSrc(img)
 		const openId = ++this.openId
 		this.isOpen = true
@@ -481,9 +481,7 @@ class ImgPreviewer {
 		this.currentClickEl = img
 		this.setIndex(index)
 		container.style.display = 'block'
-		document.ondragstart = preventDefault
-		document.ondragend = preventDefault
-		this.watchLoading(this.currentItem, src)
+		this.watchLoading(this.currentItem, this.currentImg)
 		const { width, height, x, y } = img.getBoundingClientRect()
 		nextTick(() => {
 			const currentImg = this.currentImg
@@ -499,12 +497,7 @@ class ImgPreviewer {
 			// interrupted hide animation would make it fly from its mid-flight position
 			currentImg.classList.add('moving')
 			currentImg.style.cssText = ''
-			setStyle(currentImg, {
-				top: `${y}px`,
-				left: `${x - 1}px`,
-				width: `${width}px`,
-				height: `${height}px`
-			})
+			this.placeAtStart()
 			setProperties(currentImg, { '--offsetX': '0px', '--offsetY': '0px', '--scale': '1', '--rotate': '0deg' })
 			// force reflow so the start position is committed
 			void currentImg.offsetWidth
@@ -514,13 +507,13 @@ class ImgPreviewer {
 			onceEnd(currentImg, 'transitionend', () => {
 				// closed or reopened in the meantime
 				if (!this.isOpen || openId !== this.openId) return
-				options.onShown && options.onShown(context)
+				options.onShown?.(context)
 			})
-			options.onShow && options.onShow(context)
+			options.onShow?.(context)
 		})
 	}
 
-	private slideTo(index: number, direction: Direction): void {
+	private slideTo(index: number): void {
 		if (this.isAnimating) return
 		this.isAnimating = true
 		const clickEl = this.imgList[index]
@@ -530,7 +523,7 @@ class ImgPreviewer {
 		const item = document.createElement('div')
 		const img = document.createElement('img')
 		// next: current slides out to the left, new one comes in from the right
-		const side = direction === 'next' ? 'left' : 'right'
+		const side = index > prevIndex ? 'left' : 'right'
 
 		img.src = src
 		item.appendChild(img)
@@ -539,17 +532,16 @@ class ImgPreviewer {
 		this.currentItem = item
 		this.currentImg = img
 		this.currentClickEl = clickEl
-		this.hideOriginal(clickEl)
 		this.width = clickEl.width
 		this.height = clickEl.height
+		this.hideOriginal(clickEl)
 		this.movable = false
 		this.setIndex(index)
 		this.layout(true)
 
-		this.watchLoading(item, src)
+		this.watchLoading(item, img)
 		this.wrapper.appendChild(item)
-		const { onChange } = this.options
-		onChange && onChange({ index, img: clickEl, prevIndex })
+		this.options.onChange?.({ index, img: clickEl, prevIndex })
 
 		prevItem.classList.add(`slide-${side}-out`)
 		onceEnd(prevItem, 'animationend', () => {

@@ -53,6 +53,7 @@ declare class ImgPreviewer {
     private setScale;
     private zoomTo;
     private setRotate;
+    private placeAtStart;
     private layout;
     private hideOriginal;
     private restoreOriginal;

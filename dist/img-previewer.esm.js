@@ -273,7 +273,7 @@ var ImgPreviewer = /** @class */ (function () {
         }
         if (this.isOpen) {
             if (index !== this.index)
-                this.slideTo(index, index < this.index ? 'prev' : 'next');
+                this.slideTo(index);
         }
         else {
             this.open(img);
@@ -283,13 +283,13 @@ var ImgPreviewer = /** @class */ (function () {
         if (!this.isOpen)
             return this.show(0);
         if (this.index < this.imgList.length - 1)
-            this.slideTo(this.index + 1, 'next');
+            this.slideTo(this.index + 1);
     };
     ImgPreviewer.prototype.prev = function () {
         if (!this.isOpen)
             return this.show(this.imgList.length - 1);
         if (this.index > 0)
-            this.slideTo(this.index - 1, 'prev');
+            this.slideTo(this.index - 1);
     };
     /** close the previewer */
     ImgPreviewer.prototype.hide = function () {
@@ -298,12 +298,10 @@ var ImgPreviewer = /** @class */ (function () {
             return;
         var _a = this.options, onBeforeHide = _a.onBeforeHide, onHide = _a.onHide, onClose = _a.onClose, onHidden = _a.onHidden;
         var context = this.context();
-        if (onBeforeHide && onBeforeHide(context) === false)
+        if ((onBeforeHide === null || onBeforeHide === void 0 ? void 0 : onBeforeHide(context)) === false)
             return;
         this.isOpen = false;
         this.movable = false;
-        document.ondragstart = null;
-        document.ondragend = null;
         var _b = this, container = _b.container, currentImg = _b.currentImg;
         var finish = function () {
             // reopened before the animation finished
@@ -314,7 +312,7 @@ var ImgPreviewer = /** @class */ (function () {
             currentImg.removeAttribute('src');
             currentImg.style.cssText = '';
             currentImg.classList.remove('img-pre__animated');
-            onHidden && onHidden(context);
+            onHidden === null || onHidden === void 0 ? void 0 : onHidden(context);
         };
         container.classList.remove('show');
         container.classList.add('hide');
@@ -334,15 +332,11 @@ var ImgPreviewer = /** @class */ (function () {
             currentImg.classList.add('img-pre__animated');
             onceEnd(currentImg, 'animationend', finish);
         }
-        onHide && onHide(context);
-        onClose && onClose(context);
+        onHide === null || onHide === void 0 ? void 0 : onHide(context);
+        onClose === null || onClose === void 0 ? void 0 : onClose(context);
     };
     /** remove all listeners and DOM created by this instance */
     ImgPreviewer.prototype.destroy = function () {
-        if (this.isOpen) {
-            document.ondragstart = null;
-            document.ondragend = null;
-        }
         this.isOpen = false;
         this.restoreOriginal();
         this.disposers.forEach(function (dispose) { return dispose(); });
@@ -403,6 +397,11 @@ var ImgPreviewer = /** @class */ (function () {
         this.on(document, 'keyup', function (event) {
             if (_this.isOpen)
                 _this.handleAction(event.key);
+        });
+        // no native image dragging while previewing
+        this.on(document, 'dragstart', function (event) {
+            if (_this.isOpen)
+                preventDefault(event);
         });
         // click backdrop to close
         this.on(wrapper, 'click', function (event) {
@@ -471,7 +470,7 @@ var ImgPreviewer = /** @class */ (function () {
             startDistance = event.touches.length > 1 ? distance(event.touches) : 0;
             startScale = _this.scale;
         }, { passive: false });
-        this.on(document, 'touchmove', function (event) {
+        this.on(this.container, 'touchmove', function (event) {
             if (!pinching)
                 return;
             event.preventDefault();
@@ -483,10 +482,10 @@ var ImgPreviewer = /** @class */ (function () {
                 return;
             }
             _this.currentImg.classList.add('moving');
-            var _a = _this.options.imageZoom, min = _a.min, max = _a.max;
-            _this.setScale((startScale * distance(event.touches)) / startDistance, min, _this.baseScale + max);
+            _this.setScale((startScale * distance(event.touches)) / startDistance);
         }, { passive: false });
-        this.on(document, 'touchend', function (event) {
+        // touches while previewing all happen on the full screen container
+        this.on(this.container, 'touchend', function (event) {
             stop();
             // prevent double tap zoom while previewing
             if (!_this.isOpen)
@@ -496,7 +495,7 @@ var ImgPreviewer = /** @class */ (function () {
                 event.preventDefault();
             lastTouchEnd = now;
         });
-        this.on(document, 'touchcancel', stop);
+        this.on(this.container, 'touchcancel', stop);
     };
     // distribute processing function by action type
     ImgPreviewer.prototype.handleAction = function (action) {
@@ -540,19 +539,28 @@ var ImgPreviewer = /** @class */ (function () {
         this.prevButton.disabled = index === 0;
         this.nextButton.disabled = index >= this.imgList.length - 1;
     };
-    ImgPreviewer.prototype.setScale = function (scale, min, max) {
-        this.scale = clamp(scale, min, max);
+    // clamp within options.imageZoom, max is relative to the fitted scale
+    ImgPreviewer.prototype.setScale = function (scale) {
+        var _a = this.options.imageZoom, min = _a.min, max = _a.max;
+        this.scale = clamp(scale, min, this.baseScale + max);
         setProperties(this.currentImg, { '--scale': this.scale.toFixed(2) });
     };
-    // zoom within options.imageZoom, max is relative to the fitted scale
     ImgPreviewer.prototype.zoomTo = function (scale) {
-        var _a = this.options.imageZoom, min = _a.min, max = _a.max;
         this.movable = true;
-        this.setScale(scale, min, this.baseScale + max);
+        this.setScale(scale);
     };
     ImgPreviewer.prototype.setRotate = function (deg) {
         this.rotate = deg;
         setProperties(this.currentImg, { '--rotate': "".concat(deg, "deg") });
+    };
+    // put the preview image on the clicked image's rect
+    ImgPreviewer.prototype.placeAtStart = function () {
+        setStyle(this.currentImg, {
+            top: "".concat(this.startY, "px"),
+            left: "".concat(this.startX - 1, "px"),
+            width: "".concat(this.width, "px"),
+            height: "".concat(this.height, "px")
+        });
     };
     // move image from its start rect to the viewport center and fit it
     ImgPreviewer.prototype.layout = function (resetRotate) {
@@ -562,12 +570,7 @@ var ImgPreviewer = /** @class */ (function () {
         this.scale = this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio);
         if (resetRotate)
             this.setRotate(0);
-        setStyle(img, {
-            top: "".concat(this.startY, "px"),
-            left: "".concat(this.startX - 1, "px"),
-            width: "".concat(this.width, "px"),
-            height: "".concat(this.height, "px")
-        });
+        this.placeAtStart();
         setProperties(img, {
             '--offsetX': "".concat(w / 2 - this.width / 2 - this.startX, "px"),
             '--offsetY': "".concat(h / 2 - this.height / 2 - this.startY, "px"),
@@ -598,22 +601,21 @@ var ImgPreviewer = /** @class */ (function () {
         var dataUrlKey = this.options.dataUrlKey;
         return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src;
     };
-    // show a loading spinner on el until src is loaded
-    ImgPreviewer.prototype.watchLoading = function (el, src) {
+    // show a loading spinner on el until img is loaded
+    ImgPreviewer.prototype.watchLoading = function (el, img) {
         var timer = setTimeout(function () { return el.classList.add('loading'); }, 32);
-        var image = new Image();
-        image.onload = image.onerror = function () {
+        img.onload = img.onerror = function () {
             clearTimeout(timer);
             el.classList.remove('loading');
         };
-        image.src = src;
     };
     ImgPreviewer.prototype.open = function (img) {
         var _this = this;
-        var _a = this, container = _a.container, options = _a.options;
+        var _a;
+        var _b = this, container = _b.container, options = _b.options;
         var index = this.imgList.indexOf(img);
         var context = { index: index, img: img };
-        if (options.onBeforeShow && options.onBeforeShow(context) === false)
+        if (((_a = options.onBeforeShow) === null || _a === void 0 ? void 0 : _a.call(options, context)) === false)
             return;
         var src = this.getImageSrc(img);
         var openId = ++this.openId;
@@ -622,11 +624,10 @@ var ImgPreviewer = /** @class */ (function () {
         this.currentClickEl = img;
         this.setIndex(index);
         container.style.display = 'block';
-        document.ondragstart = preventDefault;
-        document.ondragend = preventDefault;
-        this.watchLoading(this.currentItem, src);
-        var _b = img.getBoundingClientRect(), width = _b.width, height = _b.height, x = _b.x, y = _b.y;
+        this.watchLoading(this.currentItem, this.currentImg);
+        var _c = img.getBoundingClientRect(), width = _c.width, height = _c.height, x = _c.x, y = _c.y;
         nextTick(function () {
+            var _a;
             var currentImg = _this.currentImg;
             currentImg.classList.remove('img-pre__animated');
             currentImg.src = src;
@@ -640,12 +641,7 @@ var ImgPreviewer = /** @class */ (function () {
             // interrupted hide animation would make it fly from its mid-flight position
             currentImg.classList.add('moving');
             currentImg.style.cssText = '';
-            setStyle(currentImg, {
-                top: "".concat(y, "px"),
-                left: "".concat(x - 1, "px"),
-                width: "".concat(width, "px"),
-                height: "".concat(height, "px")
-            });
+            _this.placeAtStart();
             setProperties(currentImg, { '--offsetX': '0px', '--offsetY': '0px', '--scale': '1', '--rotate': '0deg' });
             // force reflow so the start position is committed
             void currentImg.offsetWidth;
@@ -653,16 +649,18 @@ var ImgPreviewer = /** @class */ (function () {
             _this.hideOriginal(img);
             _this.layout(true);
             onceEnd(currentImg, 'transitionend', function () {
+                var _a;
                 // closed or reopened in the meantime
                 if (!_this.isOpen || openId !== _this.openId)
                     return;
-                options.onShown && options.onShown(context);
+                (_a = options.onShown) === null || _a === void 0 ? void 0 : _a.call(options, context);
             });
-            options.onShow && options.onShow(context);
+            (_a = options.onShow) === null || _a === void 0 ? void 0 : _a.call(options, context);
         });
     };
-    ImgPreviewer.prototype.slideTo = function (index, direction) {
+    ImgPreviewer.prototype.slideTo = function (index) {
         var _this = this;
+        var _a, _b;
         if (this.isAnimating)
             return;
         this.isAnimating = true;
@@ -673,23 +671,22 @@ var ImgPreviewer = /** @class */ (function () {
         var item = document.createElement('div');
         var img = document.createElement('img');
         // next: current slides out to the left, new one comes in from the right
-        var side = direction === 'next' ? 'left' : 'right';
+        var side = index > prevIndex ? 'left' : 'right';
         img.src = src;
         item.appendChild(img);
         item.classList.add('img-pre__img-item', "slide-".concat(side, "-in"));
         this.currentItem = item;
         this.currentImg = img;
         this.currentClickEl = clickEl;
-        this.hideOriginal(clickEl);
         this.width = clickEl.width;
         this.height = clickEl.height;
+        this.hideOriginal(clickEl);
         this.movable = false;
         this.setIndex(index);
         this.layout(true);
-        this.watchLoading(item, src);
+        this.watchLoading(item, img);
         this.wrapper.appendChild(item);
-        var onChange = this.options.onChange;
-        onChange && onChange({ index: index, img: clickEl, prevIndex: prevIndex });
+        (_b = (_a = this.options).onChange) === null || _b === void 0 ? void 0 : _b.call(_a, { index: index, img: clickEl, prevIndex: prevIndex });
         prevItem.classList.add("slide-".concat(side, "-out"));
         onceEnd(prevItem, 'animationend', function () {
             prevItem.remove();
