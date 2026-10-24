@@ -1,613 +1,538 @@
-import { version } from '../package.json'
 import {
-	getElementRect,
 	isElementInViewport,
-	getTwoNumberSmall,
+	getFitScale,
+	clamp,
 	debounce,
 	preventDefault,
 	nextTick,
 	setStyle,
 	setProperties,
-	setDataset
+	onceEnd
 } from './utils'
-// style sheet
-import './index.less'
-// runtime store init function
-import createStore from './store'
-// i18n language config
-import i18n from './i18n/index'
-// html template
-import template from './template'
-// default options
-import defaultOptions from './defaultOptions'
-// type
-import type { ImgPreviewerOptions } from '../type'
+import { getLocale } from './i18n/index'
+import { renderTemplate } from './template'
+import { resolveOptions } from './defaultOptions'
+import type { ImgPreviewerOptions, ResolvedOptions } from './types'
 
-function ImgPreviewer(this: any, selector: string, options?: ImgPreviewerOptions) {
-	if (typeof window !== 'object') {
-		return
-	}
-	// check use new
-	if (!(this instanceof ImgPreviewer)) {
-		return console.error(new Error('ImgPreviewer is a constructor and should be called with the `new` keyword'))
-	}
-	// check required params is correct incoming
-	if (selector) {
-		if (!document.querySelector(selector)) return console.error(new Error('selector ' + selector + ' is invalid'))
-	} else {
-		return console.error(new Error('ImgPreviewer plugin should css string selector that on first params,like #el,.el'))
+export type { ImgPreviewerOptions, ImgPreviewerOptionsZoom, ImgPreviewerOptionsStyle, Ii18n } from './types'
+
+type Direction = 'next' | 'prev'
+
+class ImgPreviewer {
+	static version: string = typeof __VERSION__ === 'string' ? __VERSION__ : ''
+	version: string = ImgPreviewer.version
+
+	private options!: ResolvedOptions
+	private rootEl!: HTMLElement
+	private container!: HTMLElement
+	private wrapper!: HTMLElement
+	private currentItem!: HTMLElement
+	private currentImg!: HTMLImageElement
+	private currentIndexEl!: HTMLElement
+	private totalIndexEl!: HTMLElement
+	private prevButton!: HTMLButtonElement
+	private nextButton!: HTMLButtonElement
+
+	private imgList: HTMLImageElement[] = []
+	private index = 0
+	private currentClickEl: HTMLImageElement | null = null
+	// original image hidden by `hideOriginal`, and its inline visibility to restore
+	private hiddenEl: HTMLImageElement | null = null
+	private hiddenElVisibility = ''
+	// image rect when preview opened
+	private width = 0
+	private height = 0
+	private startX = 0
+	private startY = 0
+	private scale = 1
+	// fitted scale, the base of max zoom
+	private baseScale = 1
+	private rotate = 0
+
+	private isOpen = false
+	private isAnimating = false
+	// image can be dragged only after zoomed
+	private movable = false
+	private disposers: Array<() => void> = []
+
+	constructor(selector: string, options?: ImgPreviewerOptions) {
+		// SSR safe
+		if (typeof window !== 'object') return
+		if (!selector || typeof selector !== 'string') {
+			console.error(new Error('ImgPreviewer plugin should css string selector that on first params,like #el,.el'))
+			return
+		}
+		const rootEl = document.querySelector<HTMLElement>(selector)
+		if (!rootEl) {
+			console.error(new Error('selector ' + selector + ' is invalid'))
+			return
+		}
+		this.rootEl = rootEl
+		this.options = resolveOptions(options)
+		this.render()
+		this.bindEvents()
+		this.update()
 	}
 
-	let mergeOptions: any
-	let previewerContainer: HTMLElement | null = null
-	// const i18n =
-	const store = createStore()
-	let isOpen: boolean = false
-	let isRunning: boolean = false
-	// FIXME: 储存到store中去
-	let movable: boolean = false
-	// 绑定事件
-	function bindEvent(rootEl: HTMLElement | null) {
-		let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(window.navigator.userAgent)
-		const wrapper = document.getElementById('J_content-wrapper')
-		// add click eventListener for rootEl, proxy img click event
-		rootEl?.addEventListener(
-			mergeOptions.triggerEvent,
-			(event: any) => {
-				const target: HTMLImageElement = event.target
-				if (target === store.currentImgElement) return
-				if (target.localName === 'img') {
-					store.currentClickEl = target
-					store.index = Number(target.dataset.index)
-					handlePreviewerShow(target, getImageSrc(store.imgList[store.index]))
-				}
-			},
-			false
-		)
+	/** re-collect image elements under the root element */
+	update(): void {
+		if (!this.rootEl) return
+		const imgEls = this.rootEl.querySelectorAll<HTMLImageElement>('img')
+		// when root is `body`, skip the previewer's own images
+		this.imgList = Array.prototype.filter.call(
+			imgEls,
+			(el: HTMLImageElement) => !this.container.contains(el)
+		) as HTMLImageElement[]
+		this.totalIndexEl.textContent = String(this.imgList.length)
+		this.setIndex(clamp(this.index, 0, Math.max(this.imgList.length - 1, 0)))
+	}
+
+	/** index of the last image */
+	getTotalIndex(): number {
+		return this.imgList.length - 1
+	}
+
+	/** show the image at index */
+	show(index: number): void {
+		const img = this.imgList[index]
+		if (!img) {
+			throw new Error('invalid index')
+		}
+		if (this.isOpen) {
+			if (index !== this.index) this.slideTo(index, index < this.index ? 'prev' : 'next')
+		} else {
+			this.open(img)
+		}
+	}
+
+	next(): void {
+		if (!this.isOpen) return this.show(0)
+		if (this.index < this.imgList.length - 1) this.slideTo(this.index + 1, 'next')
+	}
+
+	prev(): void {
+		if (!this.isOpen) return this.show(this.imgList.length - 1)
+		if (this.index > 0) this.slideTo(this.index - 1, 'prev')
+	}
+
+	/** close the previewer */
+	hide(): void {
+		if (!this.isOpen) return
+		this.isOpen = false
+		this.movable = false
+		document.ondragstart = null
+		document.ondragend = null
+		const { container, currentImg } = this
+		const finish = () => {
+			// reopened before the animation finished
+			if (this.isOpen) return
+			this.restoreOriginal()
+			container.style.display = 'none'
+			currentImg.removeAttribute('src')
+			currentImg.style.cssText = ''
+			currentImg.classList.remove('img-pre__animated')
+		}
+		container.classList.remove('show')
+		container.classList.add('hide')
+		// the visibility check must see the original image as it really is
+		const hiddenEl = this.hiddenEl
+		this.restoreOriginal()
+		if (isElementInViewport(this.currentClickEl, this.options.bubblingLevel)) {
+			// keep it hidden until the preview image lands on it
+			this.hideOriginal(hiddenEl)
+			// fly back to the original position
+			const { top, left, width, height } = this.currentClickEl!.getBoundingClientRect()
+			currentImg.style.cssText = `width:${width}px;height:${height}px;position:fixed;top:${top}px;left:${left}px;`
+			onceEnd(currentImg, 'transitionend', finish)
+		} else {
+			// fade out
+			currentImg.classList.add('img-pre__animated')
+			onceEnd(currentImg, 'animationend', finish)
+		}
+		const { onHide, onClose } = this.options
+		onHide && onHide()
+		onClose && onClose()
+	}
+
+	/** remove all listeners and DOM created by this instance */
+	destroy(): void {
+		if (this.isOpen) {
+			document.ondragstart = null
+			document.ondragend = null
+		}
+		this.isOpen = false
+		this.restoreOriginal()
+		this.disposers.forEach((dispose) => dispose())
+		this.disposers = []
+		this.container && this.container.remove()
+		this.imgList = []
+	}
+
+	private render(): void {
+		const { modalOpacity, headerOpacity, zIndex } = this.options.style
+		const container = document.createElement('div')
+		container.classList.add('img-pre__container', 'img-pre__animated')
+		setProperties(container, {
+			'--container-opacity': String(modalOpacity),
+			'--header-bg-opacity': String(headerOpacity),
+			'--container-zIndex': String(zIndex)
+		})
+		container.innerHTML = renderTemplate(getLocale(this.options.i18n))
+		document.body.appendChild(container)
+
+		const $ = <T extends Element>(selector: string) => container.querySelector(selector) as T
+		this.container = container
+		this.wrapper = $('.img-pre__content-wrapper')
+		this.currentItem = $('.img-pre__img-item')
+		this.currentImg = $('.img-pre__img-item img')
+		this.currentIndexEl = $('.img-pre__current-index')
+		this.totalIndexEl = $('.img-pre__total-index')
+		this.prevButton = $('.img-pre__prev')
+		this.nextButton = $('.img-pre__next')
+	}
+
+	// add listener and remember how to remove it
+	private on<K extends keyof HTMLElementEventMap>(
+		target: HTMLElement | Document | Window,
+		type: K,
+		listener: (event: HTMLElementEventMap[K]) => void,
+		options?: AddEventListenerOptions
+	): void {
+		target.addEventListener(type, listener as EventListener, options)
+		this.disposers.push(() => target.removeEventListener(type, listener as EventListener, options))
+	}
+
+	private bindEvents(): void {
+		const { wrapper } = this
+
+		// proxy img click event of root element
+		this.on(this.rootEl, this.options.triggerEvent, (event) => {
+			const target = event.target as HTMLElement
+			if (target.localName !== 'img' || this.container.contains(target)) return
+			let index = this.imgList.indexOf(target as HTMLImageElement)
+			if (index === -1) {
+				// image added without calling update()
+				this.update()
+				index = this.imgList.indexOf(target as HTMLImageElement)
+			}
+			index !== -1 && this.show(index)
+		})
 
 		// all buttons event proxy listener
-		document.getElementById('J_header-buttons')!.addEventListener('click', (event: any) => {
-			// fixed mobile Safari and chrome e.path undefined
-			const _event = window.event || event
-			const path: HTMLElement[] = _event.path || (_event.composedPath && _event.composedPath())
-			const buttonEl: HTMLButtonElement = path.find(
-				(item: HTMLElement) => item.localName === 'button'
-			) as HTMLButtonElement
-			if (buttonEl && !buttonEl.disabled) {
-				handleActionFn(buttonEl.dataset.action as string)
+		this.on(this.container, 'click', (event) => {
+			const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-action]')
+			if (button && !button.disabled) {
+				this.handleAction(button.dataset.action as string)
 			}
 		})
 
-		// hot keyboard event listener
-		document.addEventListener('keyup', ({ key }: KeyboardEvent) => handleActionFn(key))
-
-		// mouse wheel to zoom and zoom out image
-		wrapper?.addEventListener('wheel', (event: any) => {
-			preventDefault(event)
-			if (event.target.localName !== 'img') return
-			movable = true
-			let { min, max, step } = mergeOptions.imageZoom
-			let _max = store._scale + max
-			if (event.wheelDelta > 0) {
-				// zoom
-				const scale = step + store.scale
-				store.scale = scale > _max ? _max : scale
-			} else {
-				// zoom out
-				const scale = store.scale - step
-				store.scale = scale < min ? min : scale
-			}
-			store.currentImgElement!.style.setProperty('--scale', `${store.scale.toFixed(2)}`)
+		// hot keys
+		this.on(document, 'keyup', (event) => {
+			if (this.isOpen) this.handleAction(event.key)
 		})
 
-		// click modal hide preview
-		wrapper?.addEventListener('click', (event) => {
-			if (event.target === document.getElementById('J_current-index')) {
-				handleActionFn('close')
-			}
+		// click backdrop to close
+		this.on(wrapper, 'click', (event) => {
+			if (event.target === this.currentItem) this.hide()
 		})
-		//
-		if (mobile) {
-			enableMobileScale(wrapper)
-			let lastTouchEnd = 0
-			document.documentElement.addEventListener(
-				'touchend',
-				function (event) {
-					let now = Date.now()
-					if (now - lastTouchEnd <= 300) {
-						event.preventDefault()
-					}
-					lastTouchEnd = now
-				},
-				false
-			)
-		}
-		wrapper?.addEventListener('mousedown', (e: any) => {
-			if (e.target.localName !== 'img' || !movable) return
-			let diffX = e.clientX - e.target!.offsetLeft
-			let diffY = e.clientY - e.target!.offsetTop
-			e.preventDefault()
-			store.currentImgElement!.classList.add('moving')
-			wrapper['onmousemove'] = function (e: any) {
-				let moveX = e.clientX - diffX
-				let moveY = e.clientY - diffY
-				setStyle(store.currentImgElement, {
-					top: `${moveY}px`,
-					left: `${moveX}px`
+
+		// mouse wheel to zoom in and zoom out image
+		this.on(
+			wrapper,
+			'wheel',
+			(event) => {
+				preventDefault(event)
+				if (event.target !== this.currentImg) return
+				const { step } = this.options.imageZoom
+				this.zoomTo(this.scale + (event.deltaY < 0 ? step : -step))
+			},
+			{ passive: false }
+		)
+
+		this.bindDrag()
+		this.bindTouch()
+
+		this.on(
+			window,
+			'resize',
+			debounce(() => {
+				this.isOpen && this.layout(false)
+			}, 100)
+		)
+	}
+
+	// drag the zoomed image with mouse
+	private bindDrag(): void {
+		this.on(this.wrapper, 'mousedown', (event) => {
+			const img = this.currentImg
+			if (event.target !== img || !this.movable) return
+			event.preventDefault()
+			const diffX = event.clientX - img.offsetLeft
+			const diffY = event.clientY - img.offsetTop
+			img.classList.add('moving')
+			const onMove = (e: MouseEvent) => {
+				setStyle(img, {
+					top: `${e.clientY - diffY}px`,
+					left: `${e.clientX - diffX}px`
 				})
 			}
-			wrapper['onmouseup'] = function () {
-				this.onmousemove = null
-				store.currentImgElement!.classList.remove('moving')
+			const onUp = () => {
+				img.classList.remove('moving')
+				window.removeEventListener('mousemove', onMove)
+				window.removeEventListener('mouseup', onUp)
 			}
-			wrapper['onmouseout'] = function () {
-				this.onmousemove = null
-				store.currentImgElement!.classList.remove('moving')
-			}
+			window.addEventListener('mousemove', onMove)
+			window.addEventListener('mouseup', onUp)
 		})
-
-		const handleResize = debounce(() => {
-			isOpen && setImageStyles(window.innerWidth, window.innerHeight, false)
-		}, 100)
-		window.addEventListener('resize', handleResize)
 	}
-	// distribute processing function by antionType
-	function handleActionFn(actionType: string) {
-		switch (actionType) {
+
+	// two finger pinch to zoom
+	private bindTouch(): void {
+		let pinching = false
+		let startDistance = 0
+		let startScale = 1
+		let lastTouchEnd = 0
+		const distance = (touches: TouchList) =>
+			Math.hypot(touches[1].pageX - touches[0].pageX, touches[1].pageY - touches[0].pageY)
+		const stop = () => {
+			pinching = false
+			this.currentImg.classList.remove('moving')
+		}
+
+		this.on(
+			this.wrapper,
+			'touchstart',
+			(event) => {
+				if (event.target !== this.currentImg) return
+				event.preventDefault()
+				pinching = true
+				startDistance = event.touches.length > 1 ? distance(event.touches) : 0
+				startScale = this.scale
+			},
+			{ passive: false }
+		)
+		this.on(
+			document,
+			'touchmove',
+			(event) => {
+				if (!pinching) return
+				event.preventDefault()
+				if (event.touches.length < 2) return
+				// the second finger may land after touchstart
+				if (!startDistance) {
+					startDistance = distance(event.touches)
+					return
+				}
+				this.currentImg.classList.add('moving')
+				const { min, max } = this.options.imageZoom
+				this.setScale((startScale * distance(event.touches)) / startDistance, min, this.baseScale + max)
+			},
+			{ passive: false }
+		)
+		this.on(document, 'touchend', (event) => {
+			stop()
+			// prevent double tap zoom while previewing
+			if (!this.isOpen) return
+			const now = Date.now()
+			if (now - lastTouchEnd <= 300) event.preventDefault()
+			lastTouchEnd = now
+		})
+		this.on(document, 'touchcancel', stop)
+	}
+
+	// distribute processing function by action type
+	private handleAction(action: string): void {
+		switch (action) {
 			case 'close':
 			case 'Escape':
-				handlePreviewerHide()
+				this.hide()
 				break
 			case 'rotateLeft':
-				handleRotateLeft()
+				this.setRotate(this.rotate - 90)
 				break
 			case 'rotateRight':
-				handleRotateRight()
+				this.setRotate(this.rotate + 90)
+				break
+			case 'zoomIn':
+			case '+':
+			case '=':
+				this.zoomTo(this.scale * 1.25)
+				break
+			case 'zoomOut':
+			case '-':
+				this.zoomTo(this.scale / 1.25)
 				break
 			case 'reset':
-				handleReset()
+				this.movable = false
+				this.layout(true)
 				break
 			case 'next':
 			case 'ArrowRight':
-				handleNext()
+				this.next()
 				break
 			case 'prev':
 			case 'ArrowLeft':
-				handlePrev()
-				break
-			default:
+				this.prev()
 				break
 		}
 	}
 
-	function setImageStyles(w: number, h: number, setRotate: boolean) {
-		store.endX = w / 2 - store.width / 2 - store.startX
-		store.endY = h / 2 - store.height / 2 - store.startY
-		store.scale = store._scale = getTwoNumberSmall(
-			w,
-			store.width,
-			h,
-			store.height,
-			mergeOptions.fillRatio || defaultOptions.fillRatio
-		)
-		if (setRotate) {
-			store.rotate = 0
-			setProperties(store.currentImgElement, {
-				'--rotate': `0`
-			})
+	private setIndex(index: number): void {
+		this.index = index
+		this.currentIndexEl.textContent = String(index + 1)
+		this.prevButton.disabled = index === 0
+		this.nextButton.disabled = index >= this.imgList.length - 1
+	}
+
+	private setScale(scale: number, min: number, max: number): void {
+		this.scale = clamp(scale, min, max)
+		setProperties(this.currentImg, { '--scale': this.scale.toFixed(2) })
+	}
+
+	// zoom within options.imageZoom, max is relative to the fitted scale
+	private zoomTo(scale: number): void {
+		const { min, max } = this.options.imageZoom
+		this.movable = true
+		this.setScale(scale, min, this.baseScale + max)
+	}
+
+	private setRotate(deg: number): void {
+		this.rotate = deg
+		setProperties(this.currentImg, { '--rotate': `${deg}deg` })
+	}
+
+	// move image from its start rect to the viewport center and fit it
+	private layout(resetRotate: boolean): void {
+		const w = window.innerWidth
+		const h = window.innerHeight
+		const img = this.currentImg
+		this.scale = this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio)
+		if (resetRotate) this.setRotate(0)
+		setStyle(img, {
+			top: `${this.startY}px`,
+			left: `${this.startX - 1}px`,
+			width: `${this.width}px`,
+			height: `${this.height}px`
+		})
+		setProperties(img, {
+			'--offsetX': `${w / 2 - this.width / 2 - this.startX}px`,
+			'--offsetY': `${h / 2 - this.height / 2 - this.startY}px`,
+			'--scale': `${this.scale}`
+		})
+	}
+
+	// hide the image on the page when `hideOriginal` is on, showing the previously hidden one again
+	private hideOriginal(el: HTMLImageElement | null): void {
+		if (el === this.hiddenEl) return
+		this.restoreOriginal()
+		if (!el || !this.options.hideOriginal) return
+		this.hiddenEl = el
+		this.hiddenElVisibility = el.style.visibility
+		el.style.visibility = 'hidden'
+	}
+
+	private restoreOriginal(): void {
+		if (!this.hiddenEl) return
+		this.hiddenEl.style.visibility = this.hiddenElVisibility
+		this.hiddenEl = null
+	}
+
+	private getImageSrc(el: HTMLImageElement): string {
+		const { dataUrlKey } = this.options
+		return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src
+	}
+
+	// show a loading spinner on el until src is loaded
+	private watchLoading(el: HTMLElement, src: string): void {
+		const timer = setTimeout(() => el.classList.add('loading'), 32)
+		const image = new Image()
+		image.onload = image.onerror = () => {
+			clearTimeout(timer)
+			el.classList.remove('loading')
 		}
-		setStyle(store.currentImgElement, {
-			top: `${store.startY}px`,
-			left: `${store.startX - 1}px`,
-			width: `${store.width}px`,
-			height: `${store.height}px`
-		})
-		setProperties(store.currentImgElement, {
-			'--offsetX': `${store.endX}px`,
-			'--offsetY': `${store.endY}px`,
-			'--scale': `${store.scale}`
-		})
-	}
-
-	// mobile enable two finger scale
-	function enableMobileScale(wrapper: any) {
-		let _store: any = {
-			scale: 1
-		}
-		wrapper?.addEventListener('touchstart', function (event: any) {
-			if (event.target.localName !== 'img') return
-			event.preventDefault()
-			let touches = event.touches
-			let events = touches[0]
-			let events2 = touches[1]
-
-			// 第一个触摸点的坐标
-			_store.pageX = events.pageX
-			_store.pageY = events.pageY
-
-			_store.movable = true
-
-			if (events2) {
-				_store.pageX2 = events2.pageX
-				_store.pageY2 = events2.pageY
-			}
-
-			_store.originScale = _store.scale || 1
-		})
-		document.addEventListener('touchmove', function (event) {
-			if (!_store.movable) return
-			event.preventDefault()
-			store.currentImgElement!.classList.add('moving')
-			let touches = event.touches
-			let events = touches[0]
-			let events2 = touches[1]
-			// two finger move
-			if (events2) {
-				// 第2个指头坐标在touchmove时候获取
-				if (!_store.pageX2) {
-					_store.pageX2 = events2.pageX
-				}
-				if (!_store.pageY2) {
-					_store.pageY2 = events2.pageY
-				}
-
-				// 获取坐标之间的距离
-				let getDistance = function (start: any, stop: any) {
-					return Math.hypot(stop.x - start.x, stop.y - start.y)
-				}
-				// 双指缩放比例计算
-				let zoom =
-					getDistance(
-						{
-							x: events.pageX,
-							y: events.pageY
-						},
-						{
-							x: events2.pageX,
-							y: events2.pageY
-						}
-					) /
-					getDistance(
-						{
-							x: _store.pageX,
-							y: _store.pageY
-						},
-						{
-							x: _store.pageX2,
-							y: _store.pageY2
-						}
-					)
-				// 应用在元素上的缩放比例
-				let newScale = _store.originScale * zoom
-				// 最大缩放比例限制
-				if (newScale > mergeOptions.zoom.max) {
-					newScale = mergeOptions.zoom.max
-				}
-				// 记住使用的缩放值
-				_store.scale = newScale
-				// 图像应用缩放效果
-				store.currentImgElement!.style.setProperty('--scale', `${newScale.toFixed(2)}`)
-			}
-		})
-
-		document.addEventListener('touchend', function () {
-			_store.movable = false
-			store.currentImgElement!.classList.remove('moving')
-			delete _store.pageX2
-			delete _store.pageY2
-		})
-		document.addEventListener('touchcancel', function () {
-			_store.movable = false
-			store.currentImgElement!.classList.remove('moving')
-			delete _store.pageX2
-			delete _store.pageY2
-		})
-	}
-	function handleReset() {
-		movable = false
-		setImageStyles(window.innerWidth, window.innerHeight, true)
-	}
-	function getImageSrc(el: HTMLImageElement): string {
-		return (mergeOptions.dataUrlKey && el.getAttribute(mergeOptions.dataUrlKey)) || el.src
-	}
-	function handleNext(i?: number) {
-		if (store.index === store.totalIndex - 1 || isRunning) return
-		isRunning = true
-		const index: number = i || store.index + 1
-		const div: HTMLDivElement = document.createElement<'div'>('div')
-		const wrapper: HTMLElement | null = document.getElementById('J_content-wrapper')
-		const img: HTMLImageElement = document.createElement<'img'>('img')
-		const currentImgWrapper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
-		const clickEl = store.imgList[index]
-		const src = getImageSrc(clickEl)
-
-		img.src = src
-
-		// cache data
-		store.index = index
-		store.width = clickEl.width
-		store.height = clickEl.height
-		store.currentImgElement = img
-		//
-		setImageStyles(window.innerWidth, window.innerHeight, true)
-		div.appendChild(img)
-		div.classList.add('img-pre__img-item', 'slide-left-in')
-		listenImageLoading(div, src)
-		wrapper!.appendChild(div)
-
-		currentImgWrapper!.classList.add('slide-left-out')
-		currentImgWrapper!.addEventListener('animationend', () => {
-			isRunning = false
-			currentImgWrapper && wrapper!.removeChild(currentImgWrapper as Node)
-		})
-
-		// listen animationend and remove prev el
-		div.addEventListener(
-			'animationend',
-			() => {
-				div.classList.remove('slide-left-in')
-				div.classList.add('current-index')
-				div.id = 'J_current-index'
-				store.currentClickEl = clickEl
-			},
-			{
-				once: true
-			}
-		)
-	}
-	function handlePrev(i?: number) {
-		if (store.index === 0 || isRunning) return
-		isRunning = true
-		const index = i || store.index - 1
-		const div: HTMLDivElement = document.createElement<'div'>('div')
-		const img: HTMLImageElement = document.createElement<'img'>('img')
-		const wrapper = document.getElementById('J_content-wrapper')
-		const currentImgWrapper: HTMLDivElement | null = document.querySelector<HTMLDivElement>('#J_current-index')
-		const clickEl = store.imgList[index]
-		const src = getImageSrc(clickEl)
-		img.src = src
-		// cache data
-		store.index = index
-		store.width = clickEl.width
-		store.height = clickEl.height
-		store.currentImgElement = img
-		//
-		setImageStyles(window.innerWidth, window.innerHeight, true)
-		div.appendChild(img)
-		div.classList.add('img-pre__img-item', 'slide-right-in')
-		listenImageLoading(div, src)
-		wrapper!.appendChild(div)
-
-		currentImgWrapper!.classList.add('slide-right-out')
-		currentImgWrapper!.addEventListener('animationend', () => {
-			isRunning = false
-			currentImgWrapper && wrapper!.removeChild(currentImgWrapper as Node)
-		})
-
-		// listen animationend and remove next el
-		div.addEventListener(
-			'animationend',
-			() => {
-				div.classList.remove('slide-right-in')
-				div.classList.add('current-index')
-				div.id = 'J_current-index'
-
-				store.currentClickEl = clickEl
-			},
-			{
-				once: true
-			}
-		)
-	}
-	// listen image load
-	function listenImageLoading(el: any, src: string): void {
-		let image: HTMLImageElement | null = new Image()
 		image.src = src
-		let timer = setTimeout(() => {
-			el?.classList.add('loading')
-		}, 32)
-
-		image.onload = () => {
-			timer && clearTimeout(timer)
-			// manually reclaim memory
-			image = null
-			document.getElementById('J_current-index')?.classList.remove('loading')
-		}
 	}
-	// show
-	function handlePreviewerShow(img: any, src: string): void {
-		isOpen = true
-		previewerContainer!.style.display = 'block'
+
+	private open(img: HTMLImageElement): void {
+		const { container } = this
+		const src = this.getImageSrc(img)
+		this.isOpen = true
+		this.movable = false
+		this.currentClickEl = img
+		this.setIndex(this.imgList.indexOf(img))
+		container.style.display = 'block'
 		document.ondragstart = preventDefault
 		document.ondragend = preventDefault
-		listenImageLoading(document.getElementById('J_current-index'), src)
-		const { width, height, x, y } = getElementRect(img)
+		this.watchLoading(this.currentItem, src)
+		const { width, height, x, y } = img.getBoundingClientRect()
 		nextTick(() => {
-			store.currentImgElement!.src = src
-			previewerContainer!.classList.remove('hide', 'fadeout')
-			previewerContainer!.classList.add('show')
-			store.width = width
-			store.height = height
-			store.startX = x
-			store.startY = y
-			setImageStyles(window.innerWidth, window.innerHeight, true)
-			mergeOptions.onShow && mergeOptions.onShow()
-		})
-	}
-	// hide
-	function handlePreviewerHide(): void {
-		isOpen = false
-		movable = false
-		document.ondragstart = null
-		document.ondragend = null
-		// current click image el is in viewport
-		if (isElementInViewport(store.currentClickEl, mergeOptions.bubblingLevel)) {
-			const { top, left, width, height } = getElementRect(store.currentClickEl)
-			previewerContainer!.classList.remove('show')
-			previewerContainer!.classList.add('hide')
-			store.currentImgElement!.style.cssText = `width:${width}px;height:${height}px;position: fixed; top: ${top}px; left: ${left}px;`
-			store.currentImgElement!.addEventListener(
-				'transitionend',
-				() => {
-					previewerContainer!.style.display = 'none'
-					store.currentImgElement!.src = ''
-					store.currentImgElement!.style.cssText = ``
-				},
-				{ once: true }
-			)
-		} else {
-			previewerContainer!.classList.remove('show')
-			previewerContainer!.classList.add('hide')
-			store.currentImgElement!.classList.add('img-pre__animated')
-			store.currentImgElement!.addEventListener(
-				'animationend',
-				() => {
-					previewerContainer!.style.display = 'none'
-					store.currentImgElement!.src = ''
-					store.currentImgElement!.style.cssText = ``
-					store.currentImgElement!.classList.remove('img-pre__animated')
-				},
-				{ once: true }
-			)
-		}
-		mergeOptions.onHide && mergeOptions.onHide()
-	}
-
-	function handleRotateLeft(): void {
-		store.rotate -= 90
-		setProperties(store.currentImgElement, {
-			'--rotate': `${store.rotate}deg`
+			const currentImg = this.currentImg
+			currentImg.classList.remove('img-pre__animated')
+			currentImg.src = src
+			container.classList.remove('hide')
+			container.classList.add('show')
+			this.width = width
+			this.height = height
+			this.startX = x
+			this.startY = y
+			// snap to the clicked image without transition first, otherwise an
+			// interrupted hide animation would make it fly from its mid-flight position
+			currentImg.classList.add('moving')
+			currentImg.style.cssText = ''
+			setStyle(currentImg, {
+				top: `${y}px`,
+				left: `${x - 1}px`,
+				width: `${width}px`,
+				height: `${height}px`
+			})
+			setProperties(currentImg, { '--offsetX': '0px', '--offsetY': '0px', '--scale': '1', '--rotate': '0deg' })
+			// force reflow so the start position is committed
+			void currentImg.offsetWidth
+			currentImg.classList.remove('moving')
+			this.hideOriginal(img)
+			this.layout(true)
+			this.options.onShow && this.options.onShow()
 		})
 	}
 
-	function handleRotateRight(): void {
-		store.rotate += 90
-		setProperties(store.currentImgElement, {
-			'--rotate': `${store.rotate}deg`
+	private slideTo(index: number, direction: Direction): void {
+		if (this.isAnimating) return
+		this.isAnimating = true
+		const clickEl = this.imgList[index]
+		const src = this.getImageSrc(clickEl)
+		const prevItem = this.currentItem
+		const item = document.createElement('div')
+		const img = document.createElement('img')
+		// next: current slides out to the left, new one comes in from the right
+		const side = direction === 'next' ? 'left' : 'right'
+
+		img.src = src
+		item.appendChild(img)
+		item.classList.add('img-pre__img-item', `slide-${side}-in`)
+
+		this.currentItem = item
+		this.currentImg = img
+		this.currentClickEl = clickEl
+		this.hideOriginal(clickEl)
+		this.width = clickEl.width
+		this.height = clickEl.height
+		this.movable = false
+		this.setIndex(index)
+		this.layout(true)
+
+		this.watchLoading(item, src)
+		this.wrapper.appendChild(item)
+
+		prevItem.classList.add(`slide-${side}-out`)
+		onceEnd(prevItem, 'animationend', () => {
+			prevItem.remove()
+			this.isAnimating = false
+		})
+		onceEnd(item, 'animationend', () => {
+			item.classList.remove(`slide-${side}-in`)
+			item.classList.add('current-index')
 		})
 	}
-
-	// listen index change,and update view
-	function onIndexChange(index: number): void {
-		document.getElementById('img-pre__current-index')!.innerText = String(index + 1)
-		let prevButton = document.getElementById('J-img-pre__prev') as HTMLButtonElement
-		let nextButton = document.getElementById('J-img-pre__next') as HTMLButtonElement
-		prevButton.disabled = index === 0
-		nextButton.disabled = index === store.totalIndex - 1
-	}
-
-	function onTotalIndexChange(index: number): void {
-		document.getElementById('img-pre__total-index')!.innerText = String(index)
-	}
-
-	// get i18n options
-	function getI18nInfo(): object {
-		if (mergeOptions.i18n) {
-			return mergeOptions.i18n
-		} else {
-			const lang: string = window.navigator.language
-			// all display in English except Chinese
-			return lang.indexOf('zh') !== -1 ? i18n.zh : i18n.en
-		}
-	}
-
-	// i18n translate
-	function i18nTranslate(template: string, i18nObj: object): string {
-		return template.replace(/{{(.*?)}}/g, (_, a: string) => i18nObj[a])
-	}
-	//
-	function defineReactValue(store: object, key: string, value: any, cal: (newVal: any) => void): void {
-		Object.defineProperty(store, key, {
-			enumerable: false,
-			set(newVal) {
-				cal((value = newVal))
-			},
-			get() {
-				return value
-			}
-		})
-	}
-	//
-	function render(): void {
-		let el: HTMLElement | null = document.getElementById('image-preview-container')
-		const { modalOpacity, headerOpacity, zIndex } = mergeOptions.style
-		if (!el) {
-			previewerContainer = document.createElement('div')
-			previewerContainer.classList.add('img-pre__container', 'img-pre__animated')
-			previewerContainer.id = 'J_container'
-			previewerContainer.style.setProperty('--container-opacity', String(modalOpacity))
-			previewerContainer.style.setProperty('--header-bg-opacity', String(headerOpacity))
-			previewerContainer.style.setProperty('--container-zIndex', String(zIndex))
-			previewerContainer.innerHTML = i18nTranslate(template, getI18nInfo())
-			document.body.appendChild(previewerContainer)
-		} else {
-			previewerContainer = el
-		}
-	}
-	function _init(this: any, selector: string, options?: ImgPreviewerOptions): void {
-		if (options) {
-			options.imageZoom = Object.assign({}, defaultOptions.imageZoom, options.imageZoom || {})
-			options.style = Object.assign({}, defaultOptions.style, options.style || {})
-			mergeOptions = Object.assign({}, defaultOptions, options)
-		} else {
-			mergeOptions = defaultOptions
-		}
-		const rootEl: HTMLElement | null = document.querySelector(selector)
-
-		// use defineProperty to init listen index
-		defineReactValue(store, 'index', 0, onIndexChange)
-		defineReactValue(store, 'totalIndex', 0, onTotalIndexChange)
-		// render to document
-		render()
-		// bind event for el
-		bindEvent(rootEl)
-		// cache data
-		store.currentImgElement = document.querySelector('#J_current-index img')
-		store.rootEl = rootEl
-		//
-		initImgList()
-	}
-	// get selector all img children to init totalIndex and store these
-	function initImgList() {
-		const imgEls = store.rootEl!.querySelectorAll<HTMLImageElement>('img')
-		store.totalIndex = imgEls!.length
-		store.imgList = new Array(store.totalIndex)
-		for (let i = 0, len = store.totalIndex; i < len; i++) {
-			let element = imgEls![i]
-			setDataset(element, 'index', String(i))
-			store.imgList[i] = element
-		}
-	}
-	function show(index: number) {
-		let img = store.imgList[index]
-		store.currentClickEl = img
-		if (index < 0 || index > store.totalIndex - 1) {
-			throw new Error('invalid index')
-		}
-		if (isOpen) {
-			index < store.index ? handlePrev(index) : handleNext(index)
-		} else {
-			handlePreviewerShow(img, img.src)
-		}
-		store.index = index
-	}
-	_init(selector, options)
-	ImgPreviewer.prototype.getTotalIndex = () => store.totalIndex - 1
-	ImgPreviewer.prototype.update = initImgList
-	ImgPreviewer.prototype.show = show
-	ImgPreviewer.prototype.next = () => {
-		if (!isOpen) {
-			return show(0)
-		}
-		handleNext()
-	}
-	ImgPreviewer.prototype.prev = () => {
-		if (!isOpen) {
-			return show(store.totalIndex - 1)
-		}
-		handlePrev()
-	}
-	ImgPreviewer.prototype.version = version
 }
 
 export default ImgPreviewer

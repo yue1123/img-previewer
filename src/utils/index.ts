@@ -1,13 +1,8 @@
-import type { objectKeyOnlyCss } from '../../type'
-
 export function debounce<T>(fn: (arg: T) => void, delay: number): (arg: T) => void {
-	var timer = 0
+	let timer = 0
 	return function (arg: T) {
 		clearTimeout(timer)
-		timer = window.setTimeout(function () {
-			fn(arg)
-			clearTimeout(timer)
-		}, delay)
+		timer = window.setTimeout(() => fn(arg), delay)
 	}
 }
 
@@ -15,32 +10,35 @@ export function preventDefault(e: Event): void {
 	e.preventDefault()
 }
 
+export function clamp(value: number, min: number, max: number): number {
+	return Math.min(Math.max(value, min), max)
+}
+
 /**
- * check element is hidden by css
+ * check element is not hidden by css
  * @param el check el
- * @param  bubblingLevel The level to look up from the current element 
+ * @param bubblingLevel The level to look up from the current element
  * @returns {boolean}
  */
-export function isElementHiddenByCss(el: Element | null, bubblingLevel: number): boolean {
-	if (!el) return false
+export function isElementVisibleByCss(el: Element | null, bubblingLevel: number): boolean {
 	while (bubblingLevel-- && el) {
 		const { visibility, height, opacity, width } = getComputedStyle(el)
 		if (visibility === 'hidden' || height === '0px' || width === '0px' || opacity === '0') {
 			return false
 		}
-    el = el?.parentElement
+		el = el.parentElement
 	}
 	return true
 }
-
 
 /**
  * 判断一个元素是否出现在当前视口中
  * @param el 要判断的元素
  * @returns {boolean}
  */
-export function isElementInViewport(el: any, bubblingLevel: number): boolean {
-	const rect = getElementRect(el)
+export function isElementInViewport(el: Element | null, bubblingLevel: number): boolean {
+	if (!el || !el.isConnected) return false
+	const rect = el.getBoundingClientRect()
 	const vWidth = window.innerWidth || document.documentElement.clientWidth
 	const vHeight = window.innerHeight || document.documentElement.clientHeight
 	// if element display:none or transform:scale(0)
@@ -49,64 +47,61 @@ export function isElementInViewport(el: any, bubblingLevel: number): boolean {
 	} else if (rect.right < 0 || rect.bottom < 0 || rect.left > vWidth || rect.top > vHeight) {
 		return false
 	} else {
-		return isElementHiddenByCss(el, bubblingLevel)
+		return isElementVisibleByCss(el, bubblingLevel)
 	}
 }
 
-export function getElementRect(el: Element | null): DOMRect {
-	return el!.getBoundingClientRect()
-}
-
 /**
- * 获取两数乘以一定比例后,较小的一个
- * @param multiplier1 乘数1
- * @param multiplier2 乘数2
- * @param number1 计算比例数1
- * @param number2 计算比例数2
- * @param ratio 比例
- * @returns 两数中比例值小的一个
+ * 计算让 (width, height) 以 ratio 比例填充 (containerWidth, containerHeight) 的缩放值
  */
-export function getTwoNumberSmall(
-	multiplier1: number,
-	number1: number,
-	multiplier2: number,
-	number2: number,
+export function getFitScale(
+	containerWidth: number,
+	width: number,
+	containerHeight: number,
+	height: number,
 	ratio: number
-) {
-	let a = (multiplier1 * ratio) / number1
-	let b = (multiplier2 * ratio) / number2
-	return a > b ? b : a
+): number {
+	return Math.min((containerWidth * ratio) / width, (containerHeight * ratio) / height)
 }
 
 // 页面绘制后的下一帧回调
-export function nextTick(fn: () => void) {
+export function nextTick(fn: () => void): void {
 	requestAnimationFrame(fn)
 }
 
 // set element inline style
-export function setStyle(
-	imgElement: HTMLElement | null,
-	styleObj: objectKeyOnlyCss
-) {
+export function setStyle(el: HTMLElement, styleObj: Partial<Record<'top' | 'left' | 'width' | 'height', string>>): void {
 	for (const key in styleObj) {
-		imgElement!.style[key] = styleObj[key]
-	}
-}
-// setProperties
-export function setProperties(
-	imgElement: HTMLElement | null,
-	properties: object
-) {
-	for (const key in properties) {
-		imgElement!.style.setProperty(key, properties[key])
+		el.style[key as 'top'] = styleObj[key as 'top']!
 	}
 }
 
-// set element data-* attr
-export function setDataset(el: HTMLElement, key: string, value: string) {
-	if (el.dataset) {
-		el.dataset[key] = value
-	} else {
-		el.setAttribute('data-' + key, value)
+// set css custom properties
+export function setProperties(el: HTMLElement, properties: Record<string, string>): void {
+	for (const key in properties) {
+		el.style.setProperty(key, properties[key])
 	}
+}
+
+/**
+ * run fn once when the transition/animation ends, with a timeout fallback
+ * in case the event never fires (e.g. nothing actually changed)
+ */
+export function onceEnd(
+	el: HTMLElement,
+	type: 'transitionend' | 'animationend',
+	fn: () => void,
+	timeout = 600
+): void {
+	let done = false
+	const finish = (event?: Event) => {
+		// ignore events bubbled up from children
+		if (done || (event && event.target !== el)) return
+		done = true
+		clearTimeout(timer)
+		el.removeEventListener(type, finish)
+		fn()
+	}
+	const timer = setTimeout(finish, timeout)
+	el.addEventListener(type, finish)
 }
