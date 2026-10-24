@@ -129,17 +129,42 @@ kbd {
 
 .hero h1 {
 	margin: 0;
-	font-size: clamp(48px, 9vw, 112px);
+	font-size: clamp(36px, 5.5vw, 60px);
 	font-weight: 800;
-	line-height: 0.92;
-	letter-spacing: -0.045em;
+	line-height: 1;
+	letter-spacing: -0.035em;
 }
 
 .hero p {
-	max-width: 46ch;
-	margin: 18px 0 0;
-	font-size: 19px;
+	max-width: 52ch;
+	margin: 14px 0 0;
+	font-size: 18px;
 	color: var(--muted);
+	/* avoid a single character on the last line */
+	text-wrap: pretty;
+}
+
+.facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 20px 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 14px;
+	color: var(--muted);
+}
+
+.facts li {
+	padding: 4px 12px;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface);
+}
+
+.facts strong {
+	color: var(--ink);
+	font-weight: 600;
 }
 
 .install {
@@ -373,6 +398,9 @@ footer {
 	.hero {
 		grid-template-columns: 1fr;
 		padding-top: 24px;
+	}
+	.hero p {
+		font-size: 16px;
 	}
 	.install {
 		justify-self: start;
