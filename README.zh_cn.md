@@ -61,13 +61,16 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 
 |               | 类型   | 说明                                        | 默认值                                          |
 | ------------- | ------ | ------------------------------------------- | ----------------------------------------------- |
-| fillRatio     | number | 图片铺满预览区域的比例                      | 0.9(90%)                                        |
+| fillRatio     | number | 图片铺满预览区域的比例                      | 0.8(80%)                                        |
 | dataUrlKey    | string | 图片地址取值的 key                          | src                                             |
 | triggerEvent  | string | 触发事件                                    | click                                           |
-| imageZoom     | object | 缩放图片的配置                              | {min: 0.1,max: 5,step: 0.1}                     |
+| imageZoom     | object | 缩放图片的配置                              | {min: 1,max: 5,step: 0.1}                       |
 | style         | object | 样式配置                                    | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 | i18n          | object | tooltips 国际化配置                         | null                                            |
 | bubblingLevel | number | 冒泡检测图片父元素是否被 css 样式隐藏的层级 | 0                                               |
+| hideOriginal  | boolean | 预览时隐藏页面上原位的图片                | false                                           |
+| onShow        | function | 预览打开后的回调                          | -                                               |
+| onHide        | function | 预览关闭时的回调(`onClose` 为别名)        | -                                               |
 
 > triggerEvent 的可选值有: click 和 dblclick
 ## bubblingLevel 说明
@@ -99,7 +102,7 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 
 |      | 说明                   | 默认值   |
 | ---- | ---------------------- | -------- |
-| min  | 最小缩放比例           | 0.1(10%) |
+| min  | 最小缩放比例           | 1(100%)  |
 | max  | 最大缩放比例           | 5(500%)  |
 | step | 滚轮每次滚动变化的比例 | 0.1      |
 
@@ -122,16 +125,20 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | CLOSE        | 关闭预览 |
 | NEXT         | 下一张   |
 | PREV         | 上一张   |
+| ZOOM_IN      | 放大(可选,不传时使用内置文案) |
+| ZOOM_OUT     | 缩小(可选,不传时使用内置文案) |
 
 ## 实例方法
 
 |                    | Description          |
 | ------------------ | -------------------- |
 | update()           | 更新图片             |
-| getTotalIndex()    | 获取实例预览图片张数 |
+| getTotalIndex()    | 获取最后一张图片的索引(张数 - 1) |
 | show(index:number) | 显示                 |
 | next()             | 下一张               |
 | prev()             | 上一张               |
+| hide()             | 关闭预览             |
+| destroy()          | 销毁实例,移除事件监听和 DOM |
 
 ### 快捷键
 
@@ -140,6 +147,7 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | Esc  | 关闭预览 |
 | <=   | 上一张   |
 | =>   | 下一张   |
+| + / - | 放大 / 缩小 |
 
 # 更新图片
 

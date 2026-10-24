@@ -50,16 +50,16 @@ pnpm add img-previewer
 // css
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-previewer@2.1.7/dist/index.css">
 // js
-<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.0.6/dist/img-previewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/img-previewer@2.1.7/dist/img-previewer.min.js"></script>
 ```
 
 ### Enable
 
 ```js
 //js
-import ImgPreviewer from'img-previewer'
+import ImgPreviewer from 'img-previewer'
 //css
-import'img-previewer/dist/index.css'
+import 'img-previewer/dist/index.css'
 
 const imgPreviewer = new ImgPreviewer(css selector,{options...})
 ```
@@ -68,13 +68,16 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 
 |               | Type   | Description                                                                         | Default Value                                   |
 | ------------- | ------ | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
-| fillRatio     | number | The proportion of the image that fills the preview area                             | 0.9(90%)                                        |
+| fillRatio     | number | The proportion of the image that fills the preview area                             | 0.8(80%)                                        |
 | dataUrlKey    | string | The key of the image address value                                                  | src                                             |
 | triggerEvent  | string | trigger event                                                                       | click                                           |
-| imageZoom     | object | Zoom image configuration                                                            | {min: 0.1,max: 5,step: 0.1}                     |
+| imageZoom     | object | Zoom image configuration                                                            | {min: 1,max: 5,step: 0.1}                       |
 | style         | object | Style configuration                                                                 | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 | i18n          | object | tooltips International configuration                                                | null                                            |
 | bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
+| hideOriginal  | boolean | Hide the original image on the page while it is being previewed                    | false                                           |
+| onShow        | function | Called after the previewer opens                                                  | -                                               |
+| onHide        | function | Called when the previewer closes (`onClose` is an alias)                          | -                                               |
 
 > Optional values for triggerEvent are: click and dblclick
 ## bubblingLevel Description
@@ -103,7 +106,7 @@ Currently detecting that an element or parent element is hidden by a css style o
 
 |      | Description                                    | Default value |
 | ---- | ---------------------------------------------- | ------------- |
-| min  | Minimum zoom ratio                             | 0.1(10%)      |
+| min  | Minimum zoom ratio                             | 1(100%)       |
 | max  | Maximum zoom ratio                             | 5(500%)       |
 | step | The change ratio of the scroll wheel each time | 0.1           |
 
@@ -127,16 +130,20 @@ Simplified Chinese and English are supported by default, others need to be confi
 | CLOSE        | Close preview |
 | NEXT         | Next          |
 | PREV         | Previous      |
+| ZOOM_IN      | Zoom in (optional, falls back to the built-in text) |
+| ZOOM_OUT     | Zoom out (optional, falls back to the built-in text) |
 
 ## api methods
 
 |       Method name             | Description                |
 | ------------------ | -------------------------- |
 | update()           | update image els           |
-| getTotalIndex()    | get total image el numbers |
+| getTotalIndex()    | get the index of the last image (count - 1) |
 | show(index:number) | show index image           |
 | next()             | goto next                  |
 | prev()             | goto prev                  |
+| hide()             | close the previewer        |
+| destroy()          | remove listeners and DOM created by the instance |
 
 ### hot key
 
@@ -145,6 +152,7 @@ Simplified Chinese and English are supported by default, others need to be confi
 | Esc    | Close preview |
 | <=     | Previous      |
 | =>     | Next          |
+| + / -  | Zoom in / out |
 
 # Update picture
 
