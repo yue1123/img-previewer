@@ -322,6 +322,34 @@ describe('ImgPreviewer', () => {
 		expect($('.img-pre__current-index').textContent).toBe('2')
 	})
 
+	it('stops a mouse drag in progress on hide and destroy', () => {
+		setup(1)
+		const removed = vi.spyOn(window, 'removeEventListener')
+		const p = new ImgPreviewer('#app')
+		const startDrag = () => {
+			p.show(0)
+			const img = $<HTMLImageElement>('.img-pre__img-item img')
+			$<HTMLButtonElement>('[data-action="zoomIn"]').click()
+			img.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+			expect(img.classList.contains('moving')).toBe(true)
+			return img
+		}
+		const dragListeners = () => removed.mock.calls.filter(([type]) => type === 'mousemove' || type === 'mouseup')
+
+		let img = startDrag()
+		p.hide()
+		expect(img.classList.contains('moving')).toBe(false)
+		expect(dragListeners().length).toBe(2)
+		flushAnimations()
+
+		img = startDrag()
+		removed.mockClear()
+		p.destroy()
+		expect(dragListeners().length).toBe(2)
+		window.dispatchEvent(new MouseEvent('mousemove', { clientX: 300, clientY: 300 }))
+		expect(img.style.top).not.toBe('300px')
+	})
+
 	it('destroy removes DOM and listeners', () => {
 		setup(2)
 		const p = new ImgPreviewer('#app')

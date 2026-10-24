@@ -30,6 +30,7 @@ declare class ImgPreviewer {
     private isAnimating;
     private movable;
     private disposers;
+    private stopDrag;
     constructor(selector: string, options?: ImgPreviewerOptions);
     /** re-collect image elements under the root element */
     update(): void;

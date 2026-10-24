@@ -61,6 +61,8 @@ class ImgPreviewer {
 	// image can be dragged only after zoomed
 	private movable = false
 	private disposers: Array<() => void> = []
+	// ends the current mouse drag, if any
+	private stopDrag: (() => void) | null = null
 
 	constructor(selector: string, options?: ImgPreviewerOptions) {
 		// SSR safe
@@ -130,6 +132,7 @@ class ImgPreviewer {
 		if (onBeforeHide?.(context) === false) return
 		this.isOpen = false
 		this.movable = false
+		this.stopDrag?.()
 		const { container, currentImg } = this
 		const finish = () => {
 			// reopened before the animation finished
@@ -164,6 +167,7 @@ class ImgPreviewer {
 
 	/** remove all listeners and DOM created by this instance */
 	destroy(): void {
+		this.stopDrag?.()
 		this.isOpen = false
 		this.restoreOriginal()
 		this.disposers.forEach((dispose) => dispose())
@@ -285,13 +289,17 @@ class ImgPreviewer {
 					left: `${e.clientX - diffX}px`
 				})
 			}
-			const onUp = () => {
+			// also called by hide() and destroy() to end a drag in progress
+			const stopDrag = () => {
 				img.classList.remove('moving')
 				window.removeEventListener('mousemove', onMove)
-				window.removeEventListener('mouseup', onUp)
+				window.removeEventListener('mouseup', stopDrag)
+				this.stopDrag = null
 			}
+			this.stopDrag?.()
+			this.stopDrag = stopDrag
 			window.addEventListener('mousemove', onMove)
-			window.addEventListener('mouseup', onUp)
+			window.addEventListener('mouseup', stopDrag)
 		})
 	}
 

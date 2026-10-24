@@ -238,6 +238,8 @@
             // image can be dragged only after zoomed
             this.movable = false;
             this.disposers = [];
+            // ends the current mouse drag, if any
+            this.stopDrag = null;
             // SSR safe
             if (typeof window !== 'object')
                 return;
@@ -300,15 +302,17 @@
         /** close the previewer */
         ImgPreviewer.prototype.hide = function () {
             var _this = this;
+            var _a;
             if (!this.isOpen)
                 return;
-            var _a = this.options, onBeforeHide = _a.onBeforeHide, onHide = _a.onHide, onClose = _a.onClose, onHidden = _a.onHidden;
+            var _b = this.options, onBeforeHide = _b.onBeforeHide, onHide = _b.onHide, onClose = _b.onClose, onHidden = _b.onHidden;
             var context = this.context();
             if ((onBeforeHide === null || onBeforeHide === void 0 ? void 0 : onBeforeHide(context)) === false)
                 return;
             this.isOpen = false;
             this.movable = false;
-            var _b = this, container = _b.container, currentImg = _b.currentImg;
+            (_a = this.stopDrag) === null || _a === void 0 ? void 0 : _a.call(this);
+            var _c = this, container = _c.container, currentImg = _c.currentImg;
             var finish = function () {
                 // reopened before the animation finished
                 if (_this.isOpen)
@@ -329,7 +333,7 @@
                 // keep it hidden until the preview image lands on it
                 this.hideOriginal(hiddenEl);
                 // fly back to the original position
-                var _c = this.currentClickEl.getBoundingClientRect(), top_1 = _c.top, left = _c.left, width = _c.width, height = _c.height;
+                var _d = this.currentClickEl.getBoundingClientRect(), top_1 = _d.top, left = _d.left, width = _d.width, height = _d.height;
                 currentImg.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position:fixed;top:").concat(top_1, "px;left:").concat(left, "px;");
                 onceEnd(currentImg, 'transitionend', finish);
             }
@@ -343,6 +347,8 @@
         };
         /** remove all listeners and DOM created by this instance */
         ImgPreviewer.prototype.destroy = function () {
+            var _a;
+            (_a = this.stopDrag) === null || _a === void 0 ? void 0 : _a.call(this);
             this.isOpen = false;
             this.restoreOriginal();
             this.disposers.forEach(function (dispose) { return dispose(); });
@@ -432,6 +438,7 @@
         ImgPreviewer.prototype.bindDrag = function () {
             var _this = this;
             this.on(this.wrapper, 'mousedown', function (event) {
+                var _a;
                 var img = _this.currentImg;
                 if (event.target !== img || !_this.movable)
                     return;
@@ -445,13 +452,17 @@
                         left: "".concat(e.clientX - diffX, "px")
                     });
                 };
-                var onUp = function () {
+                // also called by hide() and destroy() to end a drag in progress
+                var stopDrag = function () {
                     img.classList.remove('moving');
                     window.removeEventListener('mousemove', onMove);
-                    window.removeEventListener('mouseup', onUp);
+                    window.removeEventListener('mouseup', stopDrag);
+                    _this.stopDrag = null;
                 };
+                (_a = _this.stopDrag) === null || _a === void 0 ? void 0 : _a.call(_this);
+                _this.stopDrag = stopDrag;
                 window.addEventListener('mousemove', onMove);
-                window.addEventListener('mouseup', onUp);
+                window.addEventListener('mouseup', stopDrag);
             });
         };
         // two finger pinch to zoom
