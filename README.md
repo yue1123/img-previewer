@@ -1,12 +1,14 @@
-# Img-previewer Js
+# img-previewer — lightweight JavaScript image viewer & lightbox
+
+> A dependency-free JavaScript image viewer / lightbox with smooth iOS Photos style zoom animation. About 5 KB gzipped, works with any website or framework (Vue, React, plain HTML).
 
 [![GitHub license](https://img.shields.io/github/license/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/yue1123/img-previewer?style=flat-square)](https://github.com/yue1123/img-previewer/stargazers)
 <a href="https://www.npmjs.com/package/img-previewer">
-<img src="https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square" alt="npm bundle size">
+<img src="https://img.shields.io/bundlephobia/minzip/img-previewer?color=%234ec820&style=flat-square" alt="img-previewer bundle size">
 </a>
 <a href="https://github.com/yue1123/img-previewer/releases">
-<img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="GitHub package.json version (subfolder of monorepo)">
+<img src="https://img.shields.io/github/package-json/v/yue1123/img-previewer?color=f90&style=flat-square" alt="img-previewer version">
 </a>
 [![](https://data.jsdelivr.com/v1/package/npm/img-previewer/badge)](https://www.jsdelivr.com/package/npm/img-previewer)
 

@@ -1,7 +1,7 @@
 {
 	"name": "img-previewer",
 	"version": "3.0.0",
-	"description": "A light wight javascript image viewing plugin with smooth animation",
+	"description": "Lightweight, dependency-free JavaScript image viewer and lightbox with smooth iOS Photos style zoom animation, wheel and pinch zoom, drag, keyboard shortcuts and i18n",
 	"main": "dist/img-previewer.js",
 	"module": "dist/img-previewer.esm.js",
 	"unpkg": "dist/img-previewer.min.js",
@@ -33,16 +33,35 @@
 		"url": "git@github.com:yue1123/img-previewer.git"
 	},
 	"keywords": [
-		"image",
+		"image-viewer",
+		"image-preview",
+		"image-previewer",
+		"lightbox",
+		"gallery",
+		"photo-viewer",
+		"image-zoom",
+		"zoom",
+		"pinch-zoom",
 		"viewer",
 		"preview",
-		"javascript-plugin"
+		"image",
+		"photo",
+		"animation",
+		"vanilla-js",
+		"javascript",
+		"typescript",
+		"no-dependencies",
+		"javascript-plugin",
+		"图片预览"
 	],
 	"author": {
 		"name": "dh",
 		"url": "https://dhwork.top/dh"
 	},
 	"homepage": "https://github.com/yue1123/img-previewer",
+	"bugs": {
+		"url": "https://github.com/yue1123/img-previewer/issues"
+	},
 	"license": "MIT",
 	"devDependencies": {
 		"@rollup/plugin-replace": "^6.0.3",
