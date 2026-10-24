@@ -97,6 +97,25 @@ function onceEnd(el, type, fn, timeout) {
     var timer = setTimeout(finish, timeout);
     el.addEventListener(type, finish);
 }
+var scrollKeys = [' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+// block wheel, touch and keyboard scrolling of the page, returns the unlock function
+function lockScroll() {
+    var options = { passive: false };
+    // own listener per lock, the same function would be shared by all instances
+    var block = function (e) { return e.preventDefault(); };
+    var onKey = function (e) {
+        if (scrollKeys.indexOf(e.key) !== -1)
+            e.preventDefault();
+    };
+    window.addEventListener('wheel', block, options);
+    window.addEventListener('touchmove', block, options);
+    window.addEventListener('keydown', onKey);
+    return function () {
+        window.removeEventListener('wheel', block, options);
+        window.removeEventListener('touchmove', block, options);
+        window.removeEventListener('keydown', onKey);
+    };
+}
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -234,6 +253,8 @@ var ImgPreviewer = /** @class */ (function () {
         this.disposers = [];
         // ends the current mouse drag, if any
         this.stopDrag = null;
+        // page scrolling is locked while the close animation runs
+        this.unlockScroll = null;
         // SSR safe
         if (typeof window !== 'object')
             return;
@@ -311,6 +332,7 @@ var ImgPreviewer = /** @class */ (function () {
             // reopened before the animation finished
             if (_this.isOpen)
                 return;
+            _this.releaseScroll();
             _this.restoreOriginal();
             container.style.display = 'none';
             currentImg.removeAttribute('src');
@@ -320,6 +342,8 @@ var ImgPreviewer = /** @class */ (function () {
         };
         container.classList.remove('show');
         container.classList.add('hide');
+        // scrolling now would move the original image away from where the preview lands
+        this.unlockScroll = lockScroll();
         // the visibility check must see the original image as it really is
         var hiddenEl = this.hiddenEl;
         this.restoreOriginal();
@@ -343,6 +367,7 @@ var ImgPreviewer = /** @class */ (function () {
     ImgPreviewer.prototype.destroy = function () {
         var _a;
         (_a = this.stopDrag) === null || _a === void 0 ? void 0 : _a.call(this);
+        this.releaseScroll();
         this.isOpen = false;
         this.restoreOriginal();
         this.disposers.forEach(function (dispose) { return dispose(); });
@@ -608,6 +633,11 @@ var ImgPreviewer = /** @class */ (function () {
     ImgPreviewer.prototype.context = function () {
         return { index: this.index, img: this.currentClickEl };
     };
+    ImgPreviewer.prototype.releaseScroll = function () {
+        var _a;
+        (_a = this.unlockScroll) === null || _a === void 0 ? void 0 : _a.call(this);
+        this.unlockScroll = null;
+    };
     ImgPreviewer.prototype.getImageSrc = function (el) {
         var dataUrlKey = this.options.dataUrlKey;
         return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src;
@@ -630,6 +660,8 @@ var ImgPreviewer = /** @class */ (function () {
             return;
         var src = this.getImageSrc(img);
         var openId = ++this.openId;
+        // reopened during the close animation
+        this.releaseScroll();
         this.isOpen = true;
         this.movable = false;
         this.currentClickEl = img;

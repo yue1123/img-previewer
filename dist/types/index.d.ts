@@ -31,6 +31,7 @@ declare class ImgPreviewer {
     private movable;
     private disposers;
     private stopDrag;
+    private unlockScroll;
     constructor(selector: string, options?: ImgPreviewerOptions);
     /** re-collect image elements under the root element */
     update(): void;
@@ -59,6 +60,7 @@ declare class ImgPreviewer {
     private hideOriginal;
     private restoreOriginal;
     private context;
+    private releaseScroll;
     private getImageSrc;
     private watchLoading;
     private open;

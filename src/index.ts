@@ -7,7 +7,8 @@ import {
 	nextTick,
 	setStyle,
 	setProperties,
-	onceEnd
+	onceEnd,
+	lockScroll
 } from './utils'
 import { getLocale } from './i18n/index'
 import { renderTemplate } from './template'
@@ -63,6 +64,8 @@ class ImgPreviewer {
 	private disposers: Array<() => void> = []
 	// ends the current mouse drag, if any
 	private stopDrag: (() => void) | null = null
+	// page scrolling is locked while the close animation runs
+	private unlockScroll: (() => void) | null = null
 
 	constructor(selector: string, options?: ImgPreviewerOptions) {
 		// SSR safe
@@ -137,6 +140,7 @@ class ImgPreviewer {
 		const finish = () => {
 			// reopened before the animation finished
 			if (this.isOpen) return
+			this.releaseScroll()
 			this.restoreOriginal()
 			container.style.display = 'none'
 			currentImg.removeAttribute('src')
@@ -146,6 +150,8 @@ class ImgPreviewer {
 		}
 		container.classList.remove('show')
 		container.classList.add('hide')
+		// scrolling now would move the original image away from where the preview lands
+		this.unlockScroll = lockScroll()
 		// the visibility check must see the original image as it really is
 		const hiddenEl = this.hiddenEl
 		this.restoreOriginal()
@@ -168,6 +174,7 @@ class ImgPreviewer {
 	/** remove all listeners and DOM created by this instance */
 	destroy(): void {
 		this.stopDrag?.()
+		this.releaseScroll()
 		this.isOpen = false
 		this.restoreOriginal()
 		this.disposers.forEach((dispose) => dispose())
@@ -463,6 +470,11 @@ class ImgPreviewer {
 		return { index: this.index, img: this.currentClickEl! }
 	}
 
+	private releaseScroll(): void {
+		this.unlockScroll?.()
+		this.unlockScroll = null
+	}
+
 	private getImageSrc(el: HTMLImageElement): string {
 		const { dataUrlKey } = this.options
 		return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src
@@ -484,6 +496,8 @@ class ImgPreviewer {
 		if (options.onBeforeShow?.(context) === false) return
 		const src = this.getImageSrc(img)
 		const openId = ++this.openId
+		// reopened during the close animation
+		this.releaseScroll()
 		this.isOpen = true
 		this.movable = false
 		this.currentClickEl = img

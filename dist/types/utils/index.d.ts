@@ -26,3 +26,4 @@ export declare function setProperties(el: HTMLElement, properties: Record<string
  * in case the event never fires (e.g. nothing actually changed)
  */
 export declare function onceEnd(el: HTMLElement, type: 'transitionend' | 'animationend', fn: () => void, timeout?: number): void;
+export declare function lockScroll(): () => void;

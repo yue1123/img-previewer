@@ -34,6 +34,8 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+	// let pending close animations finish, so they release what they hold on window
+	vi.runOnlyPendingTimers()
 	document.body.innerHTML = ''
 	vi.useRealTimers()
 	vi.restoreAllMocks()
@@ -348,6 +350,33 @@ describe('ImgPreviewer', () => {
 		expect(dragListeners().length).toBe(2)
 		window.dispatchEvent(new MouseEvent('mousemove', { clientX: 300, clientY: 300 }))
 		expect(img.style.top).not.toBe('300px')
+	})
+
+	it('blocks page scrolling until the close animation ends', () => {
+		setup(2)
+		const p = new ImgPreviewer('#app')
+		const scroll = () => {
+			const events = [
+				new WheelEvent('wheel', { cancelable: true }),
+				new KeyboardEvent('keydown', { key: 'PageDown', cancelable: true }),
+				new KeyboardEvent('keydown', { key: 'a', cancelable: true })
+			]
+			events.forEach((event) => window.dispatchEvent(event))
+			return events.map((event) => event.defaultPrevented)
+		}
+		p.show(0)
+		p.hide()
+		expect(scroll()).toEqual([true, true, false])
+		flushAnimations()
+		expect(scroll()).toEqual([false, false, false])
+		// reopening during the close animation and destroy both release the lock
+		p.show(0)
+		p.hide()
+		p.show(1)
+		expect(scroll()).toEqual([false, false, false])
+		p.hide()
+		p.destroy()
+		expect(scroll()).toEqual([false, false, false])
 	})
 
 	it('destroy removes DOM and listeners', () => {

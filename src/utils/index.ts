@@ -105,3 +105,23 @@ export function onceEnd(
 	const timer = setTimeout(finish, timeout)
 	el.addEventListener(type, finish)
 }
+
+const scrollKeys = [' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+
+// block wheel, touch and keyboard scrolling of the page, returns the unlock function
+export function lockScroll(): () => void {
+	const options: AddEventListenerOptions = { passive: false }
+	// own listener per lock, the same function would be shared by all instances
+	const block = (e: Event) => e.preventDefault()
+	const onKey = (e: KeyboardEvent) => {
+		if (scrollKeys.indexOf(e.key) !== -1) e.preventDefault()
+	}
+	window.addEventListener('wheel', block, options)
+	window.addEventListener('touchmove', block, options)
+	window.addEventListener('keydown', onKey)
+	return () => {
+		window.removeEventListener('wheel', block, options)
+		window.removeEventListener('touchmove', block, options)
+		window.removeEventListener('keydown', onKey)
+	}
+}
