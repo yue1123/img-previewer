@@ -15,7 +15,7 @@ const defaultOptions: ResolvedOptions = {
 	triggerEvent: 'click',
 	dataUrlKey: 'src',
 	bubblingLevel: 0,
-	hideOriginal: false,
+	hideOriginal: true,
 	duration: 400
 }
 

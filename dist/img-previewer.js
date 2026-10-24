@@ -224,7 +224,7 @@
         triggerEvent: 'click',
         dataUrlKey: 'src',
         bubblingLevel: 0,
-        hideOriginal: false,
+        hideOriginal: true,
         duration: 400
     };
     // merge user options with defaults, never mutates the user's object

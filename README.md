@@ -75,7 +75,7 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | style         | object | Style configuration                                                                 | {modalOpacity: 0.6,headerOpacity: 0,zIndex: 99} |
 | i18n          | object | tooltips International configuration                                                | null                                            |
 | bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
-| hideOriginal  | boolean | Hide the original image on the page while it is being previewed                    | false                                           |
+| hideOriginal  | boolean | Hide the original image on the page while it is being previewed                    | true                                            |
 | duration      | number | Open and close animation duration in ms, switching and zooming scale with it       | 400                                             |
 | onBeforeShow  | function | Called before opening, return `false` to cancel                                   | -                                               |
 | onShow        | function | Called when the previewer starts opening                                          | -                                               |

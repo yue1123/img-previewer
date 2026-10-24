@@ -45,7 +45,7 @@
 				<div class="gallery-bar">
 					<p>Click any photo to open it</p>
 					<div class="actions">
-						<label class="toggle"><input type="checkbox" id="hide-original" /> Hide original</label>
+						<label class="toggle"><input type="checkbox" id="hide-original" checked /> Hide original</label>
 						<button class="btn" id="add" type="button">Add a photo</button>
 						<button class="btn btn-primary" id="play" type="button">Play slideshow</button>
 					</div>
@@ -123,7 +123,7 @@ const previewer = new ImgPreviewer('#app', {
 									<tr><td><code>style</code></td><td>Style: <code>modalOpacity</code>, <code>headerOpacity</code>, <code>zIndex</code></td><td>0.6 / 0 / 99</td></tr>
 									<tr><td><code>i18n</code></td><td>Toolbar tooltip text. Chinese or English by browser language</td><td>Auto</td></tr>
 									<tr><td><code>bubblingLevel</code></td><td>How many parent levels to check for CSS hiding</td><td>0</td></tr>
-									<tr><td><code>hideOriginal</code></td><td>Hide the original image on the page while previewing</td><td><code>false</code></td></tr>
+									<tr><td><code>hideOriginal</code></td><td>Hide the original image on the page while previewing</td><td><code>true</code></td></tr>
 									<tr><td><code>duration</code></td><td>Open and close animation duration in ms, switching and zooming scale with it</td><td>400</td></tr>
 									<tr><td><code>onBeforeShow</code></td><td>Called before opening, return <code>false</code> to cancel</td><td>—</td></tr>
 									<tr><td><code>onShow</code></td><td>Called when the viewer starts opening</td><td>—</td></tr>

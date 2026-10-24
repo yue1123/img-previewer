@@ -203,11 +203,15 @@ describe('ImgPreviewer', () => {
 		expect(first.style.visibility).toBe('visible')
 	})
 
-	it('keeps the original image visible by default', () => {
+	it('hides the original image by default and keeps it visible when hideOriginal is off', () => {
 		setup(1)
+		const img = document.querySelector<HTMLImageElement>('#app img')!
 		const p = new ImgPreviewer('#app')
 		p.show(0)
-		expect(document.querySelector<HTMLImageElement>('#app img')!.style.visibility).toBe('')
+		expect(img.style.visibility).toBe('hidden')
+		p.destroy()
+		new ImgPreviewer('#app', { hideOriginal: false }).show(0)
+		expect(img.style.visibility).toBe('')
 	})
 
 	it('ignores hot keys while closed', () => {
