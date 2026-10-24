@@ -1,5 +1,5 @@
 /*!
- * ImgPreviewer v2.1.7
+ * ImgPreviewer v3.0.0
  * https://github.com/yue1123/img-previewer
  *
  * Copyright 2021-present dh
@@ -767,7 +767,7 @@
                 item.classList.add('current-index');
             }, this.timeout());
         };
-        ImgPreviewer.version = "2.1.7" ;
+        ImgPreviewer.version = "3.0.0" ;
         return ImgPreviewer;
     }());
 
