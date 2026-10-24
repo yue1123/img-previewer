@@ -6,74 +6,131 @@
 	bottom: 0;
 	width: 100vw;
 	height: 100vh;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+	--img-pre-glass: rgba(28, 28, 32, 0.56);
+	--img-pre-glass-border: rgba(255, 255, 255, 0.1);
+	--img-pre-text: #f4f4f5;
+	--img-pre-hover: rgba(255, 255, 255, 0.14);
+	// one corner style for every control: pills for groups, circles for buttons
+	--img-pre-radius: 999px;
 	z-index: var(--container-zIndex);
-  pointer-events: none;
+	pointer-events: none;
 	display: none;
+	// shared frosted glass surface of toolbar, counter and nav buttons
+	.img-pre__nums,
+	.img-pre__buttons,
+	.img-pre__nav {
+		background: var(--img-pre-glass);
+		border: 1px solid var(--img-pre-glass-border);
+		-webkit-backdrop-filter: blur(16px) saturate(140%);
+		backdrop-filter: blur(16px) saturate(140%);
+		color: var(--img-pre-text);
+	}
+	button {
+		box-sizing: border-box;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+		transition: background-color 0.15s, opacity 0.2s, transform 0.1s;
+		svg {
+			width: 20px;
+			height: 20px;
+			flex: none;
+		}
+		&:hover:not(:disabled) {
+			background-color: var(--img-pre-hover);
+		}
+		&:active:not(:disabled) {
+			transform: scale(0.94);
+		}
+		&:focus {
+			outline: none;
+		}
+		&:focus-visible {
+			outline: 2px solid rgba(255, 255, 255, 0.8);
+			outline-offset: 2px;
+		}
+		&:disabled {
+			opacity: 0.3;
+			cursor: default;
+		}
+		// tooltip
+		&::after {
+			content: attr(data-tooltip);
+			position: absolute;
+			left: 50%;
+			top: calc(100% + 10px);
+			transform: translate(-50%, -4px);
+			padding: 4px 8px;
+			border-radius: 6px;
+			background: rgba(20, 20, 24, 0.92);
+			color: var(--img-pre-text);
+			font-size: 12px;
+			line-height: 1.4;
+			white-space: nowrap;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.15s, transform 0.15s;
+		}
+		&:hover:not(:disabled)::after {
+			opacity: 1;
+			transform: translate(-50%, 0);
+			transition-delay: 0.4s;
+		}
+	}
 	.img-pre__header {
 		box-sizing: border-box;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		height: 55px;
+		gap: 12px;
 		width: 100%;
-		padding: 0 calc(25px + (100vw - 100%)) 0 25px;
-		background: rgba(0, 0, 0, var(--header-bg-opcity));
+		padding: 16px calc(20px + (100vw - 100%)) 16px 20px;
+		background: rgba(0, 0, 0, var(--header-bg-opacity));
 		position: absolute;
 		z-index: calc(var(--container-zIndex) + 1);
-		.img-pre__nums {
-			color: #fff;
+	}
+	.img-pre__nums {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		height: 44px;
+		padding: 0 16px;
+		border-radius: var(--img-pre-radius);
+		font-size: 14px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.02em;
+		.img-pre__nums-delimiter {
+			opacity: 0.45;
 		}
-		.img-pre__button-item {
-			outline: none;
-			border: none;
-			background: none;
-			width: 30px;
-			height: 30px;
-			border-radius: 4px;
-			margin-right: 1.5vw;
-			display: inline-flex;
-			justify-content: center;
-			align-items: center;
-			position: relative;
-			color: #fff;
-			.bi,
-			svg {
-				font-size: 16px;
-				width: 16px;
-				height: 16px;
-			}
-			&:last-child {
-				margin-right: 0;
-			}
-		}
-
-		button:not(:disabled) {
-			cursor: pointer;
-			&::after {
-				content: attr(data-tooltip);
-				font-size: 12px;
-				position: absolute;
-				left: 50%;
-				top: 130%;
-				transform: translateX(-50%);
-				background: rgba(0, 0, 0, 0.9);
-				padding: 3px 7px;
-				white-space: nowrap;
-				border-radius: 4px;
-				display: none;
-			}
-			&:hover::after {
-				display: inline-block;
-			}
-			&:hover {
-				background: rgba(0, 0, 0, 0.2);
-			}
-		}
-		button[disabled] {
-			opacity: 0.4;
-			cursor: not-allowed !important;
-		}
+	}
+	.img-pre__buttons {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		padding: 3px;
+		border-radius: var(--img-pre-radius);
+	}
+	.img-pre__button-item {
+		width: 36px;
+		height: 36px;
+		border: none;
+		border-radius: var(--img-pre-radius);
+		background: none;
+	}
+	.img-pre__divider {
+		width: 1px;
+		height: 20px;
+		margin: 0 4px;
+		background: rgba(255, 255, 255, 0.16);
 	}
 	.img-pre__content-wrapper {
 		height: 100%;
@@ -121,49 +178,44 @@
 			user-select: none;
 		}
 	}
-	#J-img-pre__prev,
-	#J-img-pre__next {
-		background: none;
-		border: none;
-		outline: none;
+	.img-pre__nav {
 		position: fixed;
 		top: 50%;
-		color: #f6f6f6;
-		cursor: pointer;
 		z-index: calc(var(--container-zIndex) + 1);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 7px 5px;
-		border-radius: 2px;
-		.bi {
-			font-size: 20px;
-			width: 20px;
-			height: 20px;
+		width: 48px;
+		height: 48px;
+		margin-top: -24px;
+		border-radius: var(--img-pre-radius);
+		svg {
+			width: 24px;
+			height: 24px;
 		}
-		&:hover {
-			background: rgba(0, 0, 0, 0.2);
+		// opacity is driven by the show/hide animation, hide with visibility instead
+		&:disabled {
+			visibility: hidden;
 		}
 	}
-	#J-img-pre__prev {
-		left: 2%;
+	.img-pre__prev {
+		left: 20px;
 	}
-	#J-img-pre__next {
-		right: calc(2% + 100vw - 100%);
+	.img-pre__next {
+		right: calc(20px + 100vw - 100%);
 	}
 	.moving {
 		transition: none !important;
 	}
 	&.show {
 		animation-name: img-pre_show;
-    pointer-events: auto;
-		.img-pre__header {
+		pointer-events: auto;
+		.img-pre__header,
+		.img-pre__nav {
 			animation-name: img-pre_header-show;
 		}
 	}
 	&.hide {
 		animation-name: img-pre_hide;
-		.img-pre__header {
+		.img-pre__header,
+		.img-pre__nav {
 			animation-name: img-pre_header-hide;
 		}
 		img.img-pre__animated {
@@ -251,5 +303,42 @@
 	100% {
 		transform: translateX(0);
 		opacity: 1;
+	}
+}
+
+@media (max-width: 640px) {
+	.img-pre__container {
+		.img-pre__header {
+			padding: 12px;
+		}
+		.img-pre__nums {
+			height: 40px;
+			padding: 0 12px;
+		}
+		.img-pre__button-item {
+			width: 32px;
+			height: 32px;
+		}
+		.img-pre__divider {
+			margin: 0 2px;
+		}
+		.img-pre__nav {
+			width: 40px;
+			height: 40px;
+			margin-top: -20px;
+		}
+		.img-pre__prev {
+			left: 8px;
+		}
+		.img-pre__next {
+			right: 8px;
+		}
+	}
+}
+
+// no hover tooltips on touch screens
+@media (hover: none) {
+	.img-pre__container button::after {
+		display: none;
 	}
 }
