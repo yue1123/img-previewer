@@ -13,6 +13,9 @@
 	--img-pre-hover: rgba(255, 255, 255, 0.14);
 	// one corner style for every control: pills for groups, circles for buttons
 	--img-pre-radius: 999px;
+	// quick start and a long settle, close to iOS Photos
+	--img-pre-ease: cubic-bezier(0.32, 0.72, 0, 1);
+	--img-pre-duration: 0.4s;
 	z-index: var(--container-zIndex);
 	pointer-events: none;
 	display: none;
@@ -132,6 +135,15 @@
 		margin: 0 4px;
 		background: rgba(255, 255, 255, 0.16);
 	}
+	// a layer of its own, fading its opacity is cheaper than animating the container background
+	.img-pre__backdrop {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background: rgba(0, 0, 0, var(--container-opacity));
+	}
 	.img-pre__content-wrapper {
 		height: 100%;
 		position: relative;
@@ -142,7 +154,7 @@
 			top: 0;
 			animation-duration: 0.3s;
 			will-change: transform, opacity;
-			animation-timing-function: ease-in-out;
+			animation-timing-function: var(--img-pre-ease);
 			&.slide-left-out {
 				animation-name: img-pre_slide-left-hide;
 			}
@@ -171,10 +183,10 @@
 		img {
 			cursor: pointer;
 			position: absolute;
-			transition: all 0.5s;
+			// only transforms are animated, they run on the compositor without layout or paint
+			transition: transform var(--img-pre-duration) var(--img-pre-ease);
 			will-change: transform;
-			transform: translateX(var(--offsetX)) translateY(var(--offsetY)) translateZ(0) scale(var(--scale))
-				rotate(var(--rotate));
+			transform: translate(var(--offsetX), var(--offsetY)) scale(var(--scale)) rotate(var(--rotate));
 			user-select: none;
 		}
 	}
@@ -201,52 +213,35 @@
 	.img-pre__next {
 		right: calc(20px + 100vw - 100%);
 	}
+	.zooming {
+		transition-duration: 0.2s;
+	}
 	.moving {
 		transition: none !important;
 	}
 	&.show {
-		animation-name: img-pre_show;
 		pointer-events: auto;
+		.img-pre__backdrop,
 		.img-pre__header,
 		.img-pre__nav {
-			animation-name: img-pre_header-show;
+			animation-name: img-pre_fade-in;
 		}
 	}
 	&.hide {
-		animation-name: img-pre_hide;
+		.img-pre__backdrop,
 		.img-pre__header,
-		.img-pre__nav {
-			animation-name: img-pre_header-hide;
-		}
+		.img-pre__nav,
 		img.img-pre__animated {
-			animation-name: img-pre_header-hide;
+			animation-name: img-pre_fade-out;
 		}
 	}
 }
 
 .img-pre__animated {
-	-webkit-animation-duration: 0.5s;
-	animation-duration: 0.5s;
-	-webkit-animation-fill-mode: both;
+	animation-duration: var(--img-pre-duration);
 	animation-fill-mode: both;
 }
-@keyframes img-pre_show {
-	0% {
-		background: rgba(0, 0, 0, 0);
-	}
-	100% {
-		background: rgba(0, 0, 0, var(--container-opacity));
-	}
-}
-@keyframes img-pre_hide {
-	0% {
-		background: rgba(0, 0, 0, var(--container-opacity));
-	}
-	100% {
-		background: rgba(0, 0, 0, 0);
-	}
-}
-@keyframes img-pre_header-show {
+@keyframes img-pre_fade-in {
 	0% {
 		opacity: 0;
 	}
@@ -254,7 +249,7 @@
 		opacity: 1;
 	}
 }
-@keyframes img-pre_header-hide {
+@keyframes img-pre_fade-out {
 	0% {
 		opacity: 1;
 	}
@@ -340,5 +335,15 @@
 @media (hover: none) {
 	.img-pre__container button::after {
 		display: none;
+	}
+}
+
+// keep every animation but make it instant, so the end events still fire
+@media (prefers-reduced-motion: reduce) {
+	.img-pre__container {
+		--img-pre-duration: 0.01s;
+		.img-pre__content-wrapper .img-pre__img-item {
+			animation-duration: 0.01s;
+		}
 	}
 }

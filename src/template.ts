@@ -21,6 +21,7 @@ const button = (action: keyof typeof icons, label: string, className = 'img-pre_
 const divider = '<span class="img-pre__divider" aria-hidden="true"></span>'
 
 const template: string = `
+	<div class="img-pre__backdrop img-pre__animated"></div>
 	<div class="img-pre__header img-pre__animated">
 		<div class="img-pre__nums" aria-live="polite">
 			<span class="img-pre__current-index"></span>

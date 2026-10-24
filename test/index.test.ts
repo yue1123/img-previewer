@@ -149,16 +149,35 @@ describe('ImgPreviewer', () => {
 		vi.spyOn(img, 'offsetWidth', 'get').mockImplementation(() => {
 			startState = {
 				moving: String(img.classList.contains('moving')),
-				top: img.style.top,
 				offsetX: img.style.getPropertyValue('--offsetX'),
 				scale: img.style.getPropertyValue('--scale')
 			}
 			return 100
 		})
 		p.show(1)
-		expect(startState).toEqual({ moving: 'true', top: '20px', offsetX: '0px', scale: '1' })
+		// laid out at the fitted size in the center, transformed back onto the clicked image (100x80 at 10,20)
+		const width = parseFloat(img.style.width)
+		const left = parseFloat(img.style.left)
+		expect(startState!.moving).toBe('true')
+		expect(parseFloat(startState!.offsetX)).toBeCloseTo(60 - (left + width / 2))
+		expect(parseFloat(startState!.scale)).toBeCloseTo(100 / width)
+		// then animated to the center
 		expect(img.classList.contains('moving')).toBe(false)
-		expect(img.style.getPropertyValue('--offsetX')).not.toBe('0px')
+		expect(img.style.getPropertyValue('--offsetX')).toBe('0px')
+		expect(img.style.getPropertyValue('--scale')).toBe('1')
+	})
+
+	it('flies back with transforms only, keeping the laid out box', () => {
+		setup(1)
+		const p = new ImgPreviewer('#app')
+		p.show(0)
+		const img = $<HTMLImageElement>('.img-pre__img-item img')
+		$<HTMLButtonElement>('[data-action="rotateRight"]').click()
+		const box = { top: img.style.top, left: img.style.left, width: img.style.width, height: img.style.height }
+		p.hide()
+		expect({ top: img.style.top, left: img.style.left, width: img.style.width, height: img.style.height }).toEqual(box)
+		expect(parseFloat(img.style.getPropertyValue('--scale'))).toBeCloseTo(100 / parseFloat(box.width))
+		expect(img.style.getPropertyValue('--rotate')).toBe('0deg')
 	})
 
 	it('hides the original image while previewing when hideOriginal is on', () => {
@@ -279,11 +298,14 @@ describe('ImgPreviewer', () => {
 		const p = new ImgPreviewer('#app', { imageZoom: { min: 1, max: 1, step: 10 } })
 		p.show(0)
 		const img = $<HTMLImageElement>('.img-pre__img-item img')
-		const base = Number(img.style.getPropertyValue('--scale'))
+		// --scale is relative to the fitted size, zoom limits are relative to the clicked image (100px wide)
+		const fit = parseFloat(img.style.width) / 100
+		const scale = () => Number(img.style.getPropertyValue('--scale')) * fit
 		img.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
-		expect(Number(img.style.getPropertyValue('--scale'))).toBeCloseTo(base + 1, 1)
+		expect(scale()).toBeCloseTo(fit + 1, 1)
+		expect(img.classList.contains('zooming')).toBe(true)
 		for (let i = 0; i < 5; i++) img.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }))
-		expect(img.style.getPropertyValue('--scale')).toBe('1.00')
+		expect(scale()).toBeCloseTo(1, 2)
 	})
 
 	it('rotates and resets via toolbar buttons', () => {

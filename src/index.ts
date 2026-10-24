@@ -45,13 +45,12 @@ class ImgPreviewer {
 	// original image hidden by `hideOriginal`, and its inline visibility to restore
 	private hiddenEl: HTMLImageElement | null = null
 	private hiddenElVisibility = ''
-	// image rect when preview opened
+	// size of the clicked image
 	private width = 0
 	private height = 0
-	private startX = 0
-	private startY = 0
+	// zoom ratio relative to the clicked image size
 	private scale = 1
-	// fitted scale, the base of max zoom
+	// fitted scale, the image is laid out at this size and the base of max zoom
 	private baseScale = 1
 	private rotate = 0
 
@@ -145,7 +144,7 @@ class ImgPreviewer {
 			container.style.display = 'none'
 			currentImg.removeAttribute('src')
 			currentImg.style.cssText = ''
-			currentImg.classList.remove('img-pre__animated')
+			currentImg.classList.remove('img-pre__animated', 'zooming')
 			onHidden?.(context)
 		}
 		container.classList.remove('show')
@@ -159,8 +158,9 @@ class ImgPreviewer {
 			// keep it hidden until the preview image lands on it
 			this.hideOriginal(hiddenEl)
 			// fly back to the original position
-			const { top, left, width, height } = this.currentClickEl!.getBoundingClientRect()
-			currentImg.style.cssText = `width:${width}px;height:${height}px;position:fixed;top:${top}px;left:${left}px;`
+			currentImg.classList.remove('zooming')
+			this.setRotate(0)
+			this.transformToRect(this.currentClickEl!.getBoundingClientRect())
 			onceEnd(currentImg, 'transitionend', finish)
 		} else {
 			// fade out
@@ -186,7 +186,7 @@ class ImgPreviewer {
 	private render(): void {
 		const { modalOpacity, headerOpacity, zIndex } = this.options.style
 		const container = document.createElement('div')
-		container.classList.add('img-pre__container', 'img-pre__animated')
+		container.classList.add('img-pre__container')
 		setProperties(container, {
 			'--container-opacity': String(modalOpacity),
 			'--header-bg-opacity': String(headerOpacity),
@@ -412,11 +412,13 @@ class ImgPreviewer {
 	private setScale(scale: number): void {
 		const { min, max } = this.options.imageZoom
 		this.scale = clamp(scale, min, this.baseScale + max)
-		setProperties(this.currentImg, { '--scale': this.scale.toFixed(2) })
+		setProperties(this.currentImg, { '--scale': (this.scale / this.baseScale).toFixed(3) })
 	}
 
 	private zoomTo(scale: number): void {
 		this.movable = true
+		// shorter transition, so wheel and button zoom follow the input
+		this.currentImg.classList.add('zooming')
 		this.setScale(scale)
 	}
 
@@ -425,29 +427,46 @@ class ImgPreviewer {
 		setProperties(this.currentImg, { '--rotate': `${deg}deg` })
 	}
 
-	// put the preview image on the clicked image's rect
-	private placeAtStart(): void {
-		setStyle(this.currentImg, {
-			top: `${this.startY}px`,
-			left: `${this.startX - 1}px`,
-			width: `${this.width}px`,
-			height: `${this.height}px`
+	// move the image away from its laid out position, scale is relative to the clicked image size
+	private transform(x: number, y: number, scale: number): void {
+		this.scale = scale
+		setProperties(this.currentImg, {
+			'--offsetX': `${x}px`,
+			'--offsetY': `${y}px`,
+			'--scale': `${scale / this.baseScale}`
 		})
 	}
 
-	// move image from its start rect to the viewport center and fit it
+	// cover rect with the image, using transforms only
+	private transformToRect(rect: DOMRect): void {
+		const { style } = this.currentImg
+		const width = this.width * this.baseScale
+		const height = this.height * this.baseScale
+		// read from style rather than layout, it may have been dragged
+		this.transform(
+			rect.left + rect.width / 2 - (parseFloat(style.left) + width / 2),
+			rect.top + rect.height / 2 - (parseFloat(style.top) + height / 2),
+			(rect.width / width) * this.baseScale
+		)
+	}
+
+	// lay the image out at its fitted size in the viewport center, so it is rendered sharp
+	// and every animation is a transform on top of it
 	private layout(resetRotate: boolean): void {
 		const w = window.innerWidth
 		const h = window.innerHeight
-		const img = this.currentImg
-		this.scale = this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio)
-		if (resetRotate) this.setRotate(0)
-		this.placeAtStart()
-		setProperties(img, {
-			'--offsetX': `${w / 2 - this.width / 2 - this.startX}px`,
-			'--offsetY': `${h / 2 - this.height / 2 - this.startY}px`,
-			'--scale': `${this.scale}`
+		const baseScale = (this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio))
+		const width = this.width * baseScale
+		const height = this.height * baseScale
+		this.currentImg.classList.remove('zooming')
+		setStyle(this.currentImg, {
+			top: `${(h - height) / 2}px`,
+			left: `${(w - width) / 2}px`,
+			width: `${width}px`,
+			height: `${height}px`
 		})
+		if (resetRotate) this.setRotate(0)
+		this.transform(0, 0, baseScale)
 	}
 
 	// hide the image on the page when `hideOriginal` is on, showing the previously hidden one again
@@ -504,28 +523,26 @@ class ImgPreviewer {
 		this.setIndex(index)
 		container.style.display = 'block'
 		this.watchLoading(this.currentItem, this.currentImg)
-		const { width, height, x, y } = img.getBoundingClientRect()
+		const rect = img.getBoundingClientRect()
 		nextTick(() => {
 			const currentImg = this.currentImg
 			currentImg.classList.remove('img-pre__animated')
 			currentImg.src = src
 			container.classList.remove('hide')
 			container.classList.add('show')
-			this.width = width
-			this.height = height
-			this.startX = x
-			this.startY = y
-			// snap to the clicked image without transition first, otherwise an
+			this.width = rect.width
+			this.height = rect.height
+			// snap onto the clicked image without transition first, otherwise an
 			// interrupted hide animation would make it fly from its mid-flight position
 			currentImg.classList.add('moving')
 			currentImg.style.cssText = ''
-			this.placeAtStart()
-			setProperties(currentImg, { '--offsetX': '0px', '--offsetY': '0px', '--scale': '1', '--rotate': '0deg' })
+			this.layout(true)
+			this.transformToRect(rect)
 			// force reflow so the start position is committed
 			void currentImg.offsetWidth
 			currentImg.classList.remove('moving')
 			this.hideOriginal(img)
-			this.layout(true)
+			this.transform(0, 0, this.baseScale)
 			onceEnd(currentImg, 'transitionend', () => {
 				// closed or reopened in the meantime
 				if (!this.isOpen || openId !== this.openId) return

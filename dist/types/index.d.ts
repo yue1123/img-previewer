@@ -20,8 +20,6 @@ declare class ImgPreviewer {
     private hiddenElVisibility;
     private width;
     private height;
-    private startX;
-    private startY;
     private scale;
     private baseScale;
     private rotate;
@@ -55,7 +53,8 @@ declare class ImgPreviewer {
     private setScale;
     private zoomTo;
     private setRotate;
-    private placeAtStart;
+    private transform;
+    private transformToRect;
     private layout;
     private hideOriginal;
     private restoreOriginal;

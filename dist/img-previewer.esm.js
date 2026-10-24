@@ -197,7 +197,7 @@ var button = function (action, label, className) {
     return "<button type=\"button\" class=\"".concat(className, "\" data-action=\"").concat(action, "\" data-tooltip=\"{{").concat(label, "}}\" aria-label=\"{{").concat(label, "}}\">").concat(icons[action], "</button>");
 };
 var divider = '<span class="img-pre__divider" aria-hidden="true"></span>';
-var template = "<div class=\"img-pre__header img-pre__animated\"><div class=\"img-pre__nums\" aria-live=\"polite\"><span class=\"img-pre__current-index\"></span><span class=\"img-pre__nums-delimiter\">/</span><span class=\"img-pre__total-index\"></span></div><div class=\"img-pre__buttons\">".concat(button('zoomOut', 'ZOOM_OUT'), "").concat(button('zoomIn', 'ZOOM_IN'), "").concat(divider, "").concat(button('rotateLeft', 'ROTATE_LEFT'), "").concat(button('rotateRight', 'ROTATE_RIGHT'), "").concat(divider, "").concat(button('reset', 'RESET'), "").concat(button('close', 'CLOSE'), "</div></div>").concat(button('prev', 'PREV', 'img-pre__nav img-pre__prev img-pre__animated'), "").concat(button('next', 'NEXT', 'img-pre__nav img-pre__next img-pre__animated'), "<div class=\"img-pre__content-wrapper\"><div class=\"img-pre__img-item img-pre__animated current-index\"><img alt=\"\" /></div></div>");
+var template = "<div class=\"img-pre__backdrop img-pre__animated\"></div><div class=\"img-pre__header img-pre__animated\"><div class=\"img-pre__nums\" aria-live=\"polite\"><span class=\"img-pre__current-index\"></span><span class=\"img-pre__nums-delimiter\">/</span><span class=\"img-pre__total-index\"></span></div><div class=\"img-pre__buttons\">".concat(button('zoomOut', 'ZOOM_OUT'), "").concat(button('zoomIn', 'ZOOM_IN'), "").concat(divider, "").concat(button('rotateLeft', 'ROTATE_LEFT'), "").concat(button('rotateRight', 'ROTATE_RIGHT'), "").concat(divider, "").concat(button('reset', 'RESET'), "").concat(button('close', 'CLOSE'), "</div></div>").concat(button('prev', 'PREV', 'img-pre__nav img-pre__prev img-pre__animated'), "").concat(button('next', 'NEXT', 'img-pre__nav img-pre__next img-pre__animated'), "<div class=\"img-pre__content-wrapper\"><div class=\"img-pre__img-item img-pre__animated current-index\"><img alt=\"\" /></div></div>");
 // fill {{KEY}} placeholders with i18n text
 function renderTemplate(i18n) {
     return template.replace(/{{(.*?)}}/g, function (_, key) { return i18n[key]; });
@@ -235,13 +235,12 @@ var ImgPreviewer = /** @class */ (function () {
         // original image hidden by `hideOriginal`, and its inline visibility to restore
         this.hiddenEl = null;
         this.hiddenElVisibility = '';
-        // image rect when preview opened
+        // size of the clicked image
         this.width = 0;
         this.height = 0;
-        this.startX = 0;
-        this.startY = 0;
+        // zoom ratio relative to the clicked image size
         this.scale = 1;
-        // fitted scale, the base of max zoom
+        // fitted scale, the image is laid out at this size and the base of max zoom
         this.baseScale = 1;
         this.rotate = 0;
         this.isOpen = false;
@@ -337,7 +336,7 @@ var ImgPreviewer = /** @class */ (function () {
             container.style.display = 'none';
             currentImg.removeAttribute('src');
             currentImg.style.cssText = '';
-            currentImg.classList.remove('img-pre__animated');
+            currentImg.classList.remove('img-pre__animated', 'zooming');
             onHidden === null || onHidden === void 0 ? void 0 : onHidden(context);
         };
         container.classList.remove('show');
@@ -351,8 +350,9 @@ var ImgPreviewer = /** @class */ (function () {
             // keep it hidden until the preview image lands on it
             this.hideOriginal(hiddenEl);
             // fly back to the original position
-            var _d = this.currentClickEl.getBoundingClientRect(), top_1 = _d.top, left = _d.left, width = _d.width, height = _d.height;
-            currentImg.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position:fixed;top:").concat(top_1, "px;left:").concat(left, "px;");
+            currentImg.classList.remove('zooming');
+            this.setRotate(0);
+            this.transformToRect(this.currentClickEl.getBoundingClientRect());
             onceEnd(currentImg, 'transitionend', finish);
         }
         else {
@@ -378,7 +378,7 @@ var ImgPreviewer = /** @class */ (function () {
     ImgPreviewer.prototype.render = function () {
         var _a = this.options.style, modalOpacity = _a.modalOpacity, headerOpacity = _a.headerOpacity, zIndex = _a.zIndex;
         var container = document.createElement('div');
-        container.classList.add('img-pre__container', 'img-pre__animated');
+        container.classList.add('img-pre__container');
         setProperties(container, {
             '--container-opacity': String(modalOpacity),
             '--header-bg-opacity': String(headerOpacity),
@@ -579,39 +579,53 @@ var ImgPreviewer = /** @class */ (function () {
     ImgPreviewer.prototype.setScale = function (scale) {
         var _a = this.options.imageZoom, min = _a.min, max = _a.max;
         this.scale = clamp(scale, min, this.baseScale + max);
-        setProperties(this.currentImg, { '--scale': this.scale.toFixed(2) });
+        setProperties(this.currentImg, { '--scale': (this.scale / this.baseScale).toFixed(3) });
     };
     ImgPreviewer.prototype.zoomTo = function (scale) {
         this.movable = true;
+        // shorter transition, so wheel and button zoom follow the input
+        this.currentImg.classList.add('zooming');
         this.setScale(scale);
     };
     ImgPreviewer.prototype.setRotate = function (deg) {
         this.rotate = deg;
         setProperties(this.currentImg, { '--rotate': "".concat(deg, "deg") });
     };
-    // put the preview image on the clicked image's rect
-    ImgPreviewer.prototype.placeAtStart = function () {
-        setStyle(this.currentImg, {
-            top: "".concat(this.startY, "px"),
-            left: "".concat(this.startX - 1, "px"),
-            width: "".concat(this.width, "px"),
-            height: "".concat(this.height, "px")
+    // move the image away from its laid out position, scale is relative to the clicked image size
+    ImgPreviewer.prototype.transform = function (x, y, scale) {
+        this.scale = scale;
+        setProperties(this.currentImg, {
+            '--offsetX': "".concat(x, "px"),
+            '--offsetY': "".concat(y, "px"),
+            '--scale': "".concat(scale / this.baseScale)
         });
     };
-    // move image from its start rect to the viewport center and fit it
+    // cover rect with the image, using transforms only
+    ImgPreviewer.prototype.transformToRect = function (rect) {
+        var style = this.currentImg.style;
+        var width = this.width * this.baseScale;
+        var height = this.height * this.baseScale;
+        // read from style rather than layout, it may have been dragged
+        this.transform(rect.left + rect.width / 2 - (parseFloat(style.left) + width / 2), rect.top + rect.height / 2 - (parseFloat(style.top) + height / 2), (rect.width / width) * this.baseScale);
+    };
+    // lay the image out at its fitted size in the viewport center, so it is rendered sharp
+    // and every animation is a transform on top of it
     ImgPreviewer.prototype.layout = function (resetRotate) {
         var w = window.innerWidth;
         var h = window.innerHeight;
-        var img = this.currentImg;
-        this.scale = this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio);
+        var baseScale = (this.baseScale = getFitScale(w, this.width, h, this.height, this.options.fillRatio));
+        var width = this.width * baseScale;
+        var height = this.height * baseScale;
+        this.currentImg.classList.remove('zooming');
+        setStyle(this.currentImg, {
+            top: "".concat((h - height) / 2, "px"),
+            left: "".concat((w - width) / 2, "px"),
+            width: "".concat(width, "px"),
+            height: "".concat(height, "px")
+        });
         if (resetRotate)
             this.setRotate(0);
-        this.placeAtStart();
-        setProperties(img, {
-            '--offsetX': "".concat(w / 2 - this.width / 2 - this.startX, "px"),
-            '--offsetY': "".concat(h / 2 - this.height / 2 - this.startY, "px"),
-            '--scale': "".concat(this.scale)
-        });
+        this.transform(0, 0, baseScale);
     };
     // hide the image on the page when `hideOriginal` is on, showing the previously hidden one again
     ImgPreviewer.prototype.hideOriginal = function (el) {
@@ -668,7 +682,7 @@ var ImgPreviewer = /** @class */ (function () {
         this.setIndex(index);
         container.style.display = 'block';
         this.watchLoading(this.currentItem, this.currentImg);
-        var _c = img.getBoundingClientRect(), width = _c.width, height = _c.height, x = _c.x, y = _c.y;
+        var rect = img.getBoundingClientRect();
         nextTick(function () {
             var _a;
             var currentImg = _this.currentImg;
@@ -676,21 +690,19 @@ var ImgPreviewer = /** @class */ (function () {
             currentImg.src = src;
             container.classList.remove('hide');
             container.classList.add('show');
-            _this.width = width;
-            _this.height = height;
-            _this.startX = x;
-            _this.startY = y;
-            // snap to the clicked image without transition first, otherwise an
+            _this.width = rect.width;
+            _this.height = rect.height;
+            // snap onto the clicked image without transition first, otherwise an
             // interrupted hide animation would make it fly from its mid-flight position
             currentImg.classList.add('moving');
             currentImg.style.cssText = '';
-            _this.placeAtStart();
-            setProperties(currentImg, { '--offsetX': '0px', '--offsetY': '0px', '--scale': '1', '--rotate': '0deg' });
+            _this.layout(true);
+            _this.transformToRect(rect);
             // force reflow so the start position is committed
             void currentImg.offsetWidth;
             currentImg.classList.remove('moving');
             _this.hideOriginal(img);
-            _this.layout(true);
+            _this.transform(0, 0, _this.baseScale);
             onceEnd(currentImg, 'transitionend', function () {
                 var _a;
                 // closed or reopened in the meantime
