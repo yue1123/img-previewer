@@ -76,10 +76,32 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | i18n          | object | tooltips International configuration                                                | null                                            |
 | bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
 | hideOriginal  | boolean | Hide the original image on the page while it is being previewed                    | false                                           |
-| onShow        | function | Called after the previewer opens                                                  | -                                               |
-| onHide        | function | Called when the previewer closes (`onClose` is an alias)                          | -                                               |
+| onBeforeShow  | function | Called before opening, return `false` to cancel                                   | -                                               |
+| onShow        | function | Called when the previewer starts opening                                          | -                                               |
+| onShown       | function | Called after the open animation finished                                          | -                                               |
+| onChange      | function | Called when switching to another image                                            | -                                               |
+| onBeforeHide  | function | Called before closing, return `false` to cancel                                   | -                                               |
+| onHide        | function | Called when the previewer starts closing (`onClose` is an alias)                  | -                                               |
+| onHidden      | function | Called after the close animation finished                                         | -                                               |
 
 > Optional values for triggerEvent are: click and dblclick
+
+## Lifecycle hooks
+
+Hooks are called in this order: `onBeforeShow` → `onShow` → `onShown` → (`onChange` when switching) → `onBeforeHide` → `onHide` → `onHidden`.
+
+Each hook receives `{ index, img }`, where `img` is the original image element on the page. `onChange` also receives `prevIndex`.
+
+```js
+new ImgPreviewer('#app', {
+	// skip images marked as no-preview
+	onBeforeShow: ({ img }) => !img.hasAttribute('data-no-preview'),
+	onChange: ({ index, prevIndex }) => console.log(prevIndex, '->', index),
+	onHidden: ({ index }) => console.log('closed at', index)
+})
+```
+
+`onShown` is skipped when the previewer is closed before the open animation ends. `destroy()` does not call any hook.
 ## bubblingLevel Description
 
 You should try to use this property when you notice an abnormal image hide animation. Because when the image or the parent element of the image is hidden by some CSS styles, it cannot be detected through the js api, so you need to pass in the correct upward lookup level according to the actual situation to help the plug-in complete the correct hiding animation. As shown below, the correct bubblingLevel is at least 3

@@ -76,6 +76,66 @@ describe('ImgPreviewer', () => {
 		expect(container.style.display).toBe('none')
 	})
 
+	it('calls lifecycle hooks in order with context', () => {
+		setup(3)
+		const [first, second] = Array.from(document.querySelectorAll<HTMLImageElement>('#app img'))
+		const calls: string[] = []
+		const record = (name: string) => (context: any) => {
+			calls.push(`${name}:${context.index}${'prevIndex' in context ? '<' + context.prevIndex : ''}`)
+		}
+		const onShow = vi.fn(record('show'))
+		const onHidden = vi.fn(record('hidden'))
+		const p = new ImgPreviewer('#app', {
+			onBeforeShow: record('beforeShow'),
+			onShow,
+			onShown: record('shown'),
+			onChange: record('change'),
+			onBeforeHide: record('beforeHide'),
+			onHide: record('hide'),
+			onHidden
+		})
+		p.show(0)
+		expect(onShow.mock.calls[0][0].img).toBe(first)
+		flushAnimations()
+		p.next()
+		flushAnimations()
+		p.hide()
+		flushAnimations()
+		expect(onHidden.mock.calls[0][0].img).toBe(second)
+		expect(calls).toEqual(['beforeShow:0', 'show:0', 'shown:0', 'change:1<0', 'beforeHide:1', 'hide:1', 'hidden:1'])
+	})
+
+	it('cancels show and hide when before hooks return false', () => {
+		setup(2)
+		let allowHide = false
+		const onShow = vi.fn()
+		const p = new ImgPreviewer('#app', {
+			onBeforeShow: ({ index }) => index !== 0,
+			onBeforeHide: () => allowHide,
+			onShow
+		})
+		const container = containers()[0]
+		p.show(0)
+		expect(container.style.display).toBe('')
+		p.show(1)
+		expect(onShow).toHaveBeenCalledTimes(1)
+		p.hide()
+		expect(container.classList.contains('show')).toBe(true)
+		allowHide = true
+		p.hide()
+		expect(container.classList.contains('hide')).toBe(true)
+	})
+
+	it('skips onShown when closed before the open animation ends', () => {
+		setup(1)
+		const onShown = vi.fn()
+		const p = new ImgPreviewer('#app', { onShown })
+		p.show(0)
+		p.hide()
+		flushAnimations()
+		expect(onShown).not.toHaveBeenCalled()
+	})
+
 	it('starts from the clicked image when reopened during the hide animation', () => {
 		setup(2)
 		const p = new ImgPreviewer('#app')

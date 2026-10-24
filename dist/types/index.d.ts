@@ -1,5 +1,5 @@
 import type { ImgPreviewerOptions } from './types';
-export type { ImgPreviewerOptions, ImgPreviewerOptionsZoom, ImgPreviewerOptionsStyle, Ii18n } from './types';
+export type { ImgPreviewerOptions, ImgPreviewerOptionsZoom, ImgPreviewerOptionsStyle, ImgPreviewerHookContext, ImgPreviewerChangeContext, Ii18n } from './types';
 declare class ImgPreviewer {
     static version: string;
     version: string;
@@ -26,6 +26,7 @@ declare class ImgPreviewer {
     private baseScale;
     private rotate;
     private isOpen;
+    private openId;
     private isAnimating;
     private movable;
     private disposers;
@@ -55,6 +56,7 @@ declare class ImgPreviewer {
     private layout;
     private hideOriginal;
     private restoreOriginal;
+    private context;
     private getImageSrc;
     private watchLoading;
     private open;

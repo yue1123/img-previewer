@@ -97,8 +97,8 @@ import 'img-previewer/dist/index.css'
 
 const previewer = new ImgPreviewer('#app', {
   fillRatio: 0.8,
-  onShow() {},
-  onHide() {}
+  onShow({ index, img }) {},
+  onHidden({ index, img }) {}
 })</code></pre>
 						<p>图片是动态加载的？渲染完成后调用 <code>previewer.update()</code> 即可。</p>
 					</section>
@@ -119,11 +119,17 @@ const previewer = new ImgPreviewer('#app', {
 									<tr><td><code>i18n</code></td><td>工具栏提示文字，默认按浏览器语言显示中文或英文</td><td>自动</td></tr>
 									<tr><td><code>bubblingLevel</code></td><td>向上检查父元素是否被 CSS 隐藏的层数</td><td>0</td></tr>
 									<tr><td><code>hideOriginal</code></td><td>预览时隐藏页面上原位的图片</td><td><code>false</code></td></tr>
-									<tr><td><code>onShow</code></td><td>预览打开后的回调</td><td>—</td></tr>
-									<tr><td><code>onHide</code></td><td>预览关闭时的回调（别名 <code>onClose</code>）</td><td>—</td></tr>
+									<tr><td><code>onBeforeShow</code></td><td>打开前调用，返回 <code>false</code> 取消打开</td><td>—</td></tr>
+									<tr><td><code>onShow</code></td><td>开始打开时调用</td><td>—</td></tr>
+									<tr><td><code>onShown</code></td><td>打开动画结束后调用</td><td>—</td></tr>
+									<tr><td><code>onChange</code></td><td>切换图片时调用，额外带 <code>prevIndex</code></td><td>—</td></tr>
+									<tr><td><code>onBeforeHide</code></td><td>关闭前调用，返回 <code>false</code> 取消关闭</td><td>—</td></tr>
+									<tr><td><code>onHide</code></td><td>开始关闭时调用（别名 <code>onClose</code>）</td><td>—</td></tr>
+									<tr><td><code>onHidden</code></td><td>关闭动画结束后调用</td><td>—</td></tr>
 								</tbody>
 							</table>
 						</div>
+						<p>生命周期回调都会收到 <code>{ index, img }</code>，<code>img</code> 是页面上原来的图片元素。</p>
 					</section>
 
 					<section id="methods">

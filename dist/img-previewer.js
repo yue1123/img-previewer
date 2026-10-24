@@ -232,6 +232,8 @@
             this.baseScale = 1;
             this.rotate = 0;
             this.isOpen = false;
+            // increased on every open, so a stale open animation won't fire onShown
+            this.openId = 0;
             this.isAnimating = false;
             // image can be dragged only after zoomed
             this.movable = false;
@@ -300,11 +302,15 @@
             var _this = this;
             if (!this.isOpen)
                 return;
+            var _a = this.options, onBeforeHide = _a.onBeforeHide, onHide = _a.onHide, onClose = _a.onClose, onHidden = _a.onHidden;
+            var context = this.context();
+            if (onBeforeHide && onBeforeHide(context) === false)
+                return;
             this.isOpen = false;
             this.movable = false;
             document.ondragstart = null;
             document.ondragend = null;
-            var _a = this, container = _a.container, currentImg = _a.currentImg;
+            var _b = this, container = _b.container, currentImg = _b.currentImg;
             var finish = function () {
                 // reopened before the animation finished
                 if (_this.isOpen)
@@ -314,6 +320,7 @@
                 currentImg.removeAttribute('src');
                 currentImg.style.cssText = '';
                 currentImg.classList.remove('img-pre__animated');
+                onHidden && onHidden(context);
             };
             container.classList.remove('show');
             container.classList.add('hide');
@@ -324,7 +331,7 @@
                 // keep it hidden until the preview image lands on it
                 this.hideOriginal(hiddenEl);
                 // fly back to the original position
-                var _b = this.currentClickEl.getBoundingClientRect(), top_1 = _b.top, left = _b.left, width = _b.width, height = _b.height;
+                var _c = this.currentClickEl.getBoundingClientRect(), top_1 = _c.top, left = _c.left, width = _c.width, height = _c.height;
                 currentImg.style.cssText = "width:".concat(width, "px;height:").concat(height, "px;position:fixed;top:").concat(top_1, "px;left:").concat(left, "px;");
                 onceEnd(currentImg, 'transitionend', finish);
             }
@@ -333,9 +340,8 @@
                 currentImg.classList.add('img-pre__animated');
                 onceEnd(currentImg, 'animationend', finish);
             }
-            var _c = this.options, onHide = _c.onHide, onClose = _c.onClose;
-            onHide && onHide();
-            onClose && onClose();
+            onHide && onHide(context);
+            onClose && onClose(context);
         };
         /** remove all listeners and DOM created by this instance */
         ImgPreviewer.prototype.destroy = function () {
@@ -591,6 +597,9 @@
             this.hiddenEl.style.visibility = this.hiddenElVisibility;
             this.hiddenEl = null;
         };
+        ImgPreviewer.prototype.context = function () {
+            return { index: this.index, img: this.currentClickEl };
+        };
         ImgPreviewer.prototype.getImageSrc = function (el) {
             var dataUrlKey = this.options.dataUrlKey;
             return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src;
@@ -607,17 +616,22 @@
         };
         ImgPreviewer.prototype.open = function (img) {
             var _this = this;
-            var container = this.container;
+            var _a = this, container = _a.container, options = _a.options;
+            var index = this.imgList.indexOf(img);
+            var context = { index: index, img: img };
+            if (options.onBeforeShow && options.onBeforeShow(context) === false)
+                return;
             var src = this.getImageSrc(img);
+            var openId = ++this.openId;
             this.isOpen = true;
             this.movable = false;
             this.currentClickEl = img;
-            this.setIndex(this.imgList.indexOf(img));
+            this.setIndex(index);
             container.style.display = 'block';
             document.ondragstart = preventDefault;
             document.ondragend = preventDefault;
             this.watchLoading(this.currentItem, src);
-            var _a = img.getBoundingClientRect(), width = _a.width, height = _a.height, x = _a.x, y = _a.y;
+            var _b = img.getBoundingClientRect(), width = _b.width, height = _b.height, x = _b.x, y = _b.y;
             nextTick(function () {
                 var currentImg = _this.currentImg;
                 currentImg.classList.remove('img-pre__animated');
@@ -644,7 +658,13 @@
                 currentImg.classList.remove('moving');
                 _this.hideOriginal(img);
                 _this.layout(true);
-                _this.options.onShow && _this.options.onShow();
+                onceEnd(currentImg, 'transitionend', function () {
+                    // closed or reopened in the meantime
+                    if (!_this.isOpen || openId !== _this.openId)
+                        return;
+                    options.onShown && options.onShown(context);
+                });
+                options.onShow && options.onShow(context);
             });
         };
         ImgPreviewer.prototype.slideTo = function (index, direction) {
@@ -653,6 +673,7 @@
                 return;
             this.isAnimating = true;
             var clickEl = this.imgList[index];
+            var prevIndex = this.index;
             var src = this.getImageSrc(clickEl);
             var prevItem = this.currentItem;
             var item = document.createElement('div');
@@ -673,6 +694,8 @@
             this.layout(true);
             this.watchLoading(item, src);
             this.wrapper.appendChild(item);
+            var onChange = this.options.onChange;
+            onChange && onChange({ index: index, img: clickEl, prevIndex: prevIndex });
             prevItem.classList.add("slide-".concat(side, "-out"));
             onceEnd(prevItem, 'animationend', function () {
                 prevItem.remove();

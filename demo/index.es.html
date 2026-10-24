@@ -97,8 +97,8 @@ import 'img-previewer/dist/index.css'
 
 const previewer = new ImgPreviewer('#app', {
   fillRatio: 0.8,
-  onShow() {},
-  onHide() {}
+  onShow({ index, img }) {},
+  onHidden({ index, img }) {}
 })</code></pre>
 						<p>Adding images later? Call <code>previewer.update()</code> after they render.</p>
 					</section>
@@ -119,11 +119,17 @@ const previewer = new ImgPreviewer('#app', {
 									<tr><td><code>i18n</code></td><td>Toolbar tooltip text. Chinese or English by browser language</td><td>Auto</td></tr>
 									<tr><td><code>bubblingLevel</code></td><td>How many parent levels to check for CSS hiding</td><td>0</td></tr>
 									<tr><td><code>hideOriginal</code></td><td>Hide the original image on the page while previewing</td><td><code>false</code></td></tr>
-									<tr><td><code>onShow</code></td><td>Called after the viewer opens</td><td>—</td></tr>
-									<tr><td><code>onHide</code></td><td>Called when the viewer closes (alias <code>onClose</code>)</td><td>—</td></tr>
+									<tr><td><code>onBeforeShow</code></td><td>Called before opening, return <code>false</code> to cancel</td><td>—</td></tr>
+									<tr><td><code>onShow</code></td><td>Called when the viewer starts opening</td><td>—</td></tr>
+									<tr><td><code>onShown</code></td><td>Called after the open animation</td><td>—</td></tr>
+									<tr><td><code>onChange</code></td><td>Called when switching images, also gets <code>prevIndex</code></td><td>—</td></tr>
+									<tr><td><code>onBeforeHide</code></td><td>Called before closing, return <code>false</code> to cancel</td><td>—</td></tr>
+									<tr><td><code>onHide</code></td><td>Called when the viewer starts closing (alias <code>onClose</code>)</td><td>—</td></tr>
+									<tr><td><code>onHidden</code></td><td>Called after the close animation</td><td>—</td></tr>
 								</tbody>
 							</table>
 						</div>
+						<p>Lifecycle hooks receive <code>{ index, img }</code>, where <code>img</code> is the original image on the page.</p>
 					</section>
 
 					<section id="methods">

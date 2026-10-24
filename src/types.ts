@@ -26,6 +26,18 @@ export interface Ii18n {
 	ZOOM_OUT?: string
 }
 
+export interface ImgPreviewerHookContext {
+	/** index of the image in the list */
+	index: number
+	/** the original image element on the page */
+	img: HTMLImageElement
+}
+
+export interface ImgPreviewerChangeContext extends ImgPreviewerHookContext {
+	/** index of the previous image */
+	prevIndex: number
+}
+
 export interface ImgPreviewerOptions {
 	/** the proportion of the viewport the image fills */
 	fillRatio?: number
@@ -39,10 +51,22 @@ export interface ImgPreviewerOptions {
 	bubblingLevel?: number
 	/** hide the original image on the page while it is being previewed */
 	hideOriginal?: boolean
-	onShow?: () => void
-	onHide?: () => void
+	/** before the previewer opens, return `false` to cancel */
+	onBeforeShow?: (context: ImgPreviewerHookContext) => boolean | void
+	/** the previewer starts opening */
+	onShow?: (context: ImgPreviewerHookContext) => void
+	/** the open animation finished */
+	onShown?: (context: ImgPreviewerHookContext) => void
+	/** switched to another image while open */
+	onChange?: (context: ImgPreviewerChangeContext) => void
+	/** before the previewer closes, return `false` to cancel */
+	onBeforeHide?: (context: ImgPreviewerHookContext) => boolean | void
+	/** the previewer starts closing */
+	onHide?: (context: ImgPreviewerHookContext) => void
 	/** alias of `onHide` */
-	onClose?: () => void
+	onClose?: (context: ImgPreviewerHookContext) => void
+	/** the close animation finished */
+	onHidden?: (context: ImgPreviewerHookContext) => void
 }
 
 export interface ResolvedOptions extends Omit<ImgPreviewerOptions, 'imageZoom' | 'style'> {

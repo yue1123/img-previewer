@@ -12,9 +12,16 @@ import {
 import { getLocale } from './i18n/index'
 import { renderTemplate } from './template'
 import { resolveOptions } from './defaultOptions'
-import type { ImgPreviewerOptions, ResolvedOptions } from './types'
+import type { ImgPreviewerOptions, ImgPreviewerHookContext, ResolvedOptions } from './types'
 
-export type { ImgPreviewerOptions, ImgPreviewerOptionsZoom, ImgPreviewerOptionsStyle, Ii18n } from './types'
+export type {
+	ImgPreviewerOptions,
+	ImgPreviewerOptionsZoom,
+	ImgPreviewerOptionsStyle,
+	ImgPreviewerHookContext,
+	ImgPreviewerChangeContext,
+	Ii18n
+} from './types'
 
 type Direction = 'next' | 'prev'
 
@@ -50,6 +57,8 @@ class ImgPreviewer {
 	private rotate = 0
 
 	private isOpen = false
+	// increased on every open, so a stale open animation won't fire onShown
+	private openId = 0
 	private isAnimating = false
 	// image can be dragged only after zoomed
 	private movable = false
@@ -118,6 +127,9 @@ class ImgPreviewer {
 	/** close the previewer */
 	hide(): void {
 		if (!this.isOpen) return
+		const { onBeforeHide, onHide, onClose, onHidden } = this.options
+		const context = this.context()
+		if (onBeforeHide && onBeforeHide(context) === false) return
 		this.isOpen = false
 		this.movable = false
 		document.ondragstart = null
@@ -131,6 +143,7 @@ class ImgPreviewer {
 			currentImg.removeAttribute('src')
 			currentImg.style.cssText = ''
 			currentImg.classList.remove('img-pre__animated')
+			onHidden && onHidden(context)
 		}
 		container.classList.remove('show')
 		container.classList.add('hide')
@@ -149,9 +162,8 @@ class ImgPreviewer {
 			currentImg.classList.add('img-pre__animated')
 			onceEnd(currentImg, 'animationend', finish)
 		}
-		const { onHide, onClose } = this.options
-		onHide && onHide()
-		onClose && onClose()
+		onHide && onHide(context)
+		onClose && onClose(context)
 	}
 
 	/** remove all listeners and DOM created by this instance */
@@ -437,6 +449,10 @@ class ImgPreviewer {
 		this.hiddenEl = null
 	}
 
+	private context(): ImgPreviewerHookContext {
+		return { index: this.index, img: this.currentClickEl! }
+	}
+
 	private getImageSrc(el: HTMLImageElement): string {
 		const { dataUrlKey } = this.options
 		return (dataUrlKey && el.getAttribute(dataUrlKey)) || el.src
@@ -454,12 +470,16 @@ class ImgPreviewer {
 	}
 
 	private open(img: HTMLImageElement): void {
-		const { container } = this
+		const { container, options } = this
+		const index = this.imgList.indexOf(img)
+		const context: ImgPreviewerHookContext = { index, img }
+		if (options.onBeforeShow && options.onBeforeShow(context) === false) return
 		const src = this.getImageSrc(img)
+		const openId = ++this.openId
 		this.isOpen = true
 		this.movable = false
 		this.currentClickEl = img
-		this.setIndex(this.imgList.indexOf(img))
+		this.setIndex(index)
 		container.style.display = 'block'
 		document.ondragstart = preventDefault
 		document.ondragend = preventDefault
@@ -491,7 +511,12 @@ class ImgPreviewer {
 			currentImg.classList.remove('moving')
 			this.hideOriginal(img)
 			this.layout(true)
-			this.options.onShow && this.options.onShow()
+			onceEnd(currentImg, 'transitionend', () => {
+				// closed or reopened in the meantime
+				if (!this.isOpen || openId !== this.openId) return
+				options.onShown && options.onShown(context)
+			})
+			options.onShow && options.onShow(context)
 		})
 	}
 
@@ -499,6 +524,7 @@ class ImgPreviewer {
 		if (this.isAnimating) return
 		this.isAnimating = true
 		const clickEl = this.imgList[index]
+		const prevIndex = this.index
 		const src = this.getImageSrc(clickEl)
 		const prevItem = this.currentItem
 		const item = document.createElement('div')
@@ -522,6 +548,8 @@ class ImgPreviewer {
 
 		this.watchLoading(item, src)
 		this.wrapper.appendChild(item)
+		const { onChange } = this.options
+		onChange && onChange({ index, img: clickEl, prevIndex })
 
 		prevItem.classList.add(`slide-${side}-out`)
 		onceEnd(prevItem, 'animationend', () => {

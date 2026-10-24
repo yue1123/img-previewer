@@ -69,10 +69,32 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | i18n          | object | tooltips 国际化配置                         | null                                            |
 | bubblingLevel | number | 冒泡检测图片父元素是否被 css 样式隐藏的层级 | 0                                               |
 | hideOriginal  | boolean | 预览时隐藏页面上原位的图片                | false                                           |
-| onShow        | function | 预览打开后的回调                          | -                                               |
-| onHide        | function | 预览关闭时的回调(`onClose` 为别名)        | -                                               |
+| onBeforeShow  | function | 打开前调用,返回 `false` 取消打开          | -                                               |
+| onShow        | function | 开始打开时调用                            | -                                               |
+| onShown       | function | 打开动画结束后调用                        | -                                               |
+| onChange      | function | 切换图片时调用                            | -                                               |
+| onBeforeHide  | function | 关闭前调用,返回 `false` 取消关闭          | -                                               |
+| onHide        | function | 开始关闭时调用(`onClose` 为别名)          | -                                               |
+| onHidden      | function | 关闭动画结束后调用                        | -                                               |
 
 > triggerEvent 的可选值有: click 和 dblclick
+
+## 生命周期 hooks
+
+调用顺序:`onBeforeShow` → `onShow` → `onShown` →(切换图片时 `onChange`)→ `onBeforeHide` → `onHide` → `onHidden`。
+
+每个 hook 都会收到 `{ index, img }`,`img` 是页面上原来的图片元素;`onChange` 还会多一个 `prevIndex`。
+
+```js
+new ImgPreviewer('#app', {
+	// 带 data-no-preview 的图片不预览
+	onBeforeShow: ({ img }) => !img.hasAttribute('data-no-preview'),
+	onChange: ({ index, prevIndex }) => console.log(prevIndex, '->', index),
+	onHidden: ({ index }) => console.log('关闭时停在', index)
+})
+```
+
+如果打开动画还没结束就关闭了,`onShown` 不会被调用。`destroy()` 不会触发任何 hook。
 ## bubblingLevel 说明
 
 当你察觉到图片隐藏动画异常时,你应该尝试使用该属性。因为图片或图片父元素被某些 css 样式隐藏时,通过 js 的 api 是无法检测到的,所以需要自己根据实际情况,传入正确的向上查找层级来帮助插件完成正确的隐藏动画。如下所示,正确的 bubblingLevel 至少是 3
