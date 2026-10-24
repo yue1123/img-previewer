@@ -59,6 +59,7 @@ declare class ImgPreviewer {
     private hideOriginal;
     private restoreOriginal;
     private context;
+    private timeout;
     private releaseScroll;
     private getImageSrc;
     private watchLoading;

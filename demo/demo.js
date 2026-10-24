@@ -6,6 +6,7 @@
 		imageZoom: { step: 1 },
 		style: { modalOpacity: 0.85 },
 		bubblingLevel: 1,
+		duration: 600,
 		// browsers may restore the checkbox state on reload
 		hideOriginal: hideToggle.checked,
 		onHide: stop

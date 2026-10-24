@@ -15,7 +15,8 @@
 	--img-pre-radius: 999px;
 	// quick start and a long settle, close to iOS Photos
 	--img-pre-ease: cubic-bezier(0.32, 0.72, 0, 1);
-	--img-pre-duration: 0.4s;
+	// set from the `duration` option
+	--img-pre-duration: var(--container-duration, 0.4s);
 	z-index: var(--container-zIndex);
 	pointer-events: none;
 	display: none;
@@ -152,7 +153,7 @@
 			height: 100%;
 			position: absolute;
 			top: 0;
-			animation-duration: 0.3s;
+			animation-duration: calc(var(--img-pre-duration) * 0.75);
 			will-change: transform, opacity;
 			animation-timing-function: var(--img-pre-ease);
 			&.slide-left-out {
@@ -214,7 +215,7 @@
 		right: calc(20px + 100vw - 100%);
 	}
 	.zooming {
-		transition-duration: 0.2s;
+		transition-duration: calc(var(--img-pre-duration) * 0.5);
 	}
 	.moving {
 		transition: none !important;
@@ -342,8 +343,5 @@
 @media (prefers-reduced-motion: reduce) {
 	.img-pre__container {
 		--img-pre-duration: 0.01s;
-		.img-pre__content-wrapper .img-pre__img-item {
-			animation-duration: 0.01s;
-		}
 	}
 }

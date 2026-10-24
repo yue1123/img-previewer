@@ -15,7 +15,8 @@ const defaultOptions: ResolvedOptions = {
 	triggerEvent: 'click',
 	dataUrlKey: 'src',
 	bubblingLevel: 0,
-	hideOriginal: false
+	hideOriginal: false,
+	duration: 400
 }
 
 // merge user options with defaults, never mutates the user's object
@@ -24,6 +25,8 @@ export function resolveOptions(options: ImgPreviewerOptions = {}): ResolvedOptio
 		...defaultOptions,
 		...options,
 		fillRatio: options.fillRatio || defaultOptions.fillRatio,
+		// negative or not a number falls back to the default
+		duration: (options.duration as number) >= 0 ? (options.duration as number) : defaultOptions.duration,
 		imageZoom: { ...defaultOptions.imageZoom, ...options.imageZoom },
 		style: { ...defaultOptions.style, ...options.style }
 	}

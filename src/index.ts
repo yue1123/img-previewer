@@ -161,11 +161,11 @@ class ImgPreviewer {
 			currentImg.classList.remove('zooming')
 			this.setRotate(0)
 			this.transformToRect(this.currentClickEl!.getBoundingClientRect())
-			onceEnd(currentImg, 'transitionend', finish)
+			onceEnd(currentImg, 'transitionend', finish, this.timeout())
 		} else {
 			// fade out
 			currentImg.classList.add('img-pre__animated')
-			onceEnd(currentImg, 'animationend', finish)
+			onceEnd(currentImg, 'animationend', finish, this.timeout())
 		}
 		onHide?.(context)
 		onClose?.(context)
@@ -184,13 +184,15 @@ class ImgPreviewer {
 	}
 
 	private render(): void {
-		const { modalOpacity, headerOpacity, zIndex } = this.options.style
+		const { style, duration } = this.options
+		const { modalOpacity, headerOpacity, zIndex } = style
 		const container = document.createElement('div')
 		container.classList.add('img-pre__container')
 		setProperties(container, {
 			'--container-opacity': String(modalOpacity),
 			'--header-bg-opacity': String(headerOpacity),
-			'--container-zIndex': String(zIndex)
+			'--container-zIndex': String(zIndex),
+			'--container-duration': `${duration}ms`
 		})
 		container.innerHTML = renderTemplate(getLocale(this.options.i18n))
 		document.body.appendChild(container)
@@ -489,6 +491,11 @@ class ImgPreviewer {
 		return { index: this.index, img: this.currentClickEl! }
 	}
 
+	// fallback in case the end event never fires, a bit longer than the animation
+	private timeout(): number {
+		return this.options.duration + 200
+	}
+
 	private releaseScroll(): void {
 		this.unlockScroll?.()
 		this.unlockScroll = null
@@ -543,11 +550,16 @@ class ImgPreviewer {
 			currentImg.classList.remove('moving')
 			this.hideOriginal(img)
 			this.transform(0, 0, this.baseScale)
-			onceEnd(currentImg, 'transitionend', () => {
-				// closed or reopened in the meantime
-				if (!this.isOpen || openId !== this.openId) return
-				options.onShown?.(context)
-			})
+			onceEnd(
+				currentImg,
+				'transitionend',
+				() => {
+					// closed or reopened in the meantime
+					if (!this.isOpen || openId !== this.openId) return
+					options.onShown?.(context)
+				},
+				this.timeout()
+			)
 			options.onShow?.(context)
 		})
 	}
@@ -583,14 +595,24 @@ class ImgPreviewer {
 		this.options.onChange?.({ index, img: clickEl, prevIndex })
 
 		prevItem.classList.add(`slide-${side}-out`)
-		onceEnd(prevItem, 'animationend', () => {
-			prevItem.remove()
-			this.isAnimating = false
-		})
-		onceEnd(item, 'animationend', () => {
-			item.classList.remove(`slide-${side}-in`)
-			item.classList.add('current-index')
-		})
+		onceEnd(
+			prevItem,
+			'animationend',
+			() => {
+				prevItem.remove()
+				this.isAnimating = false
+			},
+			this.timeout()
+		)
+		onceEnd(
+			item,
+			'animationend',
+			() => {
+				item.classList.remove(`slide-${side}-in`)
+				item.classList.add('current-index')
+			},
+			this.timeout()
+		)
 	}
 }
 

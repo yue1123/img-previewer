@@ -218,12 +218,15 @@ var defaultOptions = {
     triggerEvent: 'click',
     dataUrlKey: 'src',
     bubblingLevel: 0,
-    hideOriginal: false
+    hideOriginal: false,
+    duration: 400
 };
 // merge user options with defaults, never mutates the user's object
 function resolveOptions(options) {
     if (options === void 0) { options = {}; }
-    return __assign(__assign(__assign({}, defaultOptions), options), { fillRatio: options.fillRatio || defaultOptions.fillRatio, imageZoom: __assign(__assign({}, defaultOptions.imageZoom), options.imageZoom), style: __assign(__assign({}, defaultOptions.style), options.style) });
+    return __assign(__assign(__assign({}, defaultOptions), options), { fillRatio: options.fillRatio || defaultOptions.fillRatio, 
+        // negative or not a number falls back to the default
+        duration: options.duration >= 0 ? options.duration : defaultOptions.duration, imageZoom: __assign(__assign({}, defaultOptions.imageZoom), options.imageZoom), style: __assign(__assign({}, defaultOptions.style), options.style) });
 }
 
 var ImgPreviewer = /** @class */ (function () {
@@ -353,12 +356,12 @@ var ImgPreviewer = /** @class */ (function () {
             currentImg.classList.remove('zooming');
             this.setRotate(0);
             this.transformToRect(this.currentClickEl.getBoundingClientRect());
-            onceEnd(currentImg, 'transitionend', finish);
+            onceEnd(currentImg, 'transitionend', finish, this.timeout());
         }
         else {
             // fade out
             currentImg.classList.add('img-pre__animated');
-            onceEnd(currentImg, 'animationend', finish);
+            onceEnd(currentImg, 'animationend', finish, this.timeout());
         }
         onHide === null || onHide === void 0 ? void 0 : onHide(context);
         onClose === null || onClose === void 0 ? void 0 : onClose(context);
@@ -376,13 +379,15 @@ var ImgPreviewer = /** @class */ (function () {
         this.imgList = [];
     };
     ImgPreviewer.prototype.render = function () {
-        var _a = this.options.style, modalOpacity = _a.modalOpacity, headerOpacity = _a.headerOpacity, zIndex = _a.zIndex;
+        var _a = this.options, style = _a.style, duration = _a.duration;
+        var modalOpacity = style.modalOpacity, headerOpacity = style.headerOpacity, zIndex = style.zIndex;
         var container = document.createElement('div');
         container.classList.add('img-pre__container');
         setProperties(container, {
             '--container-opacity': String(modalOpacity),
             '--header-bg-opacity': String(headerOpacity),
-            '--container-zIndex': String(zIndex)
+            '--container-zIndex': String(zIndex),
+            '--container-duration': "".concat(duration, "ms")
         });
         container.innerHTML = renderTemplate(getLocale(this.options.i18n));
         document.body.appendChild(container);
@@ -647,6 +652,10 @@ var ImgPreviewer = /** @class */ (function () {
     ImgPreviewer.prototype.context = function () {
         return { index: this.index, img: this.currentClickEl };
     };
+    // fallback in case the end event never fires, a bit longer than the animation
+    ImgPreviewer.prototype.timeout = function () {
+        return this.options.duration + 200;
+    };
     ImgPreviewer.prototype.releaseScroll = function () {
         var _a;
         (_a = this.unlockScroll) === null || _a === void 0 ? void 0 : _a.call(this);
@@ -709,7 +718,7 @@ var ImgPreviewer = /** @class */ (function () {
                 if (!_this.isOpen || openId !== _this.openId)
                     return;
                 (_a = options.onShown) === null || _a === void 0 ? void 0 : _a.call(options, context);
-            });
+            }, _this.timeout());
             (_a = options.onShow) === null || _a === void 0 ? void 0 : _a.call(options, context);
         });
     };
@@ -746,11 +755,11 @@ var ImgPreviewer = /** @class */ (function () {
         onceEnd(prevItem, 'animationend', function () {
             prevItem.remove();
             _this.isAnimating = false;
-        });
+        }, this.timeout());
         onceEnd(item, 'animationend', function () {
             item.classList.remove("slide-".concat(side, "-in"));
             item.classList.add('current-index');
-        });
+        }, this.timeout());
     };
     ImgPreviewer.version = "2.1.7" ;
     return ImgPreviewer;

@@ -69,6 +69,7 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | i18n          | object | tooltips 国际化配置                         | null                                            |
 | bubblingLevel | number | 冒泡检测图片父元素是否被 css 样式隐藏的层级 | 0                                               |
 | hideOriginal  | boolean | 预览时隐藏页面上原位的图片                | false                                           |
+| duration      | number | 打开和关闭动画的时长(毫秒),切换和缩放动画按比例跟随 | 400                                             |
 | onBeforeShow  | function | 打开前调用,返回 `false` 取消打开          | -                                               |
 | onShow        | function | 开始打开时调用                            | -                                               |
 | onShown       | function | 打开动画结束后调用                        | -                                               |

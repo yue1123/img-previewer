@@ -256,6 +256,28 @@ describe('ImgPreviewer', () => {
 		expect($<HTMLImageElement>('.img-pre__img-item img').src).toBe('http://localhost/large.jpg')
 	})
 
+	it('uses the duration option for animations and their fallback', () => {
+		setup(1)
+		const p = new ImgPreviewer('#app', { duration: 1000 })
+		const container = containers()[0]
+		expect(container.style.getPropertyValue('--container-duration')).toBe('1000ms')
+		p.show(0)
+		p.hide()
+		// no transitionend in jsdom, the fallback must wait for the whole animation
+		vi.advanceTimersByTime(900)
+		expect(container.style.display).toBe('block')
+		vi.advanceTimersByTime(400)
+		expect(container.style.display).toBe('none')
+	})
+
+	it('falls back to the default duration for invalid values', () => {
+		setup(1)
+		new ImgPreviewer('#app', { duration: -1 })
+		new ImgPreviewer('#app', { duration: 0 })
+		expect(containers()[0].style.getPropertyValue('--container-duration')).toBe('400ms')
+		expect(containers()[1].style.getPropertyValue('--container-duration')).toBe('0ms')
+	})
+
 	it('does not mutate user options', () => {
 		setup(1)
 		const options = { imageZoom: { step: 1 } }
