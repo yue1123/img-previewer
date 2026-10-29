@@ -46,7 +46,7 @@ export interface ImgPreviewerOptions {
     bubblingLevel?: number;
     /** hide the original image on the page while it is being previewed */
     hideOriginal?: boolean;
-    /** show the toolbar, when `false` only the close and prev/next buttons are shown */
+    /** show the toolbar, when `false` only the image counter, close and prev/next buttons are shown */
     toolbar?: boolean;
     /** allow zooming the image by buttons, wheel, pinch and hot keys */
     zoomable?: boolean;

@@ -78,7 +78,7 @@ const imgPreviewer = new ImgPreviewer(css selector,{options...})
 | i18n          | object | tooltips International configuration                                                | null                                            |
 | bubblingLevel | number | Bubble to detect whether the parent element of the image is hidden by the css style | 0                                               |
 | hideOriginal  | boolean | Hide the original image on the page while it is being previewed                    | true                                            |
-| toolbar       | boolean | Show the toolbar, when `false` only the close and prev/next buttons are shown      | true                                            |
+| toolbar       | boolean | Show the toolbar, when `false` only the image counter, close and prev/next buttons are shown      | true                                            |
 | zoomable      | boolean | Allow zooming the image by buttons, wheel, pinch and hot keys                      | true                                            |
 | duration      | number | Open and close animation duration in ms, switching and zooming scale with it       | 400                                             |
 | onBeforeShow  | function | Called before opening, return `false` to cancel                                   | -                                               |
