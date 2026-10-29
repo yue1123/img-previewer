@@ -184,11 +184,12 @@ class ImgPreviewer {
 	}
 
 	private render(): void {
-		const { style, duration, toolbar } = this.options
+		const { style, duration, toolbar, zoomable } = this.options
 		const { modalOpacity, headerOpacity, zIndex } = style
 		const container = document.createElement('div')
 		container.classList.add('img-pre__container')
 		toolbar || container.classList.add('img-pre__container--no-toolbar')
+		zoomable || container.classList.add('img-pre__container--no-zoom')
 		setProperties(container, {
 			'--container-opacity': String(modalOpacity),
 			'--header-bg-opacity': String(headerOpacity),
@@ -332,6 +333,7 @@ class ImgPreviewer {
 			(event) => {
 				if (event.target !== this.currentImg) return
 				event.preventDefault()
+				if (!this.options.zoomable) return
 				pinching = true
 				startDistance = event.touches.length > 1 ? distance(event.touches) : 0
 				startScale = this.scale
@@ -419,6 +421,7 @@ class ImgPreviewer {
 	}
 
 	private zoomTo(scale: number): void {
+		if (!this.options.zoomable) return
 		this.movable = true
 		// shorter transition, so wheel and button zoom follow the input
 		this.currentImg.classList.add('zooming')

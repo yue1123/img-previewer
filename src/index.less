@@ -136,6 +136,14 @@
 		margin: 0 4px;
 		background: rgba(255, 255, 255, 0.16);
 	}
+	// `zoomable: false` drops the zoom buttons and the divider after them
+	&.img-pre__container--no-zoom {
+		[data-action='zoomIn'],
+		[data-action='zoomOut'],
+		.img-pre__divider:first-of-type {
+			display: none;
+		}
+	}
 	// `toolbar: false` keeps only the close button
 	&.img-pre__container--no-toolbar {
 		.img-pre__header {

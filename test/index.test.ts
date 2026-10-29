@@ -371,6 +371,20 @@ describe('ImgPreviewer', () => {
 		expect(scale()).toBeCloseTo(base * 1.25, 1)
 	})
 
+	it('does not zoom when zoomable is off', () => {
+		setup(1)
+		const p = new ImgPreviewer('#app', { zoomable: false })
+		expect(containers()[0].classList.contains('img-pre__container--no-zoom')).toBe(true)
+		p.show(0)
+		const img = $<HTMLImageElement>('.img-pre__img-item img')
+		const base = img.style.getPropertyValue('--scale')
+		$<HTMLButtonElement>('[data-action="zoomIn"]').click()
+		document.dispatchEvent(new KeyboardEvent('keyup', { key: '+' }))
+		img.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+		expect(img.style.getPropertyValue('--scale')).toBe(base)
+		expect(img.classList.contains('zooming')).toBe(false)
+	})
+
 	it('navigates with the side buttons', () => {
 		setup(2)
 		const p = new ImgPreviewer('#app')

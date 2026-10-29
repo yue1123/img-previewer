@@ -17,6 +17,7 @@ const defaultOptions: ResolvedOptions = {
 	bubblingLevel: 0,
 	hideOriginal: true,
 	toolbar: true,
+	zoomable: true,
 	duration: 400
 }
 

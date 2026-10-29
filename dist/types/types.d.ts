@@ -48,6 +48,8 @@ export interface ImgPreviewerOptions {
     hideOriginal?: boolean;
     /** show the toolbar, when `false` only the close and prev/next buttons are shown */
     toolbar?: boolean;
+    /** allow zooming the image by buttons, wheel, pinch and hot keys */
+    zoomable?: boolean;
     /** duration of the open and close animations in ms, image switching and zooming are scaled by it */
     duration?: number;
     /** before the previewer opens, return `false` to cancel */
@@ -74,6 +76,7 @@ export interface ResolvedOptions extends Omit<ImgPreviewerOptions, 'imageZoom' |
     bubblingLevel: number;
     hideOriginal: boolean;
     toolbar: boolean;
+    zoomable: boolean;
     duration: number;
     imageZoom: Required<ImgPreviewerOptionsZoom>;
     style: Required<ImgPreviewerOptionsStyle>;

@@ -220,6 +220,7 @@ var defaultOptions = {
     bubblingLevel: 0,
     hideOriginal: true,
     toolbar: true,
+    zoomable: true,
     duration: 400
 };
 // merge user options with defaults, never mutates the user's object
@@ -380,11 +381,12 @@ var ImgPreviewer = /** @class */ (function () {
         this.imgList = [];
     };
     ImgPreviewer.prototype.render = function () {
-        var _a = this.options, style = _a.style, duration = _a.duration, toolbar = _a.toolbar;
+        var _a = this.options, style = _a.style, duration = _a.duration, toolbar = _a.toolbar, zoomable = _a.zoomable;
         var modalOpacity = style.modalOpacity, headerOpacity = style.headerOpacity, zIndex = style.zIndex;
         var container = document.createElement('div');
         container.classList.add('img-pre__container');
         toolbar || container.classList.add('img-pre__container--no-toolbar');
+        zoomable || container.classList.add('img-pre__container--no-zoom');
         setProperties(container, {
             '--container-opacity': String(modalOpacity),
             '--header-bg-opacity': String(headerOpacity),
@@ -509,6 +511,8 @@ var ImgPreviewer = /** @class */ (function () {
             if (event.target !== _this.currentImg)
                 return;
             event.preventDefault();
+            if (!_this.options.zoomable)
+                return;
             pinching = true;
             startDistance = event.touches.length > 1 ? distance(event.touches) : 0;
             startScale = _this.scale;
@@ -589,6 +593,8 @@ var ImgPreviewer = /** @class */ (function () {
         setProperties(this.currentImg, { '--scale': (this.scale / this.baseScale).toFixed(3) });
     };
     ImgPreviewer.prototype.zoomTo = function (scale) {
+        if (!this.options.zoomable)
+            return;
         this.movable = true;
         // shorter transition, so wheel and button zoom follow the input
         this.currentImg.classList.add('zooming');
