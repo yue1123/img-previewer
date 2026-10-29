@@ -46,6 +46,8 @@ export interface ImgPreviewerOptions {
     bubblingLevel?: number;
     /** hide the original image on the page while it is being previewed */
     hideOriginal?: boolean;
+    /** show the toolbar, when `false` only the close and prev/next buttons are shown */
+    toolbar?: boolean;
     /** duration of the open and close animations in ms, image switching and zooming are scaled by it */
     duration?: number;
     /** before the previewer opens, return `false` to cancel */
@@ -71,6 +73,7 @@ export interface ResolvedOptions extends Omit<ImgPreviewerOptions, 'imageZoom' |
     triggerEvent: 'click' | 'dblclick';
     bubblingLevel: number;
     hideOriginal: boolean;
+    toolbar: boolean;
     duration: number;
     imageZoom: Required<ImgPreviewerOptionsZoom>;
     style: Required<ImgPreviewerOptionsStyle>;

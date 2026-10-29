@@ -16,6 +16,7 @@ const defaultOptions: ResolvedOptions = {
 	dataUrlKey: 'src',
 	bubblingLevel: 0,
 	hideOriginal: true,
+	toolbar: true,
 	duration: 400
 }
 

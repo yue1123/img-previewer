@@ -225,6 +225,7 @@
         dataUrlKey: 'src',
         bubblingLevel: 0,
         hideOriginal: true,
+        toolbar: true,
         duration: 400
     };
     // merge user options with defaults, never mutates the user's object
@@ -385,10 +386,11 @@
             this.imgList = [];
         };
         ImgPreviewer.prototype.render = function () {
-            var _a = this.options, style = _a.style, duration = _a.duration;
+            var _a = this.options, style = _a.style, duration = _a.duration, toolbar = _a.toolbar;
             var modalOpacity = style.modalOpacity, headerOpacity = style.headerOpacity, zIndex = style.zIndex;
             var container = document.createElement('div');
             container.classList.add('img-pre__container');
+            toolbar || container.classList.add('img-pre__container--no-toolbar');
             setProperties(container, {
                 '--container-opacity': String(modalOpacity),
                 '--header-bg-opacity': String(headerOpacity),

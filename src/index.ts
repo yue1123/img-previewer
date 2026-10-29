@@ -184,10 +184,11 @@ class ImgPreviewer {
 	}
 
 	private render(): void {
-		const { style, duration } = this.options
+		const { style, duration, toolbar } = this.options
 		const { modalOpacity, headerOpacity, zIndex } = style
 		const container = document.createElement('div')
 		container.classList.add('img-pre__container')
+		toolbar || container.classList.add('img-pre__container--no-toolbar')
 		setProperties(container, {
 			'--container-opacity': String(modalOpacity),
 			'--header-bg-opacity': String(headerOpacity),

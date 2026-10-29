@@ -136,6 +136,17 @@
 		margin: 0 4px;
 		background: rgba(255, 255, 255, 0.16);
 	}
+	// `toolbar: false` keeps only the close button
+	&.img-pre__container--no-toolbar {
+		.img-pre__header {
+			justify-content: flex-end;
+		}
+		.img-pre__nums,
+		.img-pre__divider,
+		.img-pre__button-item:not([data-action='close']) {
+			display: none;
+		}
+	}
 	// a layer of its own, fading its opacity is cheaper than animating the container background
 	.img-pre__backdrop {
 		position: absolute;

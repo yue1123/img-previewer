@@ -282,6 +282,14 @@ describe('ImgPreviewer', () => {
 		expect(containers()[1].style.getPropertyValue('--container-duration')).toBe('0ms')
 	})
 
+	it('marks the container when the toolbar is turned off', () => {
+		setup(1)
+		new ImgPreviewer('#app')
+		new ImgPreviewer('#app', { toolbar: false })
+		expect(containers()[0].classList.contains('img-pre__container--no-toolbar')).toBe(false)
+		expect(containers()[1].classList.contains('img-pre__container--no-toolbar')).toBe(true)
+	})
+
 	it('does not mutate user options', () => {
 		setup(1)
 		const options = { imageZoom: { step: 1 } }
