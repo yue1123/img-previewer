@@ -1,6 +1,6 @@
 {
 	"name": "img-previewer",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"description": "Lightweight, dependency-free JavaScript image viewer and lightbox with smooth iOS Photos style zoom animation, wheel and pinch zoom, drag, keyboard shortcuts and i18n",
 	"main": "dist/img-previewer.js",
 	"module": "dist/img-previewer.esm.js",
